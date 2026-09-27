@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #f2f2f2;
+  --paper: #000000;
+  --accent: #3dd6db;
+  --muted: #9a9a9a;
+  --panel: #111111;
+  --panel-soft: #1a1a1a;
+  --line: #2a2a2a;
+  --danger-bg: #2a1515;
+  --danger-text: #f0a0a0;
+  --preview-bg: #0a0a0a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background-color: #000000;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 70% 45% at 15% 0%, rgba(61, 214, 219, 0.08), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 5%, rgba(255, 255, 255, 0.03), transparent 50%),
+    #000000;
+  color: var(--ink);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
