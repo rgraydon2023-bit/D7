@@ -1,0 +1,34 @@
+VUL LETTER GRID — START HERE
+
+REQUIREMENTS
+- Windows, macOS, or Linux
+- Node.js 20 or newer: https://nodejs.org/
+
+RUN THE APP
+1. Extract this ZIP to a normal folder.
+2. Open PowerShell, Terminal, or Command Prompt in that folder.
+3. Run:
+
+   npm install
+   npm run dev
+
+4. Open http://localhost:3000 in a web browser.
+5. Keep the terminal window open while using the app.
+
+WINDOWS POWERSHELL NOTE
+If PowerShell blocks npm.ps1, use:
+
+   npm.cmd install
+   npm.cmd run dev
+
+SHARING ON A LOCAL NETWORK
+Other devices on the same network can use the Network address shown in the terminal. Windows Firewall may ask permission for Node.js.
+
+PUBLIC INTERNET ACCESS
+Running this source locally does not publish it online. To give anyone a permanent public link, deploy the project through a Node.js hosting provider.
+npm install
+
+
+
+
+
