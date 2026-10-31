@@ -6,7 +6,7 @@ import { BoardCanvas as Canvas } from "@/components/BoardCanvas";
 import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 import { getLetterVolumeGeometry } from "./letterGeometry3d";
-import { letterVolumeLayout, type VolumeOptions } from "./letterVolumeLayout";
+import { letterDepthSpan, letterVolumeLayout, zLayerPitch, type VolumeOptions } from "./letterVolumeLayout";
 import type { CompositionPlacement } from "./compositionEngine";
 import type { VolumeBounds } from "./exportLetterVolume";
 
@@ -235,8 +235,8 @@ function PlaneSlider({ label, value, min, max, step, onChange, suffix = "" }: {
 export default function SectionPlaneStudio(options: Props) {
   const defaultPlane = useMemo(() => ({
     ...INITIAL_PLANE,
-    z: -(options.layerCells.length / 2) * (options.zSpacing / 50),
-  }), [options.layerCells.length, options.zSpacing]);
+    z: -(options.layerCells.length / 2) * zLayerPitch(options.zSpacing, letterDepthSpan(Math.max(options.letterSize / 50, 0.1), options.thickness, false)),
+  }), [options.layerCells.length, options.letterSize, options.thickness, options.zSpacing]);
   const [planeState, setPlaneState] = useState<PlaneState>(() => defaultPlane);
   const [sourceReset, setSourceReset] = useState(0);
   const [sectionReset, setSectionReset] = useState(0);
@@ -263,9 +263,9 @@ export default function SectionPlaneStudio(options: Props) {
     </div>
     <div className="mb-3 grid gap-2 border-y py-2 md:grid-cols-3" style={{ borderColor: "var(--line)" }}>
       <div className="space-y-1">
-        <PlaneSlider label="X" value={planeState.x} min={-limits.x} max={limits.x} step={0.02} onChange={(v) => set("x", v)} />
-        <PlaneSlider label="Y" value={planeState.y} min={-limits.y} max={limits.y} step={0.02} onChange={(v) => set("y", v)} />
-        <PlaneSlider label="Z" value={planeState.z} min={-limits.z} max={limits.z} step={0.02} onChange={(v) => set("z", v)} />
+        <PlaneSlider label="X" suffix=" ft" value={planeState.x} min={-limits.x} max={limits.x} step={0.02} onChange={(v) => set("x", v)} />
+        <PlaneSlider label="Y" suffix=" ft" value={planeState.y} min={-limits.y} max={limits.y} step={0.02} onChange={(v) => set("y", v)} />
+        <PlaneSlider label="Z" suffix=" ft" value={planeState.z} min={-limits.z} max={limits.z} step={0.02} onChange={(v) => set("z", v)} />
       </div>
       <div className="space-y-1 md:col-span-2 md:grid md:grid-cols-3 md:gap-2 md:space-y-0">
         <PlaneSlider label="Rot X" value={planeState.rx} min={-180} max={180} step={1} suffix="°" onChange={(v) => set("rx", v)} />

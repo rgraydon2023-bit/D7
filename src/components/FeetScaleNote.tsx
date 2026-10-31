@@ -1,0 +1,1 @@
+export function FeetScaleNote() { return <p className="text-xs" style={{color:'var(--muted)'}}>Dimensions: feet (ft). 1 model unit = 1 ft. Areas: ft². Volumes: ft³. Angles, counts and percentages keep their own units.</p>; }

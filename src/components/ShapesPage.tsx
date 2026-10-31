@@ -1,4 +1,5 @@
 "use client";
+import { FeetScaleNote } from "./FeetScaleNote";
 
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
@@ -98,7 +99,7 @@ export default function ShapesPage() {
             Regenerate source
           </button>
         </div>
-      </header>
+      </header><FeetScaleNote/>
 
       <p className="text-[11px]" style={{ color: "var(--muted)" }}>
         Top crops extruded to 3D letter solids. Press{" "}

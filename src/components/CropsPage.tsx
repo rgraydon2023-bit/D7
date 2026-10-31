@@ -1,4 +1,5 @@
 "use client";
+import { FeetScaleNote } from "./FeetScaleNote";
 
 import AppNav from "./AppNav";
 import CropEvalGrid from "./CropEvalGrid";
@@ -49,7 +50,7 @@ export default function CropsPage({ evaluationsOnly = false }: { evaluationsOnly
         >
           Regenerate source
         </button>
-      </header>
+      </header><FeetScaleNote/>
 
       <section
         className="flex flex-wrap items-center gap-1.5 rounded-lg border px-2.5 py-2"

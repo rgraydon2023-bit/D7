@@ -1,0 +1,4 @@
+const fs=require('fs'),ts=require('typescript'),assert=require('node:assert/strict');
+require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,f);
+const {letterOverlapFractions}=require('../src/components/letterOverlapRule.ts');
+(async()=>{const {default:Module}=await import('manifold-3d/manifold');const w=await Module();w.setup();const a=w.Manifold.cube([1,1,1]),base=w.Manifold.cube([1,1,1]),b=base.translate([.8,0,0]),c=base.translate([.8,0,0]);try{const f=letterOverlapFractions([a,b,c]);assert(Math.abs(f[0]-.2)<1e-6,'Overlapping neighbors must not double-count the shared 20%');assert(Math.abs(f[1]-1)<1e-6);assert(Math.abs(f[2]-1)<1e-6);console.log('PASS: overlap uses each own volume and counts shared regions only once.');}finally{for(const s of [a,base,b,c])s.delete();}})().catch(e=>{console.error(e);process.exitCode=1});

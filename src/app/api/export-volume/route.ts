@@ -29,6 +29,7 @@ function validOptions(value: unknown): value is VolumeOptions {
     && intWithin(v.rows, 2, 12)
     && within(v.spacing, 8, 120)
     && within(v.zSpacing, 20, 120)
+    && (v.attractorGap === undefined || within(v.attractorGap, 0, 120))
     && within(v.letterSize, 16, 96)
     && within(v.thickness, 4, 50)
     && typeof v.yRotationEnabled === "boolean"
@@ -59,7 +60,8 @@ function validCompositionPlacements(value: unknown): value is CompositionPlaceme
       && Number.isFinite(placement.scale)
       && placement.scale > 0
       && placement.scale <= 10
-      && [placement.scaleX, placement.scaleY, placement.scaleZ].every((scale) => scale === undefined || (typeof scale === "number" && Number.isFinite(scale) && scale > 0 && scale <= 5)));
+      && [placement.scaleX, placement.scaleY].every((scale) => scale === undefined || (typeof scale === "number" && Number.isFinite(scale) && scale > 0 && scale <= 5))
+      && (placement.scaleZ === undefined || (typeof placement.scaleZ === "number" && Number.isFinite(placement.scaleZ) && placement.scaleZ > 0)));
 }
 
 function validBounds(value: unknown): value is VolumeBounds {

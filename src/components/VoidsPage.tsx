@@ -1,4 +1,5 @@
 "use client";
+import { FeetScaleNote } from "./FeetScaleNote";
 
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
@@ -98,7 +99,7 @@ export default function VoidsPage() {
             Regenerate source
           </button>
         </div>
-      </header>
+      </header><FeetScaleNote/>
 
       <p className="text-[11px]" style={{ color: "var(--muted)" }}>
         Plate with V / U / L footprints cut out (void), axonometric 8×2 grid.

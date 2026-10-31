@@ -1,5 +1,5 @@
 import { DESCRIPTORS, type CompositionPlacement, type DescriptorSettings } from "./compositionEngine";
-import { countIntersections, gridDimensions, validateConstraints } from "./constraintValidation";
+import { allowsAttractorOverlap, countIntersections, gridDimensions, validateConstraints } from "./constraintValidation";
 import type {
   CandidateFocus,
   DescriptorFit,
@@ -140,7 +140,11 @@ export function measureSpatialMetrics(placements: CompositionPlacement[], grid: 
     circulationContinuity: voxel.circulationContinuity,
     verticalConnectivity: voxel.verticalConnectivity,
     adjacencyRatio: adjacency / Math.max(placements.length * 2, 1),
-    intersectionCount: countIntersections(placements),
+    intersectionCount: countIntersections(placements, allowsAttractorOverlap(rules), {
+      cols: grid.xCells,
+      rows: grid.yCells,
+      layers: grid.zCells,
+    }),
     boundsUtilization,
     centerDistance,
     orientationConvergence: convergence,
@@ -241,11 +245,12 @@ export function evaluateSpatialDesign(args: {
   controls: OptimizerControls;
   focus: CandidateFocus;
   sourceCount?: number;
+  bounds?: "body" | "center";
 }): SpatialEvaluation {
   const raw = measureSpatialMetrics(args.placements, args.grid, args.rules);
   const measurements = descriptorMeasurements(raw, args.controls);
   const scored = scoreMeasurements(measurements, args.descriptors, args.focus, args.controls.combinedBalance);
-  const constraints = validateConstraints(args.placements, args.grid, args.rules, args.sourceCount);
+  const constraints = validateConstraints(args.placements, args.grid, args.rules, args.sourceCount, args.bounds ?? "body");
   const tradeoffs: string[] = [];
   if (raw.voidRatio > 0.8 && raw.adjacencyRatio < 0.25) tradeoffs.push("Greater open volume reduces letter adjacency.");
   if (raw.scaleVariance > 0.25 && raw.skyExposureRatio < 0.6) tradeoffs.push("Stronger hierarchy reduces the daylight proxy.");

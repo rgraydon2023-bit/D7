@@ -1,13 +1,13 @@
-import type { ObjFace, TileModel, TileVariant, UpAxis } from "../lattice/types";
-import { fileToSpec, unpackCell } from "../lattice/types";
+import type { ObjFace, TileModel, TileVariant, UpAxis } from "../lattice/types.ts";
+import { fileToSpec, unpackCell } from "../lattice/types.ts";
 import {
   DESCRIPTOR_ALGORITHM_VERSION,
   measureSpatialDescriptors,
   type MeshTri,
   type SpatialDescriptors,
-} from "./descriptorV2";
-import { assignComparativeRanks, DESCRIPTOR_RANK_STORAGE_KEY, type DescriptorRankSnapshot } from "./descriptorRank";
-import { measureOpenVolume, type OpenVolumeMeasurement, type Voxel } from "./openVolume";
+} from "./descriptorV2.ts";
+import { assignComparativeRanks, DESCRIPTOR_RANK_STORAGE_KEY, type DescriptorRankSnapshot } from "./descriptorRank.ts";
+import { measureOpenVolume, type OpenVolumeMeasurement, type Voxel } from "./openVolume.ts";
 
 /** The 12 architectural descriptors required for Part 2 OBJ evaluation. */
 export const ARCH_DESCRIPTORS = [
@@ -430,7 +430,7 @@ export function evaluateTileModel(model: TileModel, source?: DescriptorSource): 
   return cloneEvaluation(evaluation);
 }
 
-export { DESCRIPTOR_RANK_STORAGE_KEY, type DescriptorRankSnapshot } from "./descriptorRank";
+export { DESCRIPTOR_RANK_STORAGE_KEY, type DescriptorRankSnapshot } from "./descriptorRank.ts";
 
 /** Publish ranks for Lattice without feeding them into the solver. */
 export function publishDescriptorRanks(forms: Array<Pick<FormDescriptorEvaluation, "slotId" | "meshId" | "filename" | "descriptors">>) {

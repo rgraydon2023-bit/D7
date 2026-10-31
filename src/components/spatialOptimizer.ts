@@ -77,6 +77,7 @@ export async function optimizeSpatial(
   input: OptimizationInput,
   onProgress?: (progress: number, strongest: SpatialAlternative[]) => void,
 ) {
+  input = { ...input, controls: { ...input.controls, alternatives: Math.min(4, input.controls.alternatives) }, selection: { ...input.selection, enabled: true } };
   const activeWeights = Object.values(input.descriptors).reduce((sum, descriptor) => sum + descriptor.importance, 0);
   const pool: SpatialAlternative[] = [];
   let strongest: SpatialAlternative[] = [];
@@ -105,6 +106,7 @@ export async function optimizeSpatial(
         controls: input.controls,
         focus: "combined",
         sourceCount: alternative.selection ? undefined : input.sourceCells.length,
+        bounds: alternative.selection ? "center" : "body",
       }),
     }));
     const ranked = topAlternatives(common, common.length);

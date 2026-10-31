@@ -1,4 +1,6 @@
 "use client";
+import { feet } from "./feetUnits";
+import { FeetScaleNote } from "./FeetScaleNote";
 
 import dynamic from "next/dynamic";
 import { useState } from "react";
@@ -7,6 +9,7 @@ import { GRADIENT_OPTIONS, useGridStore } from "./GridStore";
 import { LETTERS } from "./letterTypes";
 import { ROTATION_STEP, type GradientDirection, type GradientMode } from "./rotationGradient";
 import ScaledGridPreview from "./ScaledGridPreview";
+import { diagonalCenterGap, DIAGONAL_GAP_MAXIMUM, DIAGONAL_GAP_MINIMUM, UNIT_LETTER_SPAN, xyContactGap, zContactGap, Z_GAP_MINIMUM } from "./letterVolumeLayout";
 import type { VolumeExportFormat, VolumeExportTarget } from "./exportLetterVolume";
 
 const LetterGrid3D = dynamic(() => import("./LetterGrid3D"), {
@@ -61,6 +64,8 @@ export default function LetterGrid() {
     setZLayers,
     zSpacing,
     setZSpacing,
+    attractorGap,
+    setAttractorGap,
     letterThickness,
     setLetterThickness,
     yRotationEnabled,
@@ -105,6 +110,7 @@ export default function LetterGrid() {
           rows,
           spacing,
           zSpacing,
+          attractorGap: attractorGap ?? undefined,
           letterSize: fontSize,
           thickness: letterThickness,
           yRotationEnabled,
@@ -172,7 +178,7 @@ export default function LetterGrid() {
             {showGuides ? "Circles" : "No circles"}
           </button>
         </div>
-      </header>
+      </header><FeetScaleNote/>
 
       {layerMode && useAssets && hasAnyAsset && (
         <p className="text-[11px]" style={{ color: "var(--muted)" }}>
@@ -303,7 +309,7 @@ export default function LetterGrid() {
             <span className="w-4 tabular-nums">{rows}</span>
           </label>
           <label className="flex min-w-[100px] flex-1 items-center gap-1.5 text-[11px]">
-            <span style={{ color: "var(--muted)" }}>Gap</span>
+            <span style={{ color: "var(--muted)" }} title={`Neighbors overlap at ${feet(xyContactGap(fontSize)/50)} and below`}>Gap</span>
             <input
               type="range"
               min={8}
@@ -312,7 +318,7 @@ export default function LetterGrid() {
               onChange={(e) => setSpacing(Number(e.target.value))}
               className="min-w-0 flex-1 accent-[var(--accent)]"
             />
-            <span className="w-6 tabular-nums">{spacing}</span>
+            <span className="min-w-14 tabular-nums">{feet(spacing/50)}</span>
           </label>
           <label className="flex min-w-[100px] flex-1 items-center gap-1.5 text-[11px]">
             <span style={{ color: "var(--muted)" }}>Size</span>
@@ -324,7 +330,7 @@ export default function LetterGrid() {
               onChange={(e) => setFontSize(Number(e.target.value))}
               className="min-w-0 flex-1 accent-[var(--accent)]"
             />
-            <span className="w-6 tabular-nums">{fontSize}</span>
+            <span className="min-w-14 tabular-nums">{feet(fontSize*.92/50)}</span>
           </label>
         </div>
 
@@ -409,30 +415,42 @@ export default function LetterGrid() {
                 <span className="w-4 tabular-nums">{zLayers}</span>
               </label>
               <label className="flex min-w-[170px] flex-1 items-center gap-1.5 text-[11px]">
-                <span style={{ color: "var(--muted)" }}>Z gap</span>
+                <span style={{ color: "var(--muted)" }} title={`Layers overlap at ${feet(zContactGap(fontSize, letterThickness)/50)} and below`}>Z gap</span>
                 <input
                   type="range"
-                  min={20}
+                  min={Z_GAP_MINIMUM}
                   max={120}
                   step={2}
                   value={zSpacing}
                   onChange={(e) => setZSpacing(Number(e.target.value))}
                   className="min-w-0 flex-1 accent-[var(--accent)]"
                 />
-                <span className="w-6 tabular-nums">{zSpacing}</span>
+                <span className="min-w-14 tabular-nums">{feet(zSpacing/50)}</span>
               </label>
-              <label className="flex min-w-[170px] flex-1 items-center gap-1.5 text-[11px]" title="Extrusion depth of built-in V, U, and L letters">
-                <span style={{ color: "var(--muted)" }}>Thickness</span>
+              <label className="flex min-w-[190px] flex-1 items-center gap-1.5 text-[11px]" title="Distance from the center of each dashed box to its letters, along the 45° diagonal. Lower pulls the group into the center. Higher spreads it apart.">
+                <span style={{ color: "var(--muted)" }}>45° gap</span>
                 <input
                   type="range"
-                  min={4}
-                  max={50}
-                  step={2}
-                  value={letterThickness}
-                  onChange={(e) => setLetterThickness(Number(e.target.value))}
+                  min={DIAGONAL_GAP_MINIMUM}
+                  max={DIAGONAL_GAP_MAXIMUM}
+                  value={attractorGap ?? Math.round(diagonalCenterGap(spacing, Math.max(fontSize, 0.1) / 50 * UNIT_LETTER_SPAN))}
+                  onChange={(e) => setAttractorGap(Number(e.target.value))}
                   className="min-w-0 flex-1 accent-[var(--accent)]"
                 />
-                <span className="w-9 tabular-nums">{letterThickness}%</span>
+                <span className="min-w-14 tabular-nums">{feet((attractorGap ?? Math.round(diagonalCenterGap(spacing, Math.max(fontSize, 0.1) / 50 * UNIT_LETTER_SPAN)))/50)}</span>
+              </label>
+              <label className="flex min-w-[170px] flex-1 items-center gap-1.5 text-[11px]" title="Extrusion depth of built-in V, U, and L letters along Z. Any positive thickness is allowed.">
+                <span style={{ color: "var(--muted)" }}>Thickness</span>
+                <input
+                  type="number"
+                  min={0.01}
+                  step={1}
+                  value={letterThickness}
+                  onChange={(e) => { const next = e.target.valueAsNumber; if (Number.isFinite(next) && next > 0) setLetterThickness(next); }}
+                  className="w-16 rounded border px-1 py-0.5 text-right tabular-nums"
+                  style={{ borderColor: "var(--line)", background: "var(--input-background)" }}
+                />
+                <span className="tabular-nums">%</span>
               </label>
               <label className="flex cursor-pointer items-center gap-1.5 text-[11px]">
                 <input
@@ -531,6 +549,7 @@ export default function LetterGrid() {
                   cols={cols}
                   rows={rows}
                   spacing={spacing}
+                  attractorGap={attractorGap ?? undefined}
                   letterSize={fontSize}
                   assets={assets}
                   useAssets={useAssets}
@@ -594,6 +613,7 @@ export default function LetterGrid() {
           rows={rows}
           spacing={spacing}
           zSpacing={zSpacing}
+          attractorGap={attractorGap ?? undefined}
           letterSize={fontSize}
           thickness={letterThickness}
           yRotationEnabled={yRotationEnabled}

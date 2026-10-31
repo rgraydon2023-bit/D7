@@ -10,7 +10,8 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import type { Cell, Letter, LetterAsset, LetterAssets } from "./letterTypes";
 import { getLetterVolumeGeometry } from "./letterGeometry3d";
-import { letterVolumeLayout } from "./letterVolumeLayout";
+import DashedOctetBoxes from "./DashedOctetBoxes";
+import { letterDepthSpan, letterVolumeLayout, octetBoxes, UNIT_LETTER_SPAN } from "./letterVolumeLayout";
 import type { VolumeBounds, VolumeExportTarget } from "./exportLetterVolume";
 import type { CompositionPlacement } from "./compositionEngine";
 
@@ -25,6 +26,7 @@ type LetterGrid3DProps = {
   cols: number;
   rows: number;
   spacing: number;
+  attractorGap?: number;
   letterSize: number;
   assets: LetterAssets;
   useAssets: boolean;
@@ -336,6 +338,7 @@ function Scene(props: LetterGrid3DProps) {
     cols,
     rows,
     spacing,
+    attractorGap,
     letterSize,
     assets,
     useAssets,
@@ -353,11 +356,12 @@ function Scene(props: LetterGrid3DProps) {
       rows,
       spacing,
       zSpacing,
+      attractorGap,
       letterSize,
       thickness: letterThickness,
       yRotationEnabled: layerMode && yRotationEnabled,
       yRotationRange,
-    }), [cells, layerCells, layerMode, cols, rows, spacing, zSpacing, letterSize, letterThickness, yRotationEnabled, yRotationRange]);
+    }), [cells, layerCells, layerMode, cols, rows, spacing, zSpacing, attractorGap, letterSize, letterThickness, yRotationEnabled, yRotationRange]);
   const placements = useMemo<CompositionPlacement[]>(() => compositionPlacements ?? regularLayout.placements.map((placement, sourceIndex) => ({
     ...placement,
     sourceIndex,
@@ -378,6 +382,26 @@ function Scene(props: LetterGrid3DProps) {
     };
     return { width: extent("x"), height: extent("y"), depth: extent("z") };
   }, [compositionPlacements]);
+  const groupBoxes = useMemo(() => {
+    const layers = Math.max(1 + layerCells.length, ...placements.map((placement) => placement.layerIndex + 1), 1);
+    return octetBoxes(placements.map((placement) => {
+      const width = placement.scale * (placement.scaleX ?? 1);
+      const height = placement.scale * (placement.scaleY ?? 1);
+      const depth = placement.scale * (placement.scaleZ ?? 1);
+      const framed = placement as CompositionPlacement & { frameX?: number; frameY?: number; frameZ?: number };
+      return {
+        col: placement.col,
+        row: placement.row,
+        layerIndex: placement.layerIndex,
+        x: framed.frameX ?? placement.x,
+        y: framed.frameY ?? placement.y,
+        z: framed.frameZ ?? placement.z,
+        halfX: (width * UNIT_LETTER_SPAN) / 2,
+        halfY: (height * UNIT_LETTER_SPAN) / 2,
+        halfZ: letterDepthSpan(depth, letterThickness, false) / 2,
+      };
+    }), { cols, rows, layers });
+  }, [placements, cols, rows, layerCells.length, letterThickness]);
   const worldLetterSize = regularLayout.worldLetterSize;
   const worldWidth = fixedCompositionBounds?.width ?? compositionBounds?.width ?? regularLayout.width;
   const worldHeight = fixedCompositionBounds?.height ?? compositionBounds?.height ?? regularLayout.height;
@@ -423,6 +447,7 @@ function Scene(props: LetterGrid3DProps) {
           </lineSegments>
         </>
       )}
+      <DashedOctetBoxes boxes={groupBoxes} />
       <group>
         {placements.map((placement, placementIndex) => (
           <GridCell

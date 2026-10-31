@@ -1,6 +1,7 @@
 import type { CompositionPlacement, DescriptorSettings } from "./compositionEngine";
 import { evaluateSpatialDesign } from "./descriptorEvaluation";
 import { gridDimensions } from "./constraintValidation";
+import { letterDepthSpan, octetBoxes, UNIT_LETTER_SPAN } from "./letterVolumeLayout";
 import type { CandidateFocus, GenerationRules, OptimizerControls, OrthogonalGrid, SelectionVolume, SpatialAlternative } from "./optimizerTypes";
 
 function axisCenters(overall: number, selection: number, step: number) {
@@ -36,12 +37,14 @@ function sourceAwareCenters(
   return [...new Map(candidates.map((center) => [`${center.x.toFixed(5)}:${center.y.toFixed(5)}:${center.z.toFixed(5)}`, center])).values()];
 }
 
-function placementExtent(placement: CompositionPlacement, rules: GenerationRules) {
-  return {
-    x: placement.scale * (placement.scaleX ?? 1) * 0.5,
-    y: placement.scale * (placement.scaleY ?? 1) * 0.5,
-    z: placement.scale * (placement.scaleZ ?? 1) * (((rules.letterThicknessPercent ?? 12) / 100 + 0.04) / 2),
-  };
+/** Same test as the gold selection highlight: the letter center is inside the crop. */
+export function placementCenterInSelection(
+  placement: { x: number; y: number; z: number },
+  selection: { centerX: number; centerY: number; centerZ: number; width: number; height: number; depth: number },
+) {
+  return Math.abs(placement.x - selection.centerX) <= selection.width / 2 + 1e-6
+    && Math.abs(placement.y - selection.centerY) <= selection.height / 2 + 1e-6
+    && Math.abs(placement.z - selection.centerZ) <= selection.depth / 2 + 1e-6;
 }
 
 export function selectionEvaluationGrid(selection: Pick<SelectionVolume, "width" | "height" | "depth">, overall: OrthogonalGrid): OrthogonalGrid {
@@ -83,38 +86,74 @@ export function selectBestSubvolume(args: {
     height: Math.min(args.selection.height, overall.height),
     depth: Math.min(args.selection.depth, overall.depth),
   };
+  const dashedBoxes = octetBoxes(args.fullPlacements.map((placement) => {
+    const width = placement.scale * (placement.scaleX ?? 1);
+    const height = placement.scale * (placement.scaleY ?? 1);
+    const depth = placement.scale * (placement.scaleZ ?? 1);
+    return {
+      col: placement.col,
+      row: placement.row,
+      layerIndex: placement.layerIndex,
+      x: placement.x,
+      y: placement.y,
+      z: placement.z,
+      halfX: (width * UNIT_LETTER_SPAN) / 2,
+      halfY: (height * UNIT_LETTER_SPAN) / 2,
+      halfZ: letterDepthSpan(depth, args.rules.letterThicknessPercent ?? 12, false) / 2,
+    };
+  }), { cols: args.overallGrid.xCells, rows: args.overallGrid.yCells, layers: args.overallGrid.zCells });
+  const dashedCenters = dashedBoxes.map((box) => ({
+    x: box.x,
+    y: box.y,
+    z: box.z,
+    width: box.width,
+    height: box.height,
+    depth: box.depth,
+  }));
   const xs = axisCenters(overall.width, selection.width, selection.stepX);
   const ys = axisCenters(overall.height, selection.height, selection.stepY);
   const zs = axisCenters(overall.depth, selection.depth, selection.stepZ);
-  const allCenters = xs.flatMap((x) => ys.flatMap((y) => zs.map((z) => ({ x, y, z }))));
+  const steppedCenters = xs.flatMap((x) => ys.flatMap((y) => zs.map((z) => ({
+    x, y, z, width: selection.width, height: selection.height, depth: selection.depth,
+  }))));
+  const allCenters = dashedCenters.length ? dashedCenters : steppedCenters;
   const maxPositions = Math.max(1, args.maxPositions ?? allCenters.length);
   const exhaustive = allCenters.length <= maxPositions;
-  const sourceBudget = exhaustive ? 0 : Math.min(args.fullPlacements.length, Math.max(4, Math.floor(maxPositions / 4)));
+  const sourceBudget = exhaustive || dashedCenters.length ? 0 : Math.min(args.fullPlacements.length, Math.max(4, Math.floor(maxPositions / 4)));
   const alignedBudget = Math.max(1, maxPositions - sourceBudget);
   const alignedCenters = exhaustive ? allCenters : distributedSample(allCenters, alignedBudget);
-  // Small selections can have only a few hundredths of a unit of tolerance around a
-  // letter. Uniform sampling may miss every such position, so always evaluate a
-  // representative set of windows centered on the actual generated geometry.
-  const adaptiveCenters = sourceAwareCenters(args.fullPlacements, overall, selection, sourceBudget);
-  const centers = [...new Map([...adaptiveCenters, ...alignedCenters].map((center) => [`${center.x.toFixed(5)}:${center.y.toFixed(5)}:${center.z.toFixed(5)}`, center])).values()];
-  const localGrid = selectionEvaluationGrid(selection, args.overallGrid);
+  // Uniform sampling can miss a window that sits on a generated letter, so always
+  // evaluate a representative set of windows centered on the actual geometry.
+  const adaptiveCenters = sourceAwareCenters(args.fullPlacements, overall, selection, sourceBudget).map((center) => ({
+    ...center,
+    width: selection.width,
+    height: selection.height,
+    depth: selection.depth,
+  }));
+  const centers = dashedCenters.length
+    ? dashedCenters
+    : [...new Map([...adaptiveCenters, ...alignedCenters].map((center) => [`${center.x.toFixed(5)}:${center.y.toFixed(5)}:${center.z.toFixed(5)}`, center])).values()];
   const candidates: SpatialAlternative[] = [];
   centers.forEach((center, centerIndex) => {
-    const contained = args.fullPlacements.filter((placement) => {
-      const extent = placementExtent(placement, args.rules);
-      return Math.abs(placement.x - center.x) + extent.x <= selection.width / 2 + 1e-6
-        && Math.abs(placement.y - center.y) + extent.y <= selection.height / 2 + 1e-6
-        && Math.abs(placement.z - center.z) + extent.z <= selection.depth / 2 + 1e-6;
-    });
+    const window = {
+      centerX: center.x,
+      centerY: center.y,
+      centerZ: center.z,
+      width: center.width,
+      height: center.height,
+      depth: center.depth,
+    };
+    const contained = args.fullPlacements.filter((placement) => placementCenterInSelection(placement, window));
     if (!contained.length) return;
     const localPlacements = contained.map((placement) => ({ ...structuredClone(placement), x: placement.x - center.x, y: placement.y - center.y, z: placement.z - center.z }));
     const evaluation = evaluateSpatialDesign({
       placements: localPlacements,
-      grid: localGrid,
+      grid: selectionEvaluationGrid(window, args.overallGrid),
       rules: args.rules,
       descriptors: args.descriptors,
       controls: args.controls,
       focus: args.focus,
+      bounds: "center",
     });
     candidates.push({
       id: `selection-${args.seed}-${args.generation}-${centerIndex}`,
@@ -125,12 +164,12 @@ export function selectBestSubvolume(args: {
       evaluation,
       generation: args.generation,
       selection: {
-        centerX: center.x,
-        centerY: center.y,
-        centerZ: center.z,
-        width: selection.width,
-        height: selection.height,
-        depth: selection.depth,
+        centerX: window.centerX,
+        centerY: window.centerY,
+        centerZ: window.centerZ,
+        width: window.width,
+        height: window.height,
+        depth: window.depth,
         evaluatedPositions: centers.length,
         totalPositions: allCenters.length,
         exhaustive,

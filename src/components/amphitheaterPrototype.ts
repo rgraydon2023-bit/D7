@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { MarchingCubes } from "three/examples/jsm/objects/MarchingCubes.js";
 import type { CompositionPlacement, DescriptorSettings } from "./compositionEngine";
-import { getLetterVolumeGeometry } from "./letterGeometry3d";
+import { getLetterShape, getLetterVolumeGeometry } from "./letterGeometry3d";
 
 export type PrototypeGeometryMode = "letters" | "voids" | "combined";
 export type PrototypeCategory = "gathering" | "office" | "lobby";
@@ -65,6 +65,13 @@ export type ArchitecturalElement = {
   width: number; depth: number; height: number; rotation: number;
   footprint?: Point2[]; innerFootprint?: Point2[]; rise?: number; transparent?: boolean;
   slopeFrom?: Point2; slopeTo?: Point2;
+  /** Complete transformed letter. Spaces use this solid instead of a horizontal cut. */
+  letterSolid?: {
+    letter: CompositionPlacement["cell"]["letter"];
+    rx: number; ry: number; rz: number;
+    scaleX: number; scaleY: number; scaleZ: number;
+    minY: number;
+  };
   provenance?: SourceAssignment;
 };
 export type SourceAssignment = {
@@ -166,70 +173,157 @@ export const VERTICAL_INCREMENT_FEET = 20;
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
 const descriptor = (s: DescriptorSettings, key: keyof DescriptorSettings) => s[key].intensity / 100;
 
+type CirculationFamily = "radial" | "field" | "atrium" | "layered" | "fold" | "comb" | "edge" | "spine" | "sequence" | "terrace" | "ring" | "room" | "plate" | "flat" | "hall";
+
+/** How circulation branches for each typology. Branching strength still scales the count. */
+function circulationFamily(typology: PrototypeTypologyId): CirculationFamily {
+  switch (typology) {
+    case "stepped-amphitheater": return "radial";
+    case "void-field-gathering": return "field";
+    case "vertical-void-lobby": return "atrium";
+    case "topographic-ground-field-lobby": return "layered";
+    case "folded-undulating-work-surface": return "fold";
+    case "linear-gallery-lobby": return "comb";
+    case "linear-edge-gallery": return "edge";
+    case "continuous-hall-lobby": return "spine";
+    case "compressed-sequential-lobby": return "sequence";
+    case "cascaded-terraced-plates": return "terrace";
+    case "void-edge-workspace": return "ring";
+    case "contained-room-within-volume": return "room";
+    case "inserted-horizontal-plate": return "plate";
+    case "flat-deep-plan-plate": return "flat";
+    case "open-hall-workspace": return "hall";
+    default: return "field";
+  }
+}
+
+function branchBudget(family: CirculationFamily, branching: number) {
+  const base = family === "comb" || family === "field" || family === "layered" ? 4
+    : family === "sequence" || family === "flat" || family === "plate" ? 1
+      : 2;
+  const gain = family === "comb" || family === "field" ? 8 : family === "layered" || family === "ring" || family === "spine" ? 6 : 3;
+  return Math.round(base + branching * gain);
+}
+
 function placementIdentity(item: CompositionPlacement) { return `${item.cell.id}@${item.sourceIndex ?? "member"}:${item.layerIndex ?? 0}`; }
 function lineageKey(ids: string[]) {
   let hash = 2166136261;
   for (const c of [...new Set(ids)].sort().join("|") ) hash = Math.imul(hash ^ c.charCodeAt(0), 16777619);
   return (hash >>> 0).toString(36);
 }
-function normalizedPlacements(source: CompositionPlacement[]) {
-  if (!source.length) return [];
-  const minX = Math.min(...source.map(i => i.x)); const maxX = Math.max(...source.map(i => i.x));
-  const minY = Math.min(...source.map(i => i.y)); const maxY = Math.max(...source.map(i => i.y));
-  const minZ = Math.min(...source.map(i => i.z));
-  const scale = 16 / Math.max(maxX - minX, maxY - minY, 1);
-  return source.map(item => ({ ...item, x: (item.x - (minX + maxX) / 2) * scale, y: (item.y - (minY + maxY) / 2) * scale, z: (item.z - minZ) * scale, scale: Math.max(.3, item.scale * scale * .5) }));
+/** Letters keep the positions, rotations, and sizes coming from the selected source. */
+export function recenteredPlacements(source: CompositionPlacement[]) {
+  return source.map((item) => ({ ...item }));
 }
 
-/** Per-letter, per-elevation volumetric samples. Their overlapping prisms are
- * united by the existing SDF reconstruction, so no internal overlap faces
- * survive. The placement transform is applied before every slice is derived. */
-function letterVolumeSlices(source: CompositionPlacement[]): SourceBoundary[] {
-  const normalized = normalizedPlacements(source); const vector = new THREE.Vector3();
-  return normalized.flatMap((item) => {
-    const positions = getLetterVolumeGeometry(item.cell.letter, 14).getAttribute("position");
-    const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(THREE.MathUtils.degToRad(item.rx), THREE.MathUtils.degToRad(item.rz), THREE.MathUtils.degToRad(item.ry), "XYZ"));
-    const vertices: Array<{ point: Point2; z: number }> = [];
-    for (let index = 0; index < positions.count; index++) {
-      vector.fromBufferAttribute(positions, index).multiply(new THREE.Vector3(item.scale * (item.scaleX ?? 1), item.scale * (item.scaleY ?? 1), item.scale * (item.scaleZ ?? 1))).applyQuaternion(quaternion);
-      vertices.push({ point: [item.x + vector.x, item.y + vector.z], z: item.z + vector.y });
-    }
-    const zMin = Math.min(...vertices.map((vertex) => vertex.z)), zMax = Math.max(...vertices.map((vertex) => vertex.z));
-    const sliceCount = Math.max(3, Math.min(7, Math.ceil((zMax - zMin) / .65)));
-    const memberId = placementIdentity(item);
-    return Array.from({ length: sliceCount }, (_, sliceIndex) => {
-      const sliceZ = zMin + (sliceIndex + .5) / sliceCount * (zMax - zMin);
-      const tolerance = Math.max(.12, (zMax - zMin) / sliceCount * .7);
-      const points = vertices.filter((vertex) => Math.abs(vertex.z - sliceZ) <= tolerance).map((vertex) => vertex.point);
-      const hull = smoothClosedBoundary(convexHull(points.length >= 3 ? points : vertices.map((vertex) => vertex.point)), 1);
-      const lower = zMin + sliceIndex / sliceCount * (zMax - zMin), upper = zMin + (sliceIndex + 1) / sliceCount * (zMax - zMin);
-      return { id: `${memberId}-volume-${sliceIndex}`, memberIds: [memberId], kind: "letter" as const, points: hull, center: boundaryCenter(hull), z: (lower + upper) / 2, zMin: lower, zMax: upper, area: polygonArea(hull) };
-    }).filter((boundary) => boundary.points.length >= 3 && boundary.area > .01);
+function letterQuaternion(rx: number, y: number, z: number) {
+  return new THREE.Quaternion().setFromEuler(new THREE.Euler(THREE.MathUtils.degToRad(rx), THREE.MathUtils.degToRad(y), THREE.MathUtils.degToRad(z), "XYZ"));
+}
+
+let cachedLetterHalfThickness = 0;
+function letterLocalHalfThickness() {
+  if (cachedLetterHalfThickness) return cachedLetterHalfThickness;
+  const geometry = getLetterVolumeGeometry("L", 14);
+  geometry.computeBoundingBox();
+  cachedLetterHalfThickness = Math.max(.02, ((geometry.boundingBox?.max.z ?? .08) - (geometry.boundingBox?.min.z ?? -.08)) / 2);
+  return cachedLetterHalfThickness;
+}
+
+const letterOutlineCache = new Map<string, Point2[]>();
+function centeredLetterOutline(letter: CompositionPlacement["cell"]["letter"]): Point2[] {
+  const cached = letterOutlineCache.get(letter);
+  if (cached) return cached;
+  const raw = getLetterShape(letter).getPoints(8);
+  const unique = raw.length > 1 && raw[0].distanceTo(raw[raw.length - 1]) < 1e-4 ? raw.slice(0, -1) : raw;
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const point of unique) {
+    minX = Math.min(minX, point.x); maxX = Math.max(maxX, point.x);
+    minY = Math.min(minY, point.y); maxY = Math.max(maxY, point.y);
+  }
+  const centerX = (minX + maxX) / 2, centerY = (minY + maxY) / 2;
+  const outline = unique.map((point) => [point.x - centerX, point.y - centerY] as Point2);
+  letterOutlineCache.set(letter, outline);
+  return outline;
+}
+
+/** Full transformed letter: plan footprint of the entire solid and its true vertical span. */
+function analyzeLetterPlacement(item: CompositionPlacement) {
+  const scaleX = item.scale * (item.scaleX ?? 1), scaleY = item.scale * (item.scaleY ?? 1), scaleZ = item.scale * (item.scaleZ ?? 1);
+  const geometry = getLetterVolumeGeometry(item.cell.letter, 14).clone();
+  geometry.scale(scaleX, scaleY, scaleZ);
+  geometry.applyQuaternion(letterQuaternion(item.rx, item.rz, item.ry));
+  geometry.computeBoundingBox();
+  const box = geometry.boundingBox!;
+  const positions = geometry.getAttribute("position");
+  const plan: Point2[] = [];
+  const stride = Math.max(1, Math.floor(positions.count / 64));
+  for (let index = 0; index < positions.count; index += stride) plan.push([positions.getX(index), positions.getZ(index)]);
+  geometry.dispose();
+  const relativePlan = convexHull(plan);
+  const points = (relativePlan.length >= 3 ? relativePlan : [[-.2, -.2], [.2, -.2], [0, .2]] as Point2[]).map(([x, y]) => [item.x + x, item.y + y] as Point2);
+  const memberId = placementIdentity(item);
+  const zMin = item.z + box.min.y, zMax = item.z + box.max.y;
+  const boundary: SourceBoundary = {
+    id: `letter-whole-${lineageKey([memberId])}`, memberIds: [memberId], kind: "letter", points,
+    center: boundaryCenter(points), z: (zMin + zMax) / 2, zMin, zMax, area: polygonArea(points),
+  };
+  return { boundary, minY: box.min.y, maxY: box.max.y, scaleX, scaleY, scaleZ, plan: relativePlan.length >= 3 ? relativePlan : [[-.2, -.2], [.2, -.2], [0, .2]] as Point2[] };
+}
+
+function letterSpaceElement(item: CompositionPlacement, id: string): ArchitecturalElement {
+  const record = analyzeLetterPlacement(item);
+  return {
+    id, kind: "platform", x: item.x, y: item.y, z: item.z + record.minY, width: 1, depth: 1,
+    height: Math.max(.05, record.maxY - record.minY), rotation: 0, footprint: record.plan,
+    letterSolid: { letter: item.cell.letter, rx: item.rx, ry: item.ry, rz: item.rz, scaleX: record.scaleX, scaleY: record.scaleY, scaleZ: record.scaleZ, minY: record.minY },
+  };
+}
+
+function letterSolidMesh(element: ArchitecturalElement) {
+  const solid = element.letterSolid!;
+  const geometry = getLetterVolumeGeometry(solid.letter, 14).clone();
+  geometry.scale(solid.scaleX, solid.scaleY, solid.scaleZ);
+  geometry.applyQuaternion(letterQuaternion(solid.rx, solid.rz, solid.ry));
+  geometry.translate(0, -solid.minY, 0);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+type LetterObstacle = {
+  memberIds: string[]; minX: number; maxX: number; minY: number; maxY: number; minZ: number; maxZ: number;
+  distance: (x: number, y: number, z: number) => number;
+};
+
+/** Distance to the complete letter solid, so openings are formed by the whole letter rather than one cut. */
+function letterObstacles(source: CompositionPlacement[]): LetterObstacle[] {
+  const halfThickness = letterLocalHalfThickness();
+  return recenteredPlacements(source).map((item) => {
+    const record = analyzeLetterPlacement(item);
+    const inverse = letterQuaternion(item.rx, item.rz, item.ry).invert();
+    const outline = centeredLetterOutline(item.cell.letter);
+    const scale = Math.cbrt(Math.abs(record.scaleX * record.scaleY * record.scaleZ)) || 1;
+    const xs = record.plan.map((point) => item.x + point[0]), ys = record.plan.map((point) => item.y + point[1]);
+    return {
+      memberIds: record.boundary.memberIds ?? [],
+      minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys), minZ: record.boundary.zMin, maxZ: record.boundary.zMax,
+      distance: (x: number, y: number, z: number) => {
+        const local = new THREE.Vector3(x - item.x, z - item.z, y - item.y).applyQuaternion(inverse);
+        local.x /= record.scaleX || 1; local.y /= record.scaleY || 1; local.z /= record.scaleZ || 1;
+        const planar = signedPolygonDistance([local.x, local.y], outline);
+        const thickness = Math.abs(local.z) - halfThickness;
+        return (Math.hypot(Math.max(planar, 0), Math.max(thickness, 0)) + Math.min(Math.max(planar, thickness), 0)) * scale;
+      },
+    };
   });
 }
 
-/** Connected volumetric letter components. Slices of one placement are always
- * one source solid; solids whose transformed XY envelopes and Z ranges overlap
- * are merged into the same SDF input component. */
+/** One source volume per letter. The footprint is the whole solid's plan, and the vertical span is the whole solid. */
 function fullLetterVolumes(source: CompositionPlacement[]): SourceBoundary[] {
-  const slices=letterVolumeSlices(source),groups=slices.map((_,index)=>[index]);
-  let changed=true;
-  while(changed){changed=false;outer:for(let a=0;a<groups.length;a++)for(let b=a+1;b<groups.length;b++){
-    const intersects=groups[a].some(firstIndex=>groups[b].some(secondIndex=>{
-      const first=slices[firstIndex],second=slices[secondIndex];
-      if(first.memberIds?.some(id=>second.memberIds?.includes(id)))return true;
-      const zOverlap=Math.min(first.zMax,second.zMax)-Math.max(first.zMin,second.zMin);
-      const radiusFirst=Math.sqrt(first.area/Math.PI),radiusSecond=Math.sqrt(second.area/Math.PI);
-      return zOverlap>-.08&&Math.hypot(first.center[0]-second.center[0],first.center[1]-second.center[1])<radiusFirst+radiusSecond+.18;
-    }));
-    if(intersects){groups[a].push(...groups[b]);groups.splice(b,1);changed=true;break outer;}
-  }}
-  return groups.map(group=>{
-    const members=[...new Set(group.flatMap(index=>slices[index].memberIds??[]))].sort();
-    const points=smoothClosedBoundary(convexHull(group.flatMap(index=>slices[index].points)),1);
-    const zMin=Math.min(...group.map(index=>slices[index].zMin)),zMax=Math.max(...group.map(index=>slices[index].zMax));
-    return{id:`letter-volume-${lineageKey(members)}`,memberIds:members,kind:"letter" as const,points,center:boundaryCenter(points),z:(zMin+zMax)/2,zMin,zMax,area:polygonArea(points)};
-  }).sort((a,b)=>b.area*(b.zMax-b.zMin)-a.area*(a.zMax-a.zMin));
+  return recenteredPlacements(source).map((item) => {
+    const boundary = analyzeLetterPlacement(item).boundary;
+    const members = boundary.memberIds ?? [];
+    return { ...boundary, id: `letter-volume-${lineageKey(members)}` };
+  }).filter((boundary) => boundary.points.length >= 3 && boundary.area > .01).sort((a, b) => b.area * (b.zMax - b.zMin) - a.area * (a.zMax - a.zMin));
 }
 
 type VoidCell = { id: string; xi: number; yi: number; zi: number; x: number; y: number; z: number; clearance: number; memberIds: string[] };
@@ -238,21 +332,21 @@ type VoidCell = { id: string; xi: number; yi: number; zi: number; x: number; y: 
  * Connected cells become shaped void volumes; the graph is created later and
  * does not define these volumes. */
 function fullVoidVolumes(source: CompositionPlacement[]): SourceBoundary[] {
-  const placements = normalizedPlacements(source), cloud = sourceMeshCloud(source);
-  if (!cloud.length) return [];
-  const minZ = Math.min(...cloud.map((point) => point.z)), maxZ = Math.max(...cloud.map((point) => point.z));
+  const obstacles = letterObstacles(source);
+  if (!obstacles.length) return [];
+  const minZ = Math.min(...obstacles.map((obstacle) => obstacle.minZ)), maxZ = Math.max(...obstacles.map((obstacle) => obstacle.maxZ));
   const zSlices = Math.max(5, Math.min(14, Math.ceil((maxZ - minZ) / 1.8) + 1));
   const zStep = Math.max(.5, (maxZ - minZ) / zSlices), xyStep = 1.25;
   const cells: VoidCell[] = [];
   for (let zi = 0; zi < zSlices; zi++) for (let yi = 0; yi < 13; yi++) for (let xi = 0; xi < 13; xi++) {
     const point = { x: -7.5 + xi * xyStep, y: -7.5 + yi * xyStep, z: minZ + (zi + .5) * zStep };
-    const clearance = Math.min(...cloud.map((sample) => Math.hypot(point.x - sample.x, point.y - sample.y, (point.z - sample.z) * .8)));
-    const band = placements.filter((item) => Math.abs(item.z - point.z) < Math.max(2.2, zStep * 1.7));
-    const boundedX = band.some((item) => item.x < point.x - .55) && band.some((item) => item.x > point.x + .55);
-    const boundedY = band.some((item) => item.y < point.y - .55) && band.some((item) => item.y > point.y + .55);
+    const clearance = Math.min(...obstacles.map((obstacle) => obstacle.distance(point.x, point.y, point.z)));
+    const band = obstacles.filter((obstacle) => point.z >= obstacle.minZ - .3 && point.z <= obstacle.maxZ + .3);
+    const boundedX = band.some((obstacle) => obstacle.maxX < point.x - .55) && band.some((obstacle) => obstacle.minX > point.x + .55);
+    const boundedY = band.some((obstacle) => obstacle.maxY < point.y - .55) && band.some((obstacle) => obstacle.minY > point.y + .55);
     if (clearance < .78 || !boundedX || !boundedY) continue;
-    const neighbors = [...band].sort((a,b)=>Math.hypot(a.x-point.x,a.y-point.y,a.z-point.z)-Math.hypot(b.x-point.x,b.y-point.y,b.z-point.z)).slice(0,10);
-    cells.push({ ...point, xi, yi, zi, clearance, id: `void-cell-${xi}-${yi}-${zi}`, memberIds: neighbors.map(placementIdentity) });
+    const neighbors = [...band].sort((a, b) => Math.hypot((a.minX + a.maxX) / 2 - point.x, (a.minY + a.maxY) / 2 - point.y, (a.minZ + a.maxZ) / 2 - point.z) - Math.hypot((b.minX + b.maxX) / 2 - point.x, (b.minY + b.maxY) / 2 - point.y, (b.minZ + b.maxZ) / 2 - point.z)).slice(0, 10);
+    cells.push({ ...point, xi, yi, zi, clearance, id: `void-cell-${xi}-${yi}-${zi}`, memberIds: neighbors.flatMap((obstacle) => obstacle.memberIds) });
   }
   const byIndex = new Map(cells.map((cell) => [`${cell.xi}:${cell.yi}:${cell.zi}`, cell]));
   const unseen = new Set(cells.map((cell) => cell.id)), groups: VoidCell[][] = [];
@@ -277,38 +371,22 @@ function fullVoidVolumes(source: CompositionPlacement[]): SourceBoundary[] {
   }).filter((volume) => volume.area > .6).sort((a,b)=>b.area*(b.zMax-b.zMin)-a.area*(a.zMax-a.zMin));
 }
 
-/** Samples vertices from the actual transformed V/U/L meshes. */
-function sourceMeshCloud(source: CompositionPlacement[]) {
-  const points: Array<{ x: number; y: number; z: number; weight: number }> = [];
-  const vector = new THREE.Vector3();
-  for (const item of normalizedPlacements(source)) {
-    const positions = getLetterVolumeGeometry(item.cell.letter, 14).getAttribute("position");
-    const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(THREE.MathUtils.degToRad(item.rx), THREE.MathUtils.degToRad(item.rz), THREE.MathUtils.degToRad(item.ry), "XYZ"));
-    const stride = Math.max(1, Math.floor(positions.count / 30));
-    for (let i = 0; i < positions.count; i += stride) {
-      vector.fromBufferAttribute(positions, i).multiplyScalar(item.scale).applyQuaternion(q);
-      points.push({ x: item.x + vector.x, y: item.y + vector.z, z: item.z + vector.y, weight: item.scale });
-    }
-  }
-  return points;
-}
-
-/** Samples bounded low-density volumes between the actual transformed letter meshes. */
+/** Samples bounded low-density volumes outside the complete letter solids. */
 export function extractInterLetterVoids(source: CompositionPlacement[], fullDomain = false) {
-  const placements = normalizedPlacements(source); const cloud = sourceMeshCloud(source);
-  if (!cloud.length) return [];
+  const obstacles = letterObstacles(source);
+  if (!obstacles.length) return [];
   const candidates: Array<{ id: string; memberIds: string[]; x: number; y: number; z: number; clearance: number }> = [];
-  const minZ = Math.min(...cloud.map((point) => point.z)), maxZ = Math.max(...cloud.map((point) => point.z));
+  const minZ = Math.min(...obstacles.map((obstacle) => obstacle.minZ)), maxZ = Math.max(...obstacles.map((obstacle) => obstacle.maxZ));
   const zSlices = Math.max(4, Math.min(12, Math.ceil((maxZ - minZ) / 2.5) + 1));
   for (let zi = 0; zi < zSlices; zi++) for (let yi = 0; yi < 9; yi++) for (let xi = 0; xi < 9; xi++) {
     const point = { x: -7.5 + xi * 1.875, y: -7.5 + yi * 1.875, z: minZ + (zi + .5) * Math.max(.5, (maxZ - minZ) / zSlices) };
-    const clearance = Math.min(...cloud.map(s => Math.hypot(point.x - s.x, point.y - s.y, (point.z - s.z) * .75)));
-    const band = placements.filter(item => Math.abs(item.z - point.z) < Math.max(2.5, (maxZ - minZ) / zSlices * 1.6));
-    const boundedX = band.some(item => item.x < point.x - .7) && band.some(item => item.x > point.x + .7);
-    const boundedY = band.some(item => item.y < point.y - .7) && band.some(item => item.y > point.y + .7);
+    const clearance = Math.min(...obstacles.map((obstacle) => obstacle.distance(point.x, point.y, point.z)));
+    const band = obstacles.filter((obstacle) => point.z >= obstacle.minZ - .3 && point.z <= obstacle.maxZ + .3);
+    const boundedX = band.some((obstacle) => obstacle.maxX < point.x - .7) && band.some((obstacle) => obstacle.minX > point.x + .7);
+    const boundedY = band.some((obstacle) => obstacle.maxY < point.y - .7) && band.some((obstacle) => obstacle.minY > point.y + .7);
     if (clearance > .85 && boundedX && boundedY) {
-      const neighbors = [...band].sort((a,b)=>Math.hypot(a.x-point.x,a.y-point.y,a.z-point.z)-Math.hypot(b.x-point.x,b.y-point.y,b.z-point.z)).slice(0,8);
-      candidates.push({ ...point, clearance, id: `void-grid-${xi}-${yi}-${zi}`, memberIds: neighbors.map(placementIdentity) });
+      const neighbors = [...band].sort((a, b) => Math.hypot((a.minX + a.maxX) / 2 - point.x, (a.minY + a.maxY) / 2 - point.y) - Math.hypot((b.minX + b.maxX) / 2 - point.x, (b.minY + b.maxY) / 2 - point.y)).slice(0, 8);
+      candidates.push({ ...point, clearance, id: `void-grid-${xi}-${yi}-${zi}`, memberIds: neighbors.flatMap((obstacle) => obstacle.memberIds) });
     }
   }
   const selected: typeof candidates = [];
@@ -536,43 +614,11 @@ function connectCenters(boundaries: SourceBoundary[], kind: SourceRelationship["
 }
 
 function letterBoundaries(source: CompositionPlacement[]): SourceBoundary[] {
-  const normalized = normalizedPlacements(source); const vector = new THREE.Vector3();
-  const individual = normalized.flatMap((item, itemIndex) => {
-    const positions = getLetterVolumeGeometry(item.cell.letter, 14).getAttribute("position");
-    const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(THREE.MathUtils.degToRad(item.rx), THREE.MathUtils.degToRad(item.rz), THREE.MathUtils.degToRad(item.ry), "XYZ"));
-    const vertices: Array<{ point: Point2; z: number }> = [];
-    for (let index = 0; index < positions.count; index++) {
-      vector.fromBufferAttribute(positions, index).multiply(new THREE.Vector3(item.scale * (item.scaleX ?? 1), item.scale * (item.scaleY ?? 1), item.scale * (item.scaleZ ?? 1))).applyQuaternion(quaternion);
-      vertices.push({ point: [item.x + vector.x, item.y + vector.z], z: item.z + vector.y });
-    }
-    const zMin = Math.min(...vertices.map((vertex) => vertex.z)), zMax = Math.max(...vertices.map((vertex) => vertex.z));
-    const slices = zMax - zMin > .3 ? [zMin + (zMax - zMin) * .18, zMin + (zMax - zMin) * .5, zMin + (zMax - zMin) * .82] : [(zMin + zMax) / 2];
-    return slices.flatMap((sliceZ, sliceIndex) => {
-      const tolerance = Math.max(.16, (zMax - zMin) * .22);
-      const slicePoints = vertices.filter((vertex) => Math.abs(vertex.z - sliceZ) <= tolerance).map((vertex) => vertex.point);
-      const points = slicePoints.length >= 3 ? slicePoints : vertices.map((vertex) => vertex.point);
-      const hull = smoothClosedBoundary(convexHull(points));
-      const memberId = placementIdentity(item);
-      return hull.length >= 3 ? [{ id: `${memberId}-slice-${sliceIndex}`, memberIds: [memberId], kind: "letter" as const, points: hull, center: boundaryCenter(hull), z: sliceZ, zMin, zMax, area: polygonArea(hull) }] : [];
-    });
-  });
-  const groups = individual.map((_, index) => [index]);
-  let merged = true;
-  while (merged) {
-    merged = false;
-    outer: for (let a = 0; a < groups.length; a++) for (let b = a + 1; b < groups.length; b++) {
-      const near = groups[a].some((first) => groups[b].some((second) => {
-        const radiusA = Math.sqrt(individual[first].area / Math.PI), radiusB = Math.sqrt(individual[second].area / Math.PI);
-        return Math.abs(individual[first].z - individual[second].z) < 1.1 && Math.hypot(individual[first].center[0] - individual[second].center[0], individual[first].center[1] - individual[second].center[1]) < radiusA + radiusB + 1.15;
-      }));
-      if (near) { groups[a].push(...groups[b]); groups.splice(b, 1); merged = true; break outer; }
-    }
-  }
-  return groups.map((group, index) => {
-    const points = smoothClosedBoundary(convexHull(group.flatMap((item) => individual[item].points)));
-    const memberIds = [...new Set(group.flatMap(item=>individual[item].memberIds))].sort();
-    return { id: `letter-component-${lineageKey(memberIds)}`, memberIds, kind: "letter" as const, points, center: boundaryCenter(points), z: group.reduce((sum, item) => sum + individual[item].z, 0) / group.length, zMin: Math.min(...group.map((item) => individual[item].zMin)), zMax: Math.max(...group.map((item) => individual[item].zMax)), area: polygonArea(points) };
-  }).sort((a, b) => b.area - a.area);
+  return recenteredPlacements(source).map((item) => {
+    const boundary = analyzeLetterPlacement(item).boundary;
+    const memberIds = boundary.memberIds ?? [];
+    return { ...boundary, id: `letter-component-${lineageKey(memberIds)}` };
+  }).filter((boundary) => boundary.points.length >= 3 && boundary.area > .01).sort((a, b) => b.area - a.area);
 }
 
 function voidBoundaries(source: CompositionPlacement[], fullDomain = false): SourceBoundary[] {
@@ -603,7 +649,11 @@ export function analyzeSourceGeometry(source: CompositionPlacement[], fullDomain
 
 function extentFromValues(values: number[]): VerticalExtent {
   if (!values.length) return { minZ: 0, maxZ: 0, extent: 0 };
-  const minZ = Math.min(...values), maxZ = Math.max(...values);
+  let minZ = Infinity, maxZ = -Infinity;
+  for (const value of values) {
+    if (value < minZ) minZ = value;
+    if (value > maxZ) maxZ = value;
+  }
   return { minZ, maxZ, extent: maxZ - minZ };
 }
 
@@ -623,6 +673,7 @@ function distributedBoundaries(boundaries: SourceBoundary[], limit: number) {
 
 /** Exact watertight polygon prism used by the viewer, measurements, and OBJ exporter. */
 export function architecturalElementGeometry(element: ArchitecturalElement) {
+  if (element.letterSolid) return letterSolidMesh(element);
   const footprint = element.footprint ?? defaultFootprint(element);
   if (element.innerFootprint?.length) {
     const shape = new THREE.Shape(footprint.map(([x, y]) => new THREE.Vector2(x, y)));
@@ -693,23 +744,35 @@ function elementInnerFootprintAtWorld(element: ArchitecturalElement) {
 
 /** Continuous SDF union sampled by interpolated marching cubes. */
 function continuousSurface(elements: ArchitecturalElement[], controls: ContinuityControls, minimumResolution = 40): ContinuousMeshData {
-  const solids = elements.filter((element) => element.kind !== "void");
+  const solids = elements.filter((element) => element.kind !== "void" && !element.letterSolid);
   const voids = elements.filter((element) => element.kind === "void");
-  // A grid in the low forties was coarser than the 0.28–0.54 ft floor and
-  // circulation thicknesses. Thin horizontal plates disappeared between
-  // samples while their taller edge faces survived, which made the finished
-  // mesh look wall dominated and broke otherwise overlapping routes into
-  // separate components. Classification now happens before reconstruction, so
-  // sample the classified surfaces densely enough to preserve their actual
-  // thickness instead of trying to repair a blocky result afterward.
-  const resolution = Math.max(minimumResolution, Math.round(40 + controls.smoothness * .04 + controls.surfaceRelaxation * .02));
-  const minX = -10.75, maxX = 10.75, minY = -10.75, maxY = 10.75;
-  const maxZ = Math.max(4, ...solids.map((element) => element.z + element.height + Math.max(0, element.rise ?? 0))) + .6;
-  const minZ = Math.min(-.45, ...solids.map((element) => element.z + Math.min(0, element.rise ?? 0))) - .35;
+  const worldPolygons = solids.map((element) => elementFootprintAtWorld(element));
+  const sampleX = worldPolygons.flatMap((polygon) => polygon.map((point) => point[0]));
+  const sampleY = worldPolygons.flatMap((polygon) => polygon.map((point) => point[1]));
+  const bottoms = solids.map((element) => element.z + Math.min(0, element.rise ?? 0));
+  const tops = solids.map((element) => element.z + element.height + Math.max(0, element.rise ?? 0));
+  const occupiedSpan = sampleX.length ? Math.max(.2, Math.max(...sampleX) - Math.min(...sampleX), Math.max(...sampleY) - Math.min(...sampleY)) : 21.5;
+  const feature = solids.length ? Math.min(...solids.map((element) => Math.max(.02, element.height))) : .4;
+  const localField = occupiedSpan < 12;
+  let minX = -10.75, maxX = 10.75, minY = -10.75, maxY = 10.75;
+  let maxZ = Math.max(4, ...tops) + .6;
+  let minZ = Math.min(-.45, ...bottoms) - .35;
+  if (localField && sampleX.length) {
+    const pad = Math.max(feature, occupiedSpan * .08);
+    minX = Math.min(...sampleX) - pad;
+    maxX = Math.max(...sampleX) + pad;
+    minY = Math.min(...sampleY) - pad;
+    maxY = Math.max(...sampleY) + pad;
+    minZ = Math.min(...bottoms) - pad;
+    maxZ = Math.max(...tops) + pad;
+  }
+  const spanMax = Math.max(maxX - minX, maxY - minY, maxZ - minZ);
+  const resolution = Math.min(localField ? 64 : 56, Math.max(minimumResolution, Math.ceil(spanMax / Math.max(.02, feature * .45)) + 1));
   const dx = (maxX - minX) / (resolution - 1), dy = (maxY - minY) / (resolution - 1), dz = (maxZ - minZ) / (resolution - 1);
   const retainedSource = (controls.preservation + controls.sourcePreservation) / 200;
-  const blendRadius = .06 + controls.blendingStrength / 100 * .3 + controls.blendRadius / 100 * .3 * (1 - retainedSource * .5);
-  const openingExpansion = Math.max(0, controls.minimumOpening / 2 - .35);
+  const canvasBlend = .06 + controls.blendingStrength / 100 * .3 + controls.blendRadius / 100 * .3 * (1 - retainedSource * .5);
+  const blendRadius = localField ? Math.min(canvasBlend, feature * .65) : canvasBlend;
+  const openingExpansion = localField ? Math.min(Math.max(0, controls.minimumOpening / 2 - .35), feature * .5) : Math.max(0, controls.minimumOpening / 2 - .35);
   const fieldFor = (element: ArchitecturalElement, opening = false) => {
     const polygon = elementFootprintAtWorld(element);
     return { polygon, innerPolygon: elementInnerFootprintAtWorld(element), minX: Math.min(...polygon.map((point) => point[0])), maxX: Math.max(...polygon.map((point) => point[0])), minY: Math.min(...polygon.map((point) => point[1])), maxY: Math.max(...polygon.map((point) => point[1])), top: element.z + element.height + Math.max(0, element.rise ?? 0), bottom: opening ? element.z - .2 : element.z + Math.min(0, element.rise ?? 0), element, opening };
@@ -808,12 +871,18 @@ function continuousSurface(elements: ArchitecturalElement[], controls: Continuit
     || (componentSizes.get(component) ?? 0) >= maximumTriangleCount * .22));
   const primaryIndices = cleanIndices.filter((_, index) => retainedComponents.has(root(cleanIndices[index - index % 3])));
   const componentBounds = [...retainedComponents].map((component) => {
-    const componentIndices = [...new Set(cleanIndices.filter((index) => root(index) === component))];
+    let minX = Infinity, minY = Infinity, minZ = Infinity, maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
+    for (const index of cleanIndices) {
+      if (root(index) !== component) continue;
+      const x = positions[index * 3], y = positions[index * 3 + 1], z = positions[index * 3 + 2];
+      if (x < minX) minX = x; if (y < minY) minY = y; if (z < minZ) minZ = z;
+      if (x > maxX) maxX = x; if (y > maxY) maxY = y; if (z > maxZ) maxZ = z;
+    }
     return {
       triangles: componentSizes.get(component) ?? 0,
       horizontalArea: componentHorizontalArea.get(component) ?? 0,
-      min: [Math.min(...componentIndices.map((index) => positions[index * 3])), Math.min(...componentIndices.map((index) => positions[index * 3 + 1])), Math.min(...componentIndices.map((index) => positions[index * 3 + 2]))] as [number, number, number],
-      max: [Math.max(...componentIndices.map((index) => positions[index * 3])), Math.max(...componentIndices.map((index) => positions[index * 3 + 1])), Math.max(...componentIndices.map((index) => positions[index * 3 + 2]))] as [number, number, number],
+      min: [minX, minY, minZ] as [number, number, number],
+      max: [maxX, maxY, maxZ] as [number, number, number],
     };
   }).sort((first, second) => second.triangles - first.triangles);
   const remap = new Map<number, number>(), compactPositions: number[] = [], compactIndices: number[] = [];
@@ -858,6 +927,22 @@ function previewElementMesh(elements: ArchitecturalElement[]): ContinuousMeshDat
     geometry.dispose();
   });
   return { positions, indices, componentCount: 0, degenerateTriangles: 0, componentBounds: [] };
+}
+
+/** Exact letter meshes are appended after reconstruction so thin strokes are not lost between cut samples. */
+function appendLetterSolids(mesh: ContinuousMeshData, elements: ArchitecturalElement[]): ContinuousMeshData {
+  const letters = elements.filter((element) => element.letterSolid && element.kind !== "void");
+  if (!letters.length) return mesh;
+  const positions = [...mesh.positions], indices = [...mesh.indices];
+  for (const element of letters) {
+    const geometry = letterSolidMesh(element);
+    const position = geometry.getAttribute("position");
+    const offset = positions.length / 3;
+    for (let index = 0; index < position.count; index++) positions.push(element.x + position.getX(index), element.z + position.getY(index), element.y + position.getZ(index));
+    if (geometry.index) for (let index = 0; index < geometry.index.count; index++) indices.push(offset + geometry.index.getX(index));
+    geometry.dispose();
+  }
+  return { ...mesh, positions, indices };
 }
 
 /** Full graph synthesis for the first three validation typologies only.
@@ -949,6 +1034,15 @@ function buildDomainOrganization(source: CompositionPlacement[], analysis: Retur
     const used=rs.length?rs:edges.flatMap(edge=>[byId.get(edge.fromId??""),byId.get(edge.toId??"")].filter((r):r is SourceBoundary=>!!r));
     circulation.slice(begin).forEach(e=>assign(e,used,edges,"BRIDGE / CIRCULATION",edges.length?"local":"fallback",edges.length?"Route follows assigned source graph endpoints.":"Typology connection fallback; not counted as source-graph coverage."));
   };
+  if (mode !== "voids") {
+    for (const item of recenteredPlacements(source)) {
+      const identity = placementIdentity(item);
+      const solid = letterSpaceElement(item, `${mode}-letter-space-${lineageKey([identity])}`);
+      const support = analysis.letters.filter((candidate) => candidate.memberIds?.includes(identity));
+      assign(solid, support, incident(support), "FULL_LETTER_VOLUME", "local", "Occupied space is the complete transformed letter solid, including its full outline and thickness.");
+      primary.push(solid);
+    }
+  }
   // Entry chooses an actual boundary direction using the complete relationship
   // field, with the sequential descriptor changing the arrival progression.
   const peripheral = [...regions].sort((a,b)=>Math.hypot(b.center[0]-c[0],b.center[1]-c[1])-Math.hypot(a.center[0]-c[0],a.center[1]-c[1]) || a.id.localeCompare(b.id))[0];
@@ -956,10 +1050,9 @@ function buildDomainOrganization(source: CompositionPlacement[], analysis: Retur
   const entry = peripheral.center;
   let inner: Point2[] | undefined;
   if (typology === "flat-deep-plan-plate") {
-    // O3 proof of concept: primary form comes from the complete volumetric
-    // source. Letter slice prisms are unioned by the existing SDF; dense,
-    // connected negative-space cells become shaped void volumes. The graph is
-    // consulted only after these occupied zones and openings exist.
+    // O3 proof of concept: each letter contributes its complete solid. Connected
+    // negative-space cells become shaped void volumes. The graph is consulted
+    // only after these occupied letters and openings exist.
     const letterVolumes = fullLetterVolumes(source);
     const voidVolumes = fullVoidVolumes(source);
     const synthesize=(input:SourceBoundary[],limit:number)=>{
@@ -981,7 +1074,7 @@ function buildDomainOrganization(source: CompositionPlacement[], analysis: Retur
     const datumRegions = mode === "voids" ? voidVolumes : letterVolumes;
     if (!datumRegions.length) return undefined;
     const datum = datumRegions.reduce((sum, r) => sum + r.z * r.area, 0) / Math.max(.001, datumRegions.reduce((sum, r) => sum + r.area, 0)) + (d("verticallyIntegrated")-.5)*sourceSpan*.04;
-    const sourceElements: ArchitecturalElement[] = [];
+    const sourceElements: ArchitecturalElement[] = primary.filter((element) => element.letterSolid).map((element) => ({ ...element, id: `${mode}-unified-${element.id}` }));
     const sourceSupport=(region:SourceBoundary)=>region.kind==="letter"
       ? analysis.letters.filter(candidate=>(candidate.memberIds??[]).some(id=>region.memberIds?.includes(id)))
       : analysis.voids.filter(candidate=>Math.abs(candidate.z-region.z)<Math.max(2,region.zMax-region.zMin)&&signedPolygonDistance(candidate.center,region.points)<1.6);
@@ -994,19 +1087,7 @@ function buildDomainOrganization(source: CompositionPlacement[], analysis: Retur
       sourceElements.push(sourceElement);
       return { sourceHeight, normalizedZ };
     };
-    if(mode!=="voids")for(const volume of letterVolumes)sourceToElement(volume,"platform",fitBoundary(volume.points,9.05),volume.id);
     if(mode!=="letters")for(const volume of voidVolumes)sourceToElement(volume,"void",fitBoundary(volume.points,8.5),volume.id);
-    if (mode !== "voids") {
-      // Source components are synthesized into a limited set of major O3
-      // occupied zones; every input volume participates in exactly one zone.
-      for (const volume of letterArchitectureZones) {
-        const footprint = volume.points;
-        const normalizedZ = (volume.z-minZ)/Math.max(.001,sourceSpan);
-        const plate = add(`full-form-letter-${volume.id}`,"platform",footprint,datum-.18+normalizedZ*.12,.48+normalizedZ*.12);
-        const support=sourceSupport(volume);
-        assign(plate,support,incident(support),"PLATE / FULL_LETTER_VOLUME","local","O3 occupied surface derived from transformed, overlap-unified letter volumes before any graph connection.");
-      }
-    }
     if (mode === "voids") {
       for (const volume of voidArchitectureZones) {
         const sourceVolume=voidVolumes.find(candidate=>candidate.id===volume.id)??volume;
@@ -1070,43 +1151,13 @@ function buildDomainOrganization(source: CompositionPlacement[], analysis: Retur
       const anchor=[...occupiedComponents].sort((a,b)=>Math.hypot(a.center[0]-target[0],a.center[1]-target[1])-Math.hypot(b.center[0]-target[0],b.center[1]-target[1]))[0];
       if(anchor)route(anchor.center,target,datum-.3,datum-.3,`tile-${edgeName}`,[],componentSupport(anchor),3.8+d("circulationActivated")*.8,true);
     }
-    const rasterUnionBoundary=(elements:ArchitecturalElement[],step=.4):Point2[]=>{
-      const minimum=-9.6,maximum=9.6,count=Math.ceil((maximum-minimum)/step),filled=new Set<string>();
-      for(let yi=0;yi<count;yi++)for(let xi=0;xi<count;xi++){
-        const point:[number,number]=[minimum+(xi+.5)*step,minimum+(yi+.5)*step];
-        if(elements.some(element=>element.kind!=="void"&&element.footprint&&pointInPolygon(point,element.footprint)))filled.add(`${xi}:${yi}`);
-      }
-      type Edge={a:Point2;b:Point2};const edges:Edge[]=[];
-      const coordinate=(x:number,y:number):Point2=>[minimum+x*step,minimum+y*step];
-      for(const key of filled){const [xi,yi]=key.split(":").map(Number),has=(x:number,y:number)=>filled.has(`${x}:${y}`);
-        if(!has(xi,yi-1))edges.push({a:coordinate(xi,yi),b:coordinate(xi+1,yi)});
-        if(!has(xi+1,yi))edges.push({a:coordinate(xi+1,yi),b:coordinate(xi+1,yi+1)});
-        if(!has(xi,yi+1))edges.push({a:coordinate(xi+1,yi+1),b:coordinate(xi,yi+1)});
-        if(!has(xi-1,yi))edges.push({a:coordinate(xi,yi+1),b:coordinate(xi,yi)});
-      }
-      const byStart=new Map<string,Edge[]>(),keyFor=(point:Point2)=>`${point[0].toFixed(3)}:${point[1].toFixed(3)}`;
-      for(const edge of edges){const list=byStart.get(keyFor(edge.a))??[];list.push(edge);byStart.set(keyFor(edge.a),list);}
-      const loops:Point2[][]=[];const unused=new Set(edges);
-      while(unused.size){const first=unused.values().next().value as Edge;unused.delete(first);const loop=[first.a,first.b];let current=first.b;
-        while(keyFor(current)!==keyFor(first.a)){const next=(byStart.get(keyFor(current))??[]).find(edge=>unused.has(edge));if(!next)break;unused.delete(next);loop.push(next.b);current=next.b;if(loop.length>edges.length+2)break;}
-        if(loop.length>=4&&keyFor(loop.at(-1)!)===keyFor(loop[0]))loops.push(loop.slice(0,-1));
-      }
-      const largest=loops.sort((a,b)=>polygonArea(b)-polygonArea(a))[0]??[];
-      return largest.length>=3?smoothClosedBoundary(largest,1):largest;
-    };
-    const integratedBoundary=rasterUnionBoundary([...primary,...circulation]);
-    if(integratedBoundary.length>=3){
-      const supports=unique(occupiedComponents.flatMap(component=>componentSupport(component).map(region=>region.id))).map(id=>byId.get(id)).filter((region):region is SourceBoundary=>!!region);
-      const field=add("full-form-integrated-plate-field","stage",integratedBoundary,datum-.31,.74);
-      assign(field,supports,incident(supports),"PLATE / FULL_SOURCE_FIELD_UNION","local","Concave occupied field raster-unites source-derived zones and substantial architectural links before organic refinement and SDF reconstruction.");
-    }
     const diagnostic=domainStats();
     diagnostic.organization="Full source-volume O3 plate / volumetric openings / secondary component links";
     return { primary, circulation, connections, outer, inner, entry, base: datum, diagnostic, develop, sourceElements,
       sourceComponentsBeforeUnion: mode==="letters"?source.length:mode==="voids"?analysis.voids.length:source.length+analysis.voids.length,
       sourceComponentsAfterUnion: mode==="letters"?letterVolumes.length:mode==="voids"?voidVolumes.length:letterVolumes.length+voidVolumes.length,
       disconnectedSourceGroups: occupiedComponents.length,
-      volumetricRepresentation:"Transformed slice prisms + connected void-cell volumes + SDF union" };
+      volumetricRepresentation:"Complete transformed letter solids + connected void volumes + SDF union" };
   }
   if (typology === "contained-room-within-volume") {
     // One enclosing field and a nested room, with an occupiable interstitial
@@ -1222,23 +1273,144 @@ function buildDomainOrganization(source: CompositionPlacement[], analysis: Retur
   }
 }
 
+/** The occupied mass is the letters where they already sit. Typology then reshapes that mass. */
+function intersectingFieldElements(source: CompositionPlacement[], mode: PrototypeGeometryMode, typology: PrototypeTypologyId, orientation: number, branching: number, seed: number): ArchitecturalElement[] {
+  const elements: ArchitecturalElement[] = [];
+  if (!source.length) return elements;
+  const xs = source.map((item) => item.x), ys = source.map((item) => item.y), zs = source.map((item) => item.z);
+  const records = source.map((item) => analyzeLetterPlacement(item));
+  const center: Point2 = [(Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2];
+  const zMin = Math.min(...zs);
+  const mean = source.reduce((sum, item) => sum + Math.max(.05, item.scale), 0) / source.length;
+  const letterRise = Math.max(.05, ...records.map((record) => record.maxY - record.minY));
+  const slab = Math.max(.02, letterRise * .18);
+  const axisX = Math.cos(orientation), axisY = Math.sin(orientation);
+  const shift = (point: Point2, along: number, across: number): Point2 => [point[0] + axisX * along - axisY * across, point[1] + axisY * along + axisX * across];
+  if (mode !== "voids") source.forEach((item, index) => elements.push(letterSpaceElement(item, `${mode}-letter-space-${index}`)));
+  const hullPoints = records.flatMap((record) => record.boundary.points);
+  const hull = hullPoints.length >= 3 ? convexHull(hullPoints) : orientedEllipseBoundary(center, mean * .6, mean * .45, orientation, 24);
+  const hullXs = hull.map((point) => point[0]), hullYs = hull.map((point) => point[1]);
+  const span = Math.max(mean, Math.max(...hullXs) - Math.min(...hullXs), Math.max(...hullYs) - Math.min(...hullYs));
+  const hullRadius = Math.max(mean * .45, ...hull.map((point) => Math.hypot(point[0] - center[0], point[1] - center[1])));
+  const add = (id: string, kind: ArchitecturalElement["kind"], footprint: Point2[], z: number, height: number, extra: Partial<ArchitecturalElement> = {}) => {
+    elements.push({ id: `${mode}-${id}`, kind, x: 0, y: 0, z, width: 1, depth: 1, height, rotation: 0, footprint, ...extra });
+  };
+  if (typology === "stepped-amphitheater") {
+    const rows = 3 + Math.round(branching * 2);
+    for (let row = 0; row < rows; row++) {
+      const inner = hullRadius * (.24 + row * .16);
+      const outer = inner + hullRadius * .13;
+      add(`terraced-armature-${row}`, "platform", amphitheaterBand(center, inner, inner * .86, outer, outer * .86, orientation, -Math.PI / 2, .72), zMin + row * letterRise * .22, slab);
+    }
+    add("amphitheater-focus", "platform", orientedRectangleBoundary(center, hullRadius * .16, hullRadius * .16, orientation, slab * .25), zMin + slab * .15, slab);
+    const aisles = 2 + Math.round(branching * 4);
+    for (let aisle = 0; aisle < aisles; aisle++) {
+      const side = aisle % 2 ? 1 : -1;
+      const spread = (Math.floor(aisle / 2) + 1) / Math.max(1, Math.ceil(aisles / 2));
+      const angle = -Math.PI / 2 + side * .72 * (.28 + spread * .62);
+      const from = orientedEllipsePoint(center, hullRadius * .18, hullRadius * .16, orientation, angle);
+      const to = orientedEllipsePoint(center, hullRadius * .92, hullRadius * .8, orientation, angle);
+      add(`terrace-aisle-${aisle}`, "circulation", curvedRibbon(from, to, hullRadius * .08, .04, seed + aisle), zMin, slab, { rise: rows * letterRise * .2, slopeFrom: from, slopeTo: to });
+    }
+  } else if (typology === "topographic-ground-field-lobby") {
+    const count = 4 + Math.round(branching * 2);
+    for (let band = 0; band < count; band++) {
+      const across = (band - (count - 1) / 2) * span * .045;
+      const plate = scaleBoundary(hull, .9 + band * .04).map((point) => shift(point, 0, across));
+      add(`topographic-band-${band}`, "circulation", plate, zMin + band * letterRise * .28, slab, { rise: letterRise * (.08 + band * .04), slopeFrom: shift(center, -span * .4, across), slopeTo: shift(center, span * .4, across) });
+    }
+  } else if (typology === "linear-gallery-lobby" || typology === "continuous-hall-lobby") {
+    const from = shift(center, -span * .48, 0), to = shift(center, span * .48, 0);
+    const width = typology === "continuous-hall-lobby" ? hullRadius * .55 : hullRadius * .22;
+    add(typology === "continuous-hall-lobby" ? "continuous-arrival-hall" : "gallery-spine", "platform", curvedRibbon(from, to, width, .04, seed), zMin, slab);
+    const teeth = (typology === "continuous-hall-lobby" ? 3 : 5) + Math.round(branching * (typology === "continuous-hall-lobby" ? 5 : 6));
+    for (let tooth = 0; tooth < teeth; tooth++) {
+      const amount = (tooth + 1) / (teeth + 1);
+      const base: Point2 = [from[0] + (to[0] - from[0]) * amount, from[1] + (to[1] - from[1]) * amount];
+      const side = tooth % 2 ? 1 : -1;
+      const reach = hullRadius * (.45 + (tooth % 3) * .08) + branching * hullRadius * .08;
+      const tip = shift(base, 0, side * reach);
+      add(`${typology === "continuous-hall-lobby" ? "hall-rib" : "gallery-tooth"}-${tooth}`, "circulation", curvedRibbon(base, tip, hullRadius * .08, .02, seed + tooth), zMin, slab, { slopeFrom: base, slopeTo: tip });
+    }
+  } else if (typology === "linear-edge-gallery") {
+    source.forEach((item, index) => {
+      for (let level = 0; level < 3; level++) {
+        add(`edge-block-${index}-${level}`, "platform", orientedRectangleBoundary([item.x, item.y], mean * .42, mean * .28, orientation, slab * .2), item.z + level * slab * 1.5, slab);
+      }
+    });
+  } else if (typology === "folded-undulating-work-surface") {
+    for (let band = 0; band < 3; band++) {
+      const across = (band - 1) * span * .14;
+      const plate = scaleBoundary(hull, .92).map((point) => shift(point, 0, across));
+      add(`folded-band-${band}`, "circulation", plate, zMin + band * slab * 1.3, slab, { rise: slab * (1.1 + band * .45), slopeFrom: shift(center, -span * .4, across), slopeTo: shift(center, span * .4, across) });
+    }
+  } else if (typology === "cascaded-terraced-plates") {
+    const rows = 3 + Math.round(branching * 2);
+    for (let row = 0; row < rows; row++) {
+      const along = (row - (rows - 1) / 2) * span * .12;
+      add(`cascaded-plate-${row}`, "platform", orientedEllipseBoundary(shift(center, along, 0), hullRadius * (.72 - row * .06), hullRadius * (.56 - row * .04), orientation, 28), zMin + row * slab * 1.7, slab);
+    }
+  } else if (typology === "open-hall-workspace") {
+    add("open-hall-plate", "platform", orientedEllipseBoundary(center, hullRadius * .95, hullRadius * .72, orientation, 32), zMin, slab);
+  } else if (typology === "flat-deep-plan-plate") {
+    add("deep-plan-plate", "platform", scaleBoundary(hull, 1.04), zMin, slab * .55);
+  } else if (typology === "inserted-horizontal-plate") {
+    add("projecting-plate", "platform", curvedRibbon(shift(center, -span * .15, 0), shift(center, span * .55, 0), hullRadius * .7, .06, seed), zMin, slab * .7);
+  } else if (typology === "compressed-sequential-lobby") {
+    for (let station = 0; station < 5; station++) {
+      const along = -span * .42 + station * span * .21;
+      const wide = station % 2 === 0;
+      add(`sequential-threshold-${station}`, wide ? "platform" : "enclosure", orientedRectangleBoundary(shift(center, along, 0), span * .16, wide ? hullRadius * .92 : hullRadius * .46, orientation, slab * .2), zMin, wide ? letterRise * .28 : letterRise * .92, wide ? {} : { innerFootprint: orientedRectangleBoundary(shift(center, along, 0), span * .1, hullRadius * .28, orientation, slab * .15) });
+    }
+  } else if (typology === "contained-room-within-volume") {
+    const outer = scaleBoundary(hull, 1.22);
+    const inner = scaleBoundary(hull, .58);
+    add("contained-room", "platform", inner, zMin + slab * .2, slab);
+    add("contained-enclosure", "enclosure", outer, zMin, slab * 3.2, { innerFootprint: scaleBoundary(outer, .9) });
+  } else if (typology === "vertical-void-lobby") {
+    for (let level = 0; level < 3; level++) {
+      const plate = scaleBoundary(hull, .82 + level * .08);
+      add(`void-overlook-${level}`, level ? "platform" : "stage", plate, zMin + level * Math.max(span * .08, slab * 2.6), slab, { innerFootprint: orientedEllipseBoundary(center, hullRadius * .24, hullRadius * .2, orientation, 24) });
+    }
+  } else if (typology === "void-field-gathering" || typology === "void-edge-workspace") {
+    voidBoundaries(source, false).slice(0, typology === "void-field-gathering" ? 5 : 3).forEach((region, index) => {
+      const radius = Math.max(slab, Math.sqrt(region.area / Math.PI));
+      const outer = orientedEllipseBoundary(region.center, radius * (typology === "void-edge-workspace" ? 1.85 : 1.35), radius * 1.2, orientation + index * .17, 28);
+      add(`void-organized-edge-${index}`, "platform", outer, region.z, slab, { innerFootprint: region.points });
+      add(`preserved-field-void-${index}`, "void", region.points, region.zMin, Math.max(slab * 2, region.zMax - region.zMin), { transparent: true });
+    });
+  }
+  if (mode !== "letters") {
+    voidBoundaries(source, false).slice(0, 8).forEach((region, index) => {
+      if (elements.some((element) => element.id === `${mode}-preserved-field-void-${index}`)) return;
+      add(`source-void-${index}`, "void", region.points, region.zMin, Math.max(slab * 2, region.zMax - region.zMin), { transparent: true });
+    });
+  }
+  return elements;
+}
+
 export function generateProtoArchitecture({ source, descriptors, mode, category = "gathering", typology = "stepped-amphitheater", seed, continuityControls = DEFAULT_CONTINUITY_CONTROLS, sourceAnalysis, quality = "final" }: { source: CompositionPlacement[]; descriptors: DescriptorSettings; mode: PrototypeGeometryMode; category?: PrototypeCategory; typology?: PrototypeTypologyId; seed: number; continuityControls?: ContinuityControls; sourceAnalysis?: ReturnType<typeof analyzeSourceGeometry>; quality?: "preview" | "final" }): AmphitheaterVariation {
   const rule = getTypologyRule(typology);
   if (rule.category !== category) category = rule.category;
   const behaviors = rule.behaviors;
   const activeOperations = new Set<SpatialOperation>([...rule.operations.primary, ...rule.operations.secondary]);
   const operationEnabled = (operation: SpatialOperation) => activeOperations.has(operation);
-  type OrganizerBuilderId = "stepped" | "void-field" | "contained" | "sequential" | "continuous-hall" | "cascaded" | "vertical-void" | "linear" | "topographic" | "projected" | "plate";
+  type OrganizerBuilderId = "stepped" | "void-field" | "contained" | "sequential" | "continuous-hall" | "cascaded" | "vertical-void" | "linear-edge" | "gallery-comb" | "folded" | "topographic" | "projected" | "flat-cells" | "open-hall" | "linear" | "plate";
   const organizerDispatch: Array<{ id: OrganizerBuilderId; operations: SpatialOperation[]; matches: () => boolean }> = [
-    { id: "stepped", operations: ["TERRACE", "CONVERGE"], matches: () => typology === "stepped-amphitheater" && operationEnabled("TERRACE") },
-    { id: "void-field", operations: ["VOID", "FIELD", "EDGE"], matches: () => operationEnabled("VOID") && (operationEnabled("FIELD") || operationEnabled("EDGE")) },
-    { id: "contained", operations: ["CONTAIN", "ENCLOSE"], matches: () => operationEnabled("CONTAIN") },
-    { id: "sequential", operations: ["SEQUENCE", "ENCLOSE"], matches: () => operationEnabled("SEQUENCE") && operationEnabled("ENCLOSE") },
-    { id: "continuous-hall", operations: ["LINEARIZE", "CONTINUITY"], matches: () => operationEnabled("LINEARIZE") && operationEnabled("CONTINUITY") },
-    { id: "cascaded", operations: ["TERRACE", "PLATE"], matches: () => operationEnabled("TERRACE") },
-    { id: "vertical-void", operations: ["VOID", "VERTICALIZE"], matches: () => operationEnabled("VOID") && operationEnabled("VERTICALIZE") },
-    { id: "topographic", operations: ["FOLD", "TOPOGRAPH"], matches: () => operationEnabled("FOLD") || operationEnabled("TOPOGRAPH") },
-    { id: "projected", operations: ["PROJECT", "PLATE"], matches: () => operationEnabled("PROJECT") },
+    { id: "stepped", operations: ["TERRACE", "CONVERGE"], matches: () => typology === "stepped-amphitheater" },
+    { id: "void-field", operations: ["VOID", "FIELD", "EDGE"], matches: () => typology === "void-field-gathering" || typology === "void-edge-workspace" },
+    { id: "contained", operations: ["CONTAIN", "ENCLOSE"], matches: () => typology === "contained-room-within-volume" },
+    { id: "sequential", operations: ["SEQUENCE", "ENCLOSE"], matches: () => typology === "compressed-sequential-lobby" },
+    { id: "continuous-hall", operations: ["LINEARIZE", "CONTINUITY"], matches: () => typology === "continuous-hall-lobby" },
+    { id: "cascaded", operations: ["TERRACE", "PLATE"], matches: () => typology === "cascaded-terraced-plates" },
+    { id: "vertical-void", operations: ["VOID", "VERTICALIZE"], matches: () => typology === "vertical-void-lobby" },
+    { id: "folded", operations: ["FOLD"], matches: () => typology === "folded-undulating-work-surface" },
+    { id: "topographic", operations: ["TOPOGRAPH", "FIELD"], matches: () => typology === "topographic-ground-field-lobby" },
+    { id: "projected", operations: ["PROJECT", "PLATE"], matches: () => typology === "inserted-horizontal-plate" },
+    { id: "linear-edge", operations: ["LINEARIZE", "EDGE"], matches: () => typology === "linear-edge-gallery" },
+    { id: "gallery-comb", operations: ["LINEARIZE", "SEQUENCE"], matches: () => typology === "linear-gallery-lobby" },
+    { id: "flat-cells", operations: ["PLATE", "DEPTH"], matches: () => typology === "flat-deep-plan-plate" },
+    { id: "open-hall", operations: ["PLATE", "OPENNESS"], matches: () => typology === "open-hall-workspace" },
     { id: "linear", operations: ["LINEARIZE"], matches: () => operationEnabled("LINEARIZE") },
     { id: "plate", operations: ["PLATE"], matches: () => operationEnabled("PLATE") },
   ];
@@ -1323,7 +1495,14 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
     ? redistributedCenter
     : redistributedCenter + (region.z - redistributedCenter) * elevationTransfer;
   let primaryElevation = gatheringRegion ? architecturalElevation(gatheringRegion) : 0;
-  if (primaryFootprint.length >= 3 && !voidFirstTypology) {
+  const figureOwnsGround = ["flat-deep-plan-plate", "linear-gallery-lobby", "linear-edge-gallery", "folded-undulating-work-surface", "topographic-ground-field-lobby"].includes(typology);
+  const fieldXs = source.map((item) => item.x), fieldYs = source.map((item) => item.y);
+  const fieldSpan = source.length ? Math.max(.2, Math.max(...fieldXs) - Math.min(...fieldXs), Math.max(...fieldYs) - Math.min(...fieldYs)) : 1;
+  const fieldCenter: Point2 = source.length ? [(Math.min(...fieldXs) + Math.max(...fieldXs)) / 2, (Math.min(...fieldYs) + Math.max(...fieldYs)) / 2] : [0, 0];
+  const meanLetter = source.length ? source.reduce((sum, item) => sum + Math.max(.05, item.scale), 0) / source.length : .5;
+  const detail = Math.max(.03, meanLetter * .22);
+  const letterField = source.length > 0;
+  if (primaryFootprint.length >= 3 && !voidFirstTypology && !figureOwnsGround && !letterField) {
     initialElements.push({ id: `${mode}-initial-primary-space`, kind: "stage", x: 0, y: 0, z: primaryElevation, width: 1, depth: 1, height: .4, rotation: 0, footprint: primaryFootprint, innerFootprint: primaryInnerFootprint });
     elements.push({ id: `${mode}-primary-space`, kind: "stage", x: 0, y: 0, z: primaryElevation, width: 1, depth: 1, height: .46 + contextOpen * .16, rotation: 0, footprint: primaryFootprint, innerFootprint: primaryInnerFootprint });
     if (behaviors.containment > .65 && primaryInnerFootprint) {
@@ -1342,7 +1521,12 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
   const openingAngle = THREE.MathUtils.degToRad(48 + contextOpen * 16);
   const openingCenter = -Math.PI / 2 + signature * .18;
   const armatureRise = rise * (.38 + behaviors.terracing * .24 + behaviors.verticalVoidDominance * .2);
-  if (organizerBuilder === "stepped") {
+  if (letterField) {
+    intersectingFieldElements(source, mode, typology, sourceOrientation, branchingInfluence, seed).forEach((element) => {
+      initialElements.push({ ...element, id: `${element.id}-initial`, rise: 0 });
+      elements.push(element);
+    });
+  } else if (organizerBuilder === "stepped") {
     // The radial/open C-shaped bands are exclusive to SteppedAmphitheaterRuleSet.
     // Descriptors tune their dimensions but cannot invoke them in another type.
     for (let row = 0; row < primaryRows; row++) {
@@ -1352,6 +1536,8 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
       const terrace: ArchitecturalElement = { id: `${mode}-terraced-armature-${row}`, kind: "platform", x: 0, y: 0, z: primaryElevation + .18 + row * armatureRise, width: 1, depth: 1, height: .44, rotation: 0, footprint };
       initialElements.push({ ...terrace, id: `${mode}-initial-terraced-armature-${row}` }); elements.push(terrace);
     }
+    const focus = orientedRectangleBoundary(primaryCenter, 1.05, 1.05, sourceOrientation, .08);
+    elements.push({ id: `${mode}-amphitheater-focus`, kind: "platform", x: 0, y: 0, z: primaryElevation + .06, width: 1, depth: 1, height: .34, rotation: 0, footprint: focus });
   } else if (organizerBuilder === "void-field") {
     const fieldVoids = distributedBoundaries(voidRegions, typology === "void-field-gathering" ? 5 : 3);
     fieldVoids.forEach((region, index) => {
@@ -1383,11 +1569,20 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
     const to: Point2 = [primaryCenter[0] + Math.cos(sourceOrientation) * 7.4, primaryCenter[1] + Math.sin(sourceOrientation) * 7.4];
     const hall: ArchitecturalElement = { id: `${mode}-continuous-arrival-hall`, kind: "platform", x: 0, y: 0, z: primaryElevation, width: 1, depth: 1, height: .46, rotation: 0, footprint: fitBoundary(curvedRibbon(from, to, 3.25, organicInfluence * boundaryCurvature * .2, seed), 9.1) };
     initialElements.push({ ...hall, id: `${mode}-initial-continuous-arrival-hall` }); elements.push(hall);
+    const ribs = 3 + Math.round(branchingInfluence * 5);
+    for (let rib = 0; rib < ribs; rib++) {
+      const amount = (rib + 1) / (ribs + 1);
+      const base: Point2 = [from[0] + (to[0] - from[0]) * amount, from[1] + (to[1] - from[1]) * amount];
+      const side = rib % 2 ? 1 : -1;
+      const reach = 1.7 + (rib % 3) * .45 + branchingInfluence * .4;
+      const tip: Point2 = [base[0] - Math.sin(sourceOrientation) * side * reach, base[1] + Math.cos(sourceOrientation) * side * reach];
+      elements.push({ id: `${mode}-hall-rib-${rib}`, kind: "circulation", x: 0, y: 0, z: primaryElevation, width: 1, depth: 1, height: .32, rotation: 0, footprint: curvedRibbon(base, tip, .55 + branchingInfluence * .25, .04, seed + rib), slopeFrom: base, slopeTo: tip });
+    }
   } else if (organizerBuilder === "cascaded") {
     for (let row = 0; row < primaryRows; row++) {
       const direction = row % 2 ? 1 : -1;
-      const center: Point2 = [primaryCenter[0] + Math.cos(sourceOrientation) * direction * row * .52, primaryCenter[1] + Math.sin(sourceOrientation) * direction * row * .52];
-      const footprint = fitBoundary(orientedRectangleBoundary(center, 5.6 - row * .32, 3.6 - row * .2, sourceOrientation, .55), 8.55);
+      const center: Point2 = [primaryCenter[0] + Math.cos(sourceOrientation) * direction * row * 1.15, primaryCenter[1] + Math.sin(sourceOrientation) * direction * row * 1.15];
+      const footprint = fitBoundary(orientedEllipseBoundary(center, 3.1 - row * .28, 2.35 - row * .18, sourceOrientation, 36), 8.55);
       const plate: ArchitecturalElement = { id: `${mode}-cascaded-plate-${row}`, kind: "platform", x: 0, y: 0, z: primaryElevation + .16 + row * armatureRise, width: 1, depth: 1, height: .42, rotation: 0, footprint };
       initialElements.push({ ...plate, id: `${mode}-initial-cascaded-plate-${row}` }); elements.push(plate);
     }
@@ -1398,6 +1593,59 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
       const plate: ArchitecturalElement = { id: `${mode}-void-overlook-${level}`, kind: "platform", x: 0, y: 0, z: primaryElevation + level * (.82 + vertical * .55), width: 1, depth: 1, height: .4, rotation: 0, footprint, innerFootprint };
       initialElements.push({ ...plate, id: `${mode}-initial-void-overlook-${level}` }); elements.push(plate);
     }
+  } else if (organizerBuilder === "linear-edge") {
+    for (let bay = 0; bay < 4; bay++) {
+      for (let level = 0; level < 3; level++) {
+        const along = -4.6 + bay * 3.05;
+        const center: Point2 = [primaryCenter[0] + Math.cos(sourceOrientation) * along, primaryCenter[1] + Math.sin(sourceOrientation) * along];
+        const footprint = fitBoundary(orientedRectangleBoundary(center, 1.25, .85, sourceOrientation, .12), 8.4);
+        const block: ArchitecturalElement = { id: `${mode}-edge-block-${bay}-${level}`, kind: "platform", x: 0, y: 0, z: primaryElevation + level * (.38 + behaviors.verticalConnectivity * .12), width: 1, depth: 1, height: .36, rotation: 0, footprint };
+        initialElements.push({ ...block, id: `${mode}-initial-edge-block-${bay}-${level}` });
+        elements.push(block);
+      }
+    }
+  } else if (organizerBuilder === "gallery-comb") {
+    const teeth = 5 + Math.round(branchingInfluence * 6);
+    const from: Point2 = [primaryCenter[0] - Math.cos(sourceOrientation) * 6.2, primaryCenter[1] - Math.sin(sourceOrientation) * 6.2];
+    const to: Point2 = [primaryCenter[0] + Math.cos(sourceOrientation) * 6.2, primaryCenter[1] + Math.sin(sourceOrientation) * 6.2];
+    const spine: ArchitecturalElement = { id: `${mode}-gallery-spine`, kind: "platform", x: 0, y: 0, z: primaryElevation, width: 1, depth: 1, height: .32, rotation: 0, footprint: fitBoundary(curvedRibbon(from, to, 1.15, .04, seed), 8.8) };
+    initialElements.push({ ...spine, id: `${mode}-initial-gallery-spine` });
+    elements.push(spine);
+    for (let tooth = 0; tooth < teeth; tooth++) {
+      const amount = teeth === 1 ? .5 : tooth / (teeth - 1);
+      const base: Point2 = [from[0] + (to[0] - from[0]) * amount, from[1] + (to[1] - from[1]) * amount];
+      const side = tooth % 2 ? 1 : -1;
+      const reach = 2.15 + (tooth % 3) * .4 + branchingInfluence * .55;
+      const tip: Point2 = [base[0] - Math.sin(sourceOrientation) * side * reach, base[1] + Math.cos(sourceOrientation) * side * reach];
+      elements.push({ id: `${mode}-gallery-tooth-${tooth}`, kind: "circulation", x: 0, y: 0, z: primaryElevation, width: 1, depth: 1, height: .28, rotation: 0, footprint: curvedRibbon(base, tip, .48 + branchingInfluence * .22, .02, seed + tooth), slopeFrom: base, slopeTo: tip });
+    }
+  } else if (organizerBuilder === "folded") {
+    for (let band = 0; band < 3; band++) {
+      const from: Point2 = [-6.2, -1.6 + band * 1.7], to: Point2 = [6.2, -.4 + band * 1.7];
+      const ribbon: ArchitecturalElement = { id: `${mode}-folded-band-${band}`, kind: "circulation", x: 0, y: 0, z: primaryElevation + band * .22, width: 1, depth: 1, height: .4, rotation: 0, footprint: curvedRibbon(from, to, 1.35, .42 + organicSculptural * .35, seed + band * 3), rise: rise * (.8 + band * .55), slopeFrom: from, slopeTo: to };
+      initialElements.push({ ...ribbon, id: `${mode}-initial-folded-band-${band}` });
+      elements.push(ribbon);
+    }
+  } else if (organizerBuilder === "topographic") {
+    const layers = 4 + Math.round(branchingInfluence * 2);
+    for (let band = 0; band < layers; band++) {
+      const from: Point2 = [-7.6, -4.4 + band * 2.15], to: Point2 = [7.6, -2.2 + band * 2.15];
+      const ribbon: ArchitecturalElement = { id: `${mode}-topographic-band-${band}`, kind: "circulation", x: 0, y: 0, z: primaryElevation + band * (.16 + contextOpen * .08), width: 1, depth: 1, height: .34, rotation: 0, footprint: curvedRibbon(from, to, 2.15 + behaviors.openness * .8, .18 + organicSculptural * .28, seed + band), rise: rise * (.28 + band * .12), slopeFrom: from, slopeTo: to };
+      initialElements.push({ ...ribbon, id: `${mode}-initial-topographic-band-${band}` });
+      elements.push(ribbon);
+    }
+  } else if (organizerBuilder === "flat-cells") {
+    const offsets: Point2[] = [[0, 0], [2.7, 0], [-2.7, 0], [1.35, 2.34], [-1.35, 2.34], [1.35, -2.34], [-1.35, -2.34], [4.05, 2.34], [-4.05, -2.34]];
+    offsets.forEach((offset, index) => {
+      const center: Point2 = [primaryCenter[0] + offset[0], primaryCenter[1] + offset[1]];
+      const cell: ArchitecturalElement = { id: `${mode}-deep-plan-cell-${index}`, kind: "platform", x: 0, y: 0, z: primaryElevation, width: 1, depth: 1, height: .22, rotation: 0, footprint: fitBoundary(orientedEllipseBoundary(center, 1.55, 1.55, 0, 24), 8.6) };
+      initialElements.push({ ...cell, id: `${mode}-initial-deep-plan-cell-${index}` });
+      elements.push(cell);
+    });
+  } else if (organizerBuilder === "open-hall") {
+    const hall: ArchitecturalElement = { id: `${mode}-open-hall-plate`, kind: "platform", x: 0, y: 0, z: primaryElevation, width: 1, depth: 1, height: .3, rotation: 0, footprint: fitBoundary(orientedEllipseBoundary(primaryCenter, 4.8 + contextOpen, 3.6 + contextOpen * .4, sourceOrientation, 36), 8.8) };
+    initialElements.push({ ...hall, id: `${mode}-initial-open-hall-plate` });
+    elements.push(hall);
   } else if (organizerBuilder === "linear") {
     for (let band = 0; band < primaryRows; band++) {
       const localOffset = (band - (primaryRows - 1) / 2) * 2.2;
@@ -1405,12 +1653,6 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
       const footprint = fitBoundary(orientedRectangleBoundary(center, Math.min(8.2, stageRadiusX + 1.2), .75 + behaviors.edgeOccupation * .45, sourceOrientation, .3), 8.85);
       const plate: ArchitecturalElement = { id: `${mode}-linear-band-${band}`, kind: "platform", x: 0, y: 0, z: primaryElevation + band * rise * behaviors.topographicDeformation, width: 1, depth: 1, height: .42, rotation: 0, footprint };
       initialElements.push({ ...plate, id: `${mode}-initial-linear-band-${band}` }); elements.push(plate);
-    }
-  } else if (organizerBuilder === "topographic") {
-    for (let band = 0; band < primaryRows; band++) {
-      const from: Point2 = [-7.4, -3.2 + band * 2.8], to: Point2 = [7.4, -1.4 + band * 2.8];
-      const ribbon: ArchitecturalElement = { id: `${mode}-topographic-band-${band}`, kind: "circulation", x: 0, y: 0, z: primaryElevation + band * .18, width: 1, depth: 1, height: .48, rotation: 0, footprint: curvedRibbon(from, to, 2 + behaviors.surfaceContinuity, .12 + organicSculptural * .48, seed + band), rise: rise * (1 + band * .35), slopeFrom: from, slopeTo: to };
-      initialElements.push({ ...ribbon, id: `${mode}-initial-topographic-band-${band}` }); elements.push(ribbon);
     }
   } else if (organizerBuilder === "projected") {
     [-1, 1].forEach((side) => {
@@ -1423,30 +1665,47 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
   const upperInnerX = stageRadiusX + .1 + (primaryRows - 1) * .78;
   const upperInnerY = stageRadiusY + .08 + (primaryRows - 1) * .62;
   const topElevation = primaryElevation + .18 + (primaryRows - 1) * armatureRise;
-  if (organizerBuilder === "stepped" && operationEnabled("TERRACE")) [-1, 1].forEach((side) => {
-    const angle = openingCenter + side * openingAngle * .58;
-    const from = orientedEllipsePoint(primaryCenter, stageRadiusX * .92, stageRadiusY * .92, sourceOrientation, angle);
-    const to = orientedEllipsePoint(primaryCenter, upperInnerX + .55, upperInnerY + .45, sourceOrientation, angle);
-    const route: ArchitecturalElement = {
-      id: `${mode}-terrace-aisle-${side < 0 ? "left" : "right"}`, kind: "circulation", x: 0, y: 0, z: primaryElevation + .08,
-      width: 1, depth: 1, height: .5, rotation: 0,
-      footprint: fitBoundary(curvedRibbon(from, to, 1.08 + circulation * .42, organicInfluence * boundaryCurvature * continuityControls.curvatureIntensity / 180, seed + side * 13), 8.9),
-      rise: topElevation - primaryElevation, slopeFrom: from, slopeTo: to,
-    };
-    initialElements.push({ ...route, id: `${mode}-initial-terrace-aisle-${side < 0 ? "left" : "right"}` });
-    elements.push(route);
-  });
+  if (!letterField && organizerBuilder === "stepped" && operationEnabled("TERRACE")) {
+    const aisleCount = 2 + Math.round(branchingInfluence * 4);
+    for (let aisle = 0; aisle < aisleCount; aisle++) {
+      const side = aisle % 2 ? 1 : -1;
+      const spread = (Math.floor(aisle / 2) + 1) / Math.max(1, Math.ceil(aisleCount / 2));
+      const angle = openingCenter + side * openingAngle * (.28 + spread * .62);
+      const from = orientedEllipsePoint(primaryCenter, stageRadiusX * .72, stageRadiusY * .72, sourceOrientation, angle);
+      const to = orientedEllipsePoint(primaryCenter, upperInnerX + .55, upperInnerY + .45, sourceOrientation, angle);
+      const route: ArchitecturalElement = {
+        id: `${mode}-terrace-aisle-${aisle}`, kind: "circulation", x: 0, y: 0, z: primaryElevation + .08,
+        width: 1, depth: 1, height: .5, rotation: 0,
+        footprint: fitBoundary(curvedRibbon(from, to, .72 + branchingInfluence * .35 + circulation * .2, organicInfluence * boundaryCurvature * continuityControls.curvatureIntensity / 180, seed + aisle * 13), 8.9),
+        rise: topElevation - primaryElevation, slopeFrom: from, slopeTo: to,
+      };
+      initialElements.push({ ...route, id: `${mode}-initial-terrace-aisle-${aisle}` });
+      elements.push(route);
+    }
+  }
   // Secondary letter/void clusters receive typology-scaled occupied architecture
   // so distant source geometry is not left as analysis overlay only. Descriptors,
   // typology behaviors, and continuity controls still drive local form.
-  if (!fullDomain) {
+  if (!fullDomain && !letterField) {
     const regionCoverageRadius = 1.65 + behaviors.horizontalPlateDominance * .35;
     const coveredCenters = elements
       .filter((element) => element.kind === "stage" || element.kind === "platform")
       .map((element) => (element.footprint ? boundaryCenter(element.footprint) : [element.x, element.y] as Point2));
     const satelliteRegions = (mode === "voids" ? voidRegions : mode === "letters" ? letterRegions : [...letterRegions, ...voidRegions])
       .filter((region) => region.points.length >= 3 && region.area >= Math.max(.35, maximumRegionArea * .045));
+    if (mode !== "voids") {
+      const placementByIdentity = new Map(recenteredPlacements(source).map((item) => [placementIdentity(item), item]));
+      analysis.letters.forEach((region, index) => {
+        const item = placementByIdentity.get(region.memberIds?.[0] ?? "");
+        if (!item) return;
+        const solid = letterSpaceElement(item, `${mode}-letter-space-${index}`);
+        initialElements.push({ ...solid, id: `${mode}-initial-${solid.id}` });
+        elements.push(solid);
+        coveredCenters.push([item.x, item.y]);
+      });
+    }
     satelliteRegions.forEach((region, index) => {
+      if (region.kind === "letter") return;
       if (coveredCenters.some((center) => Math.hypot(center[0] - region.center[0], center[1] - region.center[1]) < regionCoverageRadius)) return;
       const relative = clamp(Math.sqrt(region.area / maximumRegionArea), .32, 1);
       const retain = .42 + sourcePreservation * .38 + continuityControls.preservation / 280;
@@ -1481,23 +1740,11 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
           rotation: 0, footprint: inner ?? fitBoundaryPreserveCenter(scaleBoundary(region.points, .78), 9.2), transparent: true,
         });
       }
-      if (behaviors.terracing > .55 && region.kind === "letter" && vertical > .25) {
-        const ring = fitBoundaryPreserveCenter(
-          amphitheaterBand(region.center, localRadius * .95, localRadius * .75, localRadius * 1.45, localRadius * 1.15, sourceOrientation, openingCenter + index * .07, openingAngle * (.7 + contextOpen * .15), sourceModulation),
-          9.45,
-        );
-        const terrace: ArchitecturalElement = {
-          id: `${mode}-source-cluster-terrace-${index}`, kind: "platform",
-          x: 0, y: 0, z: elevation + .16 + armatureRise * .45, width: 1, depth: 1, height: .4, rotation: 0, footprint: ring,
-        };
-        initialElements.push({ ...terrace, id: `${mode}-initial-source-cluster-terrace-${index}` });
-        elements.push(terrace);
-      }
     });
   }
   // The three validation organizers replace the legacy small organizer before
   // connections. They consume the full extracted graph, never a detail sample.
-  const domain = fullDomain ? buildDomainOrganization(source, analysis, mode, typology, descriptors, continuityControls, seed) : undefined;
+  const domain = letterField ? undefined : fullDomain ? buildDomainOrganization(source, analysis, mode, typology, descriptors, continuityControls, seed) : undefined;
   if (domain) {
     elements.splice(0, elements.length, ...domain.primary);
     initialElements.splice(0, initialElements.length, ...domain.primary.map(element => ({ ...element })));
@@ -1505,7 +1752,7 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
     primaryInnerFootprint = domain.inner;
     primaryCenter = domain.entry;
     primaryElevation = domain.base;
-  } else if (fullDomain) {
+  } else if (fullDomain && !letterField) {
     elements.length = 0;
     initialElements.length = 0;
     failures.push(typology === "vertical-void-lobby" ? "UNSUPPORTED SOURCE FOR VERTICAL VOID LOBBY — no adequate connected vertical void chain." : "No usable source-domain organizer is available. Choose a larger region or a source mode with extracted components.");
@@ -1569,30 +1816,33 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
   };
 
   const maximumConnection = Math.max(.5, continuityControls.connectionDistance);
+  const routeFamily = circulationFamily(typology);
+  const verticalFamilies = new Set<CirculationFamily>(["radial", "field", "atrium", "room", "terrace"]);
   const networkTarget = targetNodes[0] ?? { center: primaryCenter, z: primaryElevation };
   const networkCenter = networkTarget.center;
   const targetElevations = targetNodes.map((target) => target.z);
   const networkMinZ = Math.min(primaryElevation, ...targetElevations), networkMaxZ = Math.max(primaryElevation, ...targetElevations);
-  if (!domain && networkMaxZ - networkMinZ > .35) {
+  if (!domain && verticalFamilies.has(routeFamily) && networkMaxZ - networkMinZ > detail) {
     // Keep a narrow continuous vertical circulation datum through the full
     // occupied range. Sloped circulation bands provide the traversable route;
     // this core prevents source-derived upper and lower networks from becoming
     // separate reconstructed meshes when their ramp fields narrowly miss.
-    const coreSize = .58 + vertical * .38;
-    const coreHeight = Math.max(.45, networkMaxZ - networkMinZ + .6);
+    const coreSize = (.58 + vertical * .38) * detail;
+    const coreHeight = Math.max(detail, networkMaxZ - networkMinZ + detail);
     const verticalCore: ArchitecturalElement = { id: `${mode}-vertical-core`, kind: "circulation", x: networkCenter[0], y: networkCenter[1], z: networkMinZ, width: coreSize, depth: coreSize, height: coreHeight, rotation: 45 };
     initialElements.push({ ...verticalCore, id: `${mode}-initial-vertical-core` });
     addConnector(verticalCore);
   }
   const primaryLinkDistance = Math.hypot(networkCenter[0] - primaryCenter[0], networkCenter[1] - primaryCenter[1]);
   const primaryLinkRise = networkTarget.z - primaryElevation;
-  if (!domain && (primaryLinkDistance > .05 || Math.abs(primaryLinkRise) > .05)) {
+  const quietLink = ["layered", "fold", "comb", "flat", "sequence", "plate", "edge"].includes(routeFamily);
+  if (!domain && !quietLink && (primaryLinkDistance > .05 || Math.abs(primaryLinkRise) > .05)) {
     const linkTarget: Point2 = primaryLinkDistance > .05
       ? networkCenter
-      : [networkCenter[0] + Math.cos(sourceOrientation) * 1.6, networkCenter[1] + Math.sin(sourceOrientation) * 1.6];
-    addConnector({ id: `${mode}-primary-floor-link`, kind: "circulation", x: 0, y: 0, z: primaryElevation - .12, width: 1, depth: 1, height: .82, rotation: 0, footprint: curvedRibbon(primaryCenter, linkTarget, 2.45, organicInfluence * .08, seed), rise: primaryLinkRise, slopeFrom: primaryCenter, slopeTo: linkTarget });
+      : [networkCenter[0] + Math.cos(sourceOrientation) * fieldSpan * .22, networkCenter[1] + Math.sin(sourceOrientation) * fieldSpan * .22];
+    addConnector({ id: `${mode}-primary-floor-link`, kind: "circulation", x: 0, y: 0, z: primaryElevation - detail * .15, width: 1, depth: 1, height: detail, rotation: 0, footprint: curvedRibbon(primaryCenter, linkTarget, detail * 2.2, organicInfluence * .08, seed), rise: primaryLinkRise, slopeFrom: primaryCenter, slopeTo: linkTarget });
     if (primaryLinkDistance <= .05) {
-      addConnector({ id: `${mode}-primary-floor-return`, kind: "circulation", x: 0, y: 0, z: networkTarget.z - .12, width: 1, depth: 1, height: .82, rotation: 0, footprint: curvedRibbon(linkTarget, networkCenter, 2.45, organicInfluence * .08, seed + 1), slopeFrom: linkTarget, slopeTo: networkCenter });
+      addConnector({ id: `${mode}-primary-floor-return`, kind: "circulation", x: 0, y: 0, z: networkTarget.z - detail * .15, width: 1, depth: 1, height: detail, rotation: 0, footprint: curvedRibbon(linkTarget, networkCenter, detail * 2.2, organicInfluence * .08, seed + 1), slopeFrom: linkTarget, slopeTo: networkCenter });
     }
   }
   const distanceToSegment = (point: Point2, from: Point2, to: Point2) => {
@@ -1608,8 +1858,22 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
   }));
   const connectionCandidates: ArchitecturalConnection[] = [];
   targetNodes.forEach((from, fromIndex) => targetNodes.slice(fromIndex + 1).forEach((to) => {
-    const planDistance = Math.hypot(to.center[0] - from.center[0], to.center[1] - from.center[1]);
+    const dx = to.center[0] - from.center[0], dy = to.center[1] - from.center[1];
+    const planDistance = Math.hypot(dx, dy);
     const elevationDifference = Math.abs(to.z - from.z);
+    const across = Math.abs(-dx * Math.sin(sourceOrientation) + dy * Math.cos(sourceOrientation));
+    const midDist = Math.hypot((from.center[0] + to.center[0]) / 2 - primaryCenter[0], (from.center[1] + to.center[1]) / 2 - primaryCenter[1]);
+    const fromRadius = Math.hypot(from.center[0] - primaryCenter[0], from.center[1] - primaryCenter[1]);
+    const radialAlign = planDistance < .05 || fromRadius < .05 ? 0 : Math.abs((from.center[0] - primaryCenter[0]) * dx + (from.center[1] - primaryCenter[1]) * dy) / (fromRadius * planDistance);
+    const preference = routeFamily === "radial" ? 1.35 - radialAlign * .7
+      : routeFamily === "comb" || routeFamily === "spine" || routeFamily === "sequence" || routeFamily === "edge" ? .45 + across / Math.max(planDistance, .2)
+        : routeFamily === "layered" || routeFamily === "fold" ? .55 + elevationDifference * .35
+          : routeFamily === "flat" || routeFamily === "hall" || routeFamily === "plate" ? .7 + elevationDifference * 3
+            : routeFamily === "atrium" ? .7 + (midDist < 1.4 ? 2.2 : 0)
+              : routeFamily === "ring" ? .65 + Math.abs(midDist - 2.4) * .35
+                : routeFamily === "terrace" ? .6 + elevationDifference * .2
+                  : .85;
+    const riseWeight = routeFamily === "flat" || routeFamily === "hall" || routeFamily === "plate" ? 4.2 : routeFamily === "atrium" || routeFamily === "radial" || routeFamily === "terrace" ? .55 : 1.35;
     const obstructionCount = voidRegions.filter((region) => region.id !== from.id && region.id !== to.id
       && Math.abs(region.z - (from.z + to.z) / 2) < 3
       && distanceToSegment(region.center, from.center, to.center) < Math.max(.55, Math.sqrt(region.area / Math.PI) * .55)).length;
@@ -1621,7 +1885,7 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
       id: `${from.id}-${to.id}`, fromId: from.id, toId: to.id, from: from.center, to: to.center, fromZ: from.z, toZ: to.z,
       planDistance, elevationDifference, visibility, kind,
       connectorKind: elevationDifference > .55 ? "ramp" : planDistance > 3 ? "bridge" : "terrace",
-      score: planDistance + elevationDifference * 1.35 + obstructionCount * 1.8 - sourceAffinity - circulation * 1.2 * visibility,
+      score: planDistance * preference + elevationDifference * riseWeight + obstructionCount * 1.8 - sourceAffinity - circulation * 1.2 * visibility,
     });
   }));
   // Prim's algorithm guarantees a spanning network. The old hub/distance pass
@@ -1646,55 +1910,60 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
   (domain ? [] : connectionCandidates)
     .filter((edge) => edge.planDistance <= maximumConnection && sourcePairKeys.has([edge.fromId, edge.toId].sort().join("|")))
     .sort((a, b) => a.score - b.score)
-    .slice(0, Math.round(2 + branchingInfluence * 6))
+    .slice(0, branchBudget(routeFamily, branchingInfluence))
     .forEach((edge) => { const key = [edge.fromId, edge.toId].sort().join("|"); if (!selectedKeys.has(key)) { selectedKeys.add(key); proposedConnections.push(edge); } });
 
-  const networkWidth = (mode === "letters" ? 1.25 : 1.72) + circulation * .65 + continuityControls.blendRadius / 250;
+  const networkWidth = ((mode === "letters" ? 1.25 : 1.72) + circulation * .65 + continuityControls.blendRadius / 250) * (detail / 1.15);
+  const widthGain = routeFamily === "hall" || routeFamily === "layered" ? 1.35 : routeFamily === "comb" ? .5 : routeFamily === "radial" ? .7 : routeFamily === "flat" ? .85 : 1;
+  const routeWidth = networkWidth * widthGain * (.7 + branchingInfluence * .4);
+  const riseScale = routeFamily === "flat" || routeFamily === "hall" || routeFamily === "plate" ? .04 : routeFamily === "layered" || routeFamily === "fold" ? .4 : 1;
+  const switchbackGain = routeFamily === "atrium" || routeFamily === "terrace" || routeFamily === "radial" ? 1 : routeFamily === "comb" || routeFamily === "flat" || routeFamily === "sequence" || routeFamily === "spine" ? 0 : .3;
+  const curveGain = routeFamily === "fold" ? 2.4 : routeFamily === "field" ? 1.4 : routeFamily === "comb" || routeFamily === "sequence" || routeFamily === "flat" ? .15 : 1;
   (domain ? [] : proposedConnections).forEach((relationship, connectionIndex) => {
     const dx = relationship.to[0] - relationship.from[0], dy = relationship.to[1] - relationship.from[1];
     const length = Math.max(.001, Math.hypot(dx, dy));
     const perpendicular: Point2 = [-dy / length, dx / length];
-    const segmentCount = Math.max(1, Math.ceil(relationship.elevationDifference / 1.6));
+    const segmentCount = Math.max(1, Math.ceil(relationship.elevationDifference * riseScale / 1.6));
     const waypoints = Array.from({ length: segmentCount + 1 }, (_, waypointIndex) => {
       const amount = waypointIndex / segmentCount;
-      const switchback = waypointIndex > 0 && waypointIndex < segmentCount ? (waypointIndex % 2 ? 1 : -1) * Math.min(1.4, relationship.elevationDifference * .16) : 0;
+      const switchback = waypointIndex > 0 && waypointIndex < segmentCount ? (waypointIndex % 2 ? 1 : -1) * Math.min(fieldSpan * .16, relationship.elevationDifference * .16) * switchbackGain : 0;
       return {
         point: [relationship.from[0] + dx * amount + perpendicular[0] * switchback, relationship.from[1] + dy * amount + perpendicular[1] * switchback] as Point2,
-        z: relationship.fromZ + (relationship.toZ - relationship.fromZ) * amount,
+        z: relationship.fromZ + (relationship.toZ - relationship.fromZ) * amount * riseScale,
       };
     });
     waypoints.slice(0, -1).forEach((fromWaypoint, segmentIndex) => {
       const toWaypoint = waypoints[segmentIndex + 1];
       const route: ArchitecturalElement = {
         id: `${mode}-network-${connectionIndex}-${segmentIndex}`, kind: "circulation", x: 0, y: 0, z: fromWaypoint.z,
-        width: 1, depth: 1, height: (mode === "letters" ? .44 : .62) + levelContinuity * .18, rotation: 0,
-        footprint: fitBoundary(curvedRibbon(fromWaypoint.point, toWaypoint.point, networkWidth, organicInfluence * boundaryCurvature * continuityControls.curvatureIntensity / 150, connectionIndex * 7 + segmentIndex + seed), 9.35),
+        width: 1, depth: 1, height: detail * (mode === "letters" ? 1.15 : 1.45) + levelContinuity * detail * .25, rotation: 0,
+        footprint: fitBoundary(curvedRibbon(fromWaypoint.point, toWaypoint.point, routeWidth, organicInfluence * boundaryCurvature * continuityControls.curvatureIntensity / 150 * curveGain, connectionIndex * 7 + segmentIndex + seed), 9.35),
         rise: toWaypoint.z - fromWaypoint.z, slopeFrom: fromWaypoint.point, slopeTo: toWaypoint.point,
       };
       addConnector(route, true);
       if (segmentIndex > 0 || segmentCount === 1) addConnector({
         id: `${mode}-network-landing-${connectionIndex}-${segmentIndex}`, kind: "circulation",
         x: fromWaypoint.point[0], y: fromWaypoint.point[1], z: fromWaypoint.z - .04,
-        width: networkWidth * 1.45, depth: networkWidth * 1.45, height: .56, rotation: 0,
+        width: routeWidth * 1.45, depth: routeWidth * 1.45, height: detail * 1.2, rotation: 0,
       });
     });
     [waypoints[0], waypoints[waypoints.length - 1]].forEach((waypoint, endpointIndex) => addConnector({
       id: `${mode}-network-end-${connectionIndex}-${endpointIndex}`, kind: "circulation", x: waypoint.point[0], y: waypoint.point[1], z: waypoint.z - .08,
-      width: networkWidth * 1.6, depth: networkWidth * 1.6, height: .62, rotation: 0,
+      width: routeWidth * 1.6, depth: routeWidth * 1.6, height: detail * 1.3, rotation: 0,
     }));
   });
-  if (!domain && mode !== "letters" && targetNodes.length > 1) {
+  if (!domain && mode !== "letters" && verticalFamilies.has(routeFamily) && targetNodes.length > 1) {
     const orderedByElevation = [...targetNodes].sort((first, second) => first.z - second.z);
     const lowest = orderedByElevation[0], highest = orderedByElevation[orderedByElevation.length - 1];
-    const highPoint: Point2 = Math.hypot(highest.center[0] - lowest.center[0], highest.center[1] - lowest.center[1]) < .55
-      ? [highest.center[0] + .8, highest.center[1]] : highest.center;
+    const highPoint: Point2 = Math.hypot(highest.center[0] - lowest.center[0], highest.center[1] - lowest.center[1]) < detail
+      ? [highest.center[0] + fieldSpan * .12, highest.center[1]] : highest.center;
     addConnector({
-      id: `${mode}-primary-interlevel-spine`, kind: "circulation", x: 0, y: 0, z: lowest.z - .08,
-      width: 1, depth: 1, height: .78, rotation: 0,
+      id: `${mode}-primary-interlevel-spine`, kind: "circulation", x: 0, y: 0, z: lowest.z - detail * .1,
+      width: 1, depth: 1, height: detail * 1.4, rotation: 0,
       footprint: fitBoundary(curvedRibbon(lowest.center, highPoint, networkWidth * 1.3, continuityControls.curvatureIntensity / 220, seed + 97), 9.35),
       rise: highest.z - lowest.z, slopeFrom: lowest.center, slopeTo: highPoint,
     }, true);
-    addConnector({ id: `${mode}-primary-interlevel-top`, kind: "circulation", x: highPoint[0], y: highPoint[1], z: highest.z - .1, width: networkWidth * 1.9, depth: networkWidth * 1.9, height: .72, rotation: 0 });
+    addConnector({ id: `${mode}-primary-interlevel-top`, kind: "circulation", x: highPoint[0], y: highPoint[1], z: highest.z - detail * .12, width: networkWidth * 1.9, depth: networkWidth * 1.9, height: detail * 1.3, rotation: 0 });
   }
   const circulationRelationships: SourceRelationship[] = proposedConnections;
 
@@ -1703,13 +1972,14 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
   // tile is stacked, without forcing an internal ramp down to zero elevation.
   const registeredElevation = primaryElevation;
   if (gatheringRegion) {
-    const center = domain?.entry ?? networkCenter;
-    const registeredConnections: Point2[] = [[9.1, 0], [0, 9.1]];
-    registeredConnections.forEach((edge, index) => addConnector({ id: `${mode}-primary-ramp-${index}`, kind: "circulation", x: 0, y: 0, z: primaryElevation, width: 1, depth: 1, height: .46, rotation: 0, footprint: fitBoundary(curvedRibbon(center, edge, 1.1 + circulation * .55, continuityControls.curvatureIntensity / 100 * .55, index + seed), 9.4), rise: 0, slopeFrom: center, slopeTo: edge }));
+    const center = domain?.entry ?? fieldCenter;
+    const edgeReach = fieldSpan * .62;
+    const registeredConnections: Point2[] = [[fieldCenter[0] + edgeReach, fieldCenter[1]], [fieldCenter[0], fieldCenter[1] + edgeReach]];
+    registeredConnections.forEach((edge, index) => addConnector({ id: `${mode}-primary-ramp-${index}`, kind: "circulation", x: 0, y: 0, z: primaryElevation, width: 1, depth: 1, height: detail, rotation: 0, footprint: curvedRibbon(center, edge, detail * (1.4 + circulation), continuityControls.curvatureIntensity / 100 * .55, index + seed), rise: 0, slopeFrom: center, slopeTo: edge }));
     // Start enclosure walls at the edge of the primary floor so they remain
     // structurally joined instead of becoming detached perimeter ribbons.
     const enclosureBoundary = fitBoundary(scaleBoundary(primaryFootprint, 1.03), 8.8);
-    (domain ? [] : enclosureBoundary).forEach((_, edgeIndex) => {
+    (domain || letterField ? [] : enclosureBoundary).forEach((_, edgeIndex) => {
       // Enclosures occupy selected short perimeter segments only, preserving
       // the open gathering edge and visual connections between levels.
       if ((edgeIndex + Math.round(signature * 4)) % 4 !== 1) return;
@@ -1717,9 +1987,9 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
     });
   }
 
-  const connectorWidth = 1.5 + circulation * 1.15;
-  addConnector({ id: `${mode}-connector-east`, kind: "connector", x: 9.85, y: 0, z: registeredElevation, width: 2.3, depth: connectorWidth, height: .5, rotation: 0 });
-  addConnector({ id: `${mode}-connector-north`, kind: "connector", x: 0, y: 9.85, z: registeredElevation, width: connectorWidth, depth: 2.3, height: .5, rotation: 0 });
+  const connectorWidth = detail * (1.6 + circulation);
+  addConnector({ id: `${mode}-connector-east`, kind: "connector", x: fieldCenter[0] + fieldSpan * .7, y: fieldCenter[1], z: registeredElevation, width: detail * 2.4, depth: connectorWidth, height: detail, rotation: 0 });
+  addConnector({ id: `${mode}-connector-north`, kind: "connector", x: fieldCenter[0], y: fieldCenter[1] + fieldSpan * .7, z: registeredElevation, width: connectorWidth, depth: detail * 2.4, height: detail, rotation: 0 });
   // In Void mode the bounded voids become occupiable source geometry. In
   // Combined mode, voids not promoted to platforms remain subtractive openings.
   if (!domain && mode === "combined") voidRegions.forEach((region, index) => {
@@ -1729,7 +1999,7 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
       return Math.hypot(center[0] - region.center[0], center[1] - region.center[1]) < 1.2;
     });
     if (alreadyPreserved) return;
-    const openingRadius = Math.max(.5, Math.sqrt(region.area / Math.PI));
+    const openingRadius = Math.max(detail, Math.sqrt(region.area / Math.PI));
     const intersectsRequiredConnection = proposedConnections.some((connection) => {
       const averageElevation = (connection.fromZ + connection.toZ) / 2;
       return Math.abs(architecturalElevation(region) - averageElevation) < 2.4
@@ -1737,14 +2007,14 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
     });
     // Required circulation has priority where a bounded void would sever the
     // spanning network. Other voids remain subtractive and fully open.
-    if (!intersectsRequiredConnection) elements.push({ id: `${mode}-source-void-${index}`, kind: "void", x: 0, y: 0, z: architecturalElevation(region), width: 1, depth: 1, height: 1.2 + Math.sqrt(region.area) + continuityControls.minimumOpening * .05, rotation: 0, footprint: fitBoundaryPreserveCenter(region.points, 9.2), transparent: true });
+    if (!intersectsRequiredConnection) elements.push({ id: `${mode}-source-void-${index}`, kind: "void", x: 0, y: 0, z: architecturalElevation(region), width: 1, depth: 1, height: detail * 3 + Math.sqrt(region.area), rotation: 0, footprint: region.points, transparent: true });
   });
   const connectors: TileConnector[] = [
     { edge: "north", interface: "male", elevation: registeredElevation, width: connectorWidth, openingWidth: 3 + open * 2 }, { edge: "east", interface: "male", elevation: registeredElevation, width: connectorWidth, openingWidth: 3 + open * 2 },
     { edge: "south", interface: "female", elevation: registeredElevation, width: connectorWidth, openingWidth: 3 + open * 2 }, { edge: "west", interface: "female", elevation: registeredElevation, width: connectorWidth, openingWidth: 3 + open * 2 },
   ];
   if (domain) elements.splice(0, elements.length, ...elements.map(domain.develop));
-  else if (fullDomain) { elements.length = 0; connectorElements.length = 0; initialElements.length = 0; }
+  else if (fullDomain && !letterField) { elements.length = 0; connectorElements.length = 0; initialElements.length = 0; }
   if(domain) for(const element of elements) if(!element.provenance) element.provenance={architecturalElementId:element.id,sourceMode:mode,sourceLetterIds:[],sourceRegionIds:[],sourceVoidIds:[],sourceRelationshipIds:[],typologyOperation:"TILE_INTERFACE",descriptorInfluences:[],role:"fallback",explanation:"Preserved reusable tile interface geometry; not source-assigned architecture."};
   if(domain){domain.diagnostic.provenanceElements=elements.filter(e=>e.provenance?.role!=="fallback").length;domain.diagnostic.fallbackElements=elements.filter(e=>e.provenance?.role==="fallback").length;}
   const solids = elements.filter(e => e.kind !== "void");
@@ -1758,7 +2028,7 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
   const circulationPathLength = circulationRelationships.reduce((sum, relationship) => sum + Math.hypot(relationship.to[0] - relationship.from[0], relationship.to[1] - relationship.from[1]), 0);
   if (!targetNodes.length) failures.push("No occupied nodes could be generated by the active typology organizer.");
   if (circulationRelationships.length === 0) failures.push("The source does not contain enough related components to establish a circulation network.");
-  const sourceMethod = mode === "letters" ? "Elevation-sliced letter solids provide occupied boundaries and connection anchors"
+  const sourceMethod = mode === "letters" ? "Complete letter solids provide occupied boundaries and connection anchors"
     : mode === "voids" ? "actual inter-letter negative spaces provide openings, edges, and vertical anchors"
       : "letter solids and inter-letter openings are resolved together through one mixed source graph";
   const method = domain
@@ -1766,11 +2036,11 @@ export function generateProtoArchitecture({ source, descriptors, mode, category 
     : `${rule.name}: ${sourceMethod}. Primary typology organization plus source-cluster plates are shaped by active descriptors and continuity controls before connection generation.`;
   const initialSurfaceDiagnostic = elementSurfaceDiagnostic(initialElements);
   const classifiedSurfaceDiagnostic = elementSurfaceDiagnostic(elements);
-  const continuousMesh = quality === "preview" ? previewElementMesh(elements) : continuousSurface(elements, continuityControls, domain ? 64 : 40);
+  const continuousMesh = quality === "preview" ? previewElementMesh(elements) : appendLetterSolids(continuousSurface(elements, continuityControls, domain ? 64 : 40), elements);
   // Presentation views omit only the reusable tile-interface arms. The full
   // connected mesh, OBJ export and aggregation continue to retain them.
   const presentationElements = elements.filter((element) => element.kind !== "connector" && !element.id.includes("primary-ramp"));
-  const presentationMesh = quality === "preview" ? previewElementMesh(presentationElements) : continuousSurface(presentationElements, continuityControls, domain ? 64 : 40);
+  const presentationMesh = quality === "preview" ? previewElementMesh(presentationElements) : appendLetterSolids(continuousSurface(presentationElements, continuityControls, domain ? 64 : 40), presentationElements);
   if (continuousMesh.componentCount > 1) failures.push(`${continuousMesh.componentCount} disconnected finished-geometry components remain after generating ${connectorElements.length} connector elements.`);
   const degenerateLimit = typology === "flat-deep-plan-plate" ? Math.max(50, continuousMesh.indices.length / 3 * .005) : 0;
   if (continuousMesh.degenerateTriangles > degenerateLimit) failures.push(`${continuousMesh.degenerateTriangles} degenerate finished-mesh triangles were detected.`);

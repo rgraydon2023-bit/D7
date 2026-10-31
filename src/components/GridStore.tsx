@@ -69,6 +69,7 @@ type SlideSession = {
   layerMode: boolean;
   zLayers: number;
   zSpacing: number;
+  attractorGap?: number | null;
   letterThickness: number;
   yRotationEnabled: boolean;
   yRotationRange: number;
@@ -193,6 +194,9 @@ type GridStoreValue = {
   setZLayers: (count: number) => void;
   zSpacing: number;
   setZSpacing: (spacing: number) => void;
+  /** Null follows the grid. A number is the 45° center-to-letter gap. */
+  attractorGap: number | null;
+  setAttractorGap: (gap: number | null) => void;
   letterThickness: number;
   setLetterThickness: (percent: number) => void;
   yRotationEnabled: boolean;
@@ -259,6 +263,7 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
   const [layerMode, setLayerMode] = useState(false);
   const [zLayers, setZLayers] = useState(4);
   const [zSpacing, setZSpacing] = useState(56);
+  const [attractorGap, setAttractorGap] = useState<number | null>(null);
   const [letterThickness, setLetterThickness] = useState(12);
   const [yRotationEnabled, setYRotationEnabled] = useState(false);
   const [yRotationRange, setYRotationRange] = useState(90);
@@ -272,7 +277,7 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
   const [useAssets, setUseAssets] = useState(true);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [appliedComposition, setAppliedComposition] = useState<AppliedComposition | null>(null);
-  const sourceVersion = useRef({ cells, layerCells, cols, rows, spacing, fontSize, zLayers, zSpacing, letterThickness, yRotationEnabled, yRotationRange });
+  const sourceVersion = useRef({ cells, layerCells, cols, rows, spacing, fontSize, zLayers, zSpacing, attractorGap, letterThickness, yRotationEnabled, yRotationRange });
   const restoringSlide = useRef(false);
   const fileInputs = useRef<Record<Letter, HTMLInputElement | null>>({
     V: null,
@@ -290,13 +295,14 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
       || previous.fontSize !== fontSize
       || previous.zLayers !== zLayers
       || previous.zSpacing !== zSpacing
+      || previous.attractorGap !== attractorGap
       || previous.letterThickness !== letterThickness
       || previous.yRotationEnabled !== yRotationEnabled
       || previous.yRotationRange !== yRotationRange;
-    sourceVersion.current = { cells, layerCells, cols, rows, spacing, fontSize, zLayers, zSpacing, letterThickness, yRotationEnabled, yRotationRange };
+    sourceVersion.current = { cells, layerCells, cols, rows, spacing, fontSize, zLayers, zSpacing, attractorGap, letterThickness, yRotationEnabled, yRotationRange };
     if (changed && !restoringSlide.current) setAppliedComposition(null);
     restoringSlide.current = false;
-  }, [cells, layerCells, cols, rows, spacing, fontSize, zLayers, zSpacing, letterThickness, yRotationEnabled, yRotationRange]);
+  }, [cells, layerCells, cols, rows, spacing, fontSize, zLayers, zSpacing, attractorGap, letterThickness, yRotationEnabled, yRotationRange]);
 
   const [slideReady, setSlideReady] = useState(false);
   useEffect(() => {
@@ -316,6 +322,7 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
       setLayerMode(saved.layerMode);
       setZLayers(saved.zLayers);
       setZSpacing(saved.zSpacing);
+      if (typeof saved.attractorGap === "number") setAttractorGap(saved.attractorGap);
       setLetterThickness(saved.letterThickness);
       setYRotationEnabled(saved.yRotationEnabled);
       setYRotationRange(saved.yRotationRange);
@@ -332,7 +339,7 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
     if (!slideReady) return;
     const snapshot: SlideSession = {
       cols, rows, spacing, fontSize, gradientDirection, gradientMode, lessDegrees, moreDegrees,
-      cells, layerCells, layerMode, zLayers, zSpacing, letterThickness, yRotationEnabled, yRotationRange,
+      cells, layerCells, layerMode, zLayers, zSpacing, attractorGap, letterThickness, yRotationEnabled, yRotationRange,
       permutations, showGuides, cropCriteria, showFailedCrops, useAssets, appliedComposition,
     };
     const timer = window.setTimeout(() => writeJson(SLIDE_SESSION_KEY, snapshot), 300);
@@ -340,7 +347,7 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
       window.clearTimeout(timer);
       writeJson(SLIDE_SESSION_KEY, snapshot);
     };
-  }, [slideReady, cols, rows, spacing, fontSize, gradientDirection, gradientMode, lessDegrees, moreDegrees, cells, layerCells, layerMode, zLayers, zSpacing, letterThickness, yRotationEnabled, yRotationRange, permutations, showGuides, cropCriteria, showFailedCrops, useAssets, appliedComposition]);
+  }, [slideReady, cols, rows, spacing, fontSize, gradientDirection, gradientMode, lessDegrees, moreDegrees, cells, layerCells, layerMode, zLayers, zSpacing, attractorGap, letterThickness, yRotationEnabled, yRotationRange, permutations, showGuides, cropCriteria, showFailedCrops, useAssets, appliedComposition]);
 
   useEffect(() => {
     return () => {
@@ -526,6 +533,8 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
       setZLayers,
       zSpacing,
       setZSpacing,
+      attractorGap,
+      setAttractorGap,
       letterThickness,
       setLetterThickness,
       yRotationEnabled,
@@ -573,6 +582,7 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
       layerMode,
       zLayers,
       zSpacing,
+      attractorGap,
       letterThickness,
       yRotationEnabled,
       yRotationRange,

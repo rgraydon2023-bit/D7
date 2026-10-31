@@ -31,6 +31,11 @@ export type GenerationRules = {
   allowGeometryModification: boolean;
   maximumIntersections: number;
   letterThicknessPercent: number;
+  /** Shared Slide gap sliders. At 10 and below, octet attractors pull letters into overlap. */
+  xyGap: number;
+  zGap: number;
+  /** Center-to-letter distance along the 45° diagonal. Omit to leave letters on the grid. */
+  attractorGap?: number;
 };
 
 export type OptimizerControls = {
@@ -176,6 +181,8 @@ export const DEFAULT_RULES: GenerationRules = {
   allowGeometryModification: true,
   maximumIntersections: 24,
   letterThicknessPercent: 12,
+  xyGap: 56,
+  zGap: 56,
 };
 
 export const DEFAULT_OPTIMIZER_CONTROLS: OptimizerControls = {

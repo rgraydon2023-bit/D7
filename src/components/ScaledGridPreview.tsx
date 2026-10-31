@@ -1,6 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
+import { letterPlanLayout } from "./letterVolumeLayout";
 import GridPreview from "./GridPreview";
 import { useBoardMode } from "./BoardMode";
 import type { Cell, LetterAssets } from "./letterTypes";
@@ -22,8 +23,7 @@ export default function ScaledGridPreview(props: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
-  const gridW = props.cols * props.spacing;
-  const gridH = props.rows * props.spacing;
+  const { width: gridW, height: gridH } = letterPlanLayout(props.cols, props.rows, props.spacing, props.fontSize);
 
   useLayoutEffect(() => {
     const el = wrapRef.current;

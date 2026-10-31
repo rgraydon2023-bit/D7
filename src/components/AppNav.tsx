@@ -10,8 +10,10 @@ const LINKS = [
   { href: "/shapes", label: "Shapes" },
   { href: "/voids", label: "Voids" },
   { href: "/composition", label: "Composition" },
+  { href: "/composition-presentation", label: "Composition Presentation" },
   { href: "/evaluations", label: "Evaluations" },
   { href: "/lattice", label: "Lattice" },
+  { href: "/part3", label: "Part 3" },
 ] as const;
 
 export default function AppNav() {
@@ -24,7 +26,7 @@ export default function AppNav() {
         const active =
           link.href === "/"
             ? pathname === "/"
-            : pathname.startsWith(link.href);
+            : (pathname === link.href || pathname.startsWith(`${link.href}/`));
         return (
           <Link
             key={link.href}

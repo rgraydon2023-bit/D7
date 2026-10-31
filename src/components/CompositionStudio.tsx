@@ -1,6 +1,9 @@
 "use client";
+import { lengthControlScale } from "./feetUnits";
+import { FeetScaleNote } from "./FeetScaleNote";
 
-import { OrbitControls } from "@react-three/drei";
+import { AxisIndicator } from "./AxisIndicator";
+import { TrackballControls } from "@react-three/drei";
 import { BoardOrthographicCamera as OrthographicCamera } from "./BoardOrthographicCamera";
 import { BoardCanvas as Canvas } from "@/components/BoardCanvas";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -10,6 +13,8 @@ import { DEFAULT_DESCRIPTORS, DESCRIPTORS, type CompositionPlacement, type Descr
 import { gridDimensions } from "./constraintValidation";
 import { evaluateSpatialDesign } from "./descriptorEvaluation";
 import { getLetterVolumeGeometry } from "./letterGeometry3d";
+import DashedOctetBoxes from "./DashedOctetBoxes";
+import { attractorBlend, dashedGroupMeasure, diagonalAttractorScale, diagonalCenterGap, DIAGONAL_GAP_MAXIMUM, DIAGONAL_GAP_MINIMUM, letterDepthSpan, octetBoxes, pullToOctet, scaleTowardOctet, separatedPitch, UNIT_LETTER_SPAN, XY_GAP_MINIMUM, Z_GAP_MINIMUM } from "./letterVolumeLayout";
 import { useGridStore } from "./GridStore";
 import {
   DEFAULT_GRID,
@@ -24,8 +29,8 @@ import {
   type SpatialAlternative,
 } from "./optimizerTypes";
 import { optimizeSpatial } from "./spatialOptimizer";
-import { selectionEvaluationGrid } from "./selectionSearch";
-import PrototypeDemonstration from "./PrototypeDemonstration";
+import { placementCenterInSelection, selectionEvaluationGrid } from "./selectionSearch";
+import PrototypeDemonstration from "./UnifiedPrototype";
 import { DEFAULT_TYPOLOGY_BY_CATEGORY, type PrototypeCategory, type PrototypeGeometryMode, type PrototypeTypologyId } from "./amphitheaterPrototype";
 import { OPTIMIZER_SESSION_KEY, readJson, writeJson } from "./browserSession";
 
@@ -75,6 +80,7 @@ type OptimizerSession = {
   prototypeCategory: PrototypeCategory;
   prototypeTypology: PrototypeTypologyId;
   history: RunHistory[];
+  activeHistoryId?: string | null;
   rankingEnabled: boolean;
 };
 
@@ -87,19 +93,30 @@ const focusLabels: Record<OptimizationFocus, string> = {
   auto: "Auto-Select",
 };
 
-function gridFromSlide(settings: { cols: number; rows: number; zLayers: number; spacing: number; zSpacing: number }): OrthogonalGrid {
+function gridFromSlide(settings: { cols: number; rows: number; zLayers: number; spacing: number; zSpacing: number; fontSize: number; letterThickness: number }): OrthogonalGrid {
+  const letterSize = Math.max(0.1, settings.fontSize / 50);
+  const planSpan = letterSize * UNIT_LETTER_SPAN;
+  const depthSpan = letterDepthSpan(letterSize, settings.letterThickness, false);
+  const cell = separatedPitch(settings.spacing, planSpan);
   return {
     ...DEFAULT_GRID,
     xCells: settings.cols,
     yCells: settings.rows,
     zCells: settings.zLayers,
-    cellX: Math.max(0.4, settings.spacing / 50),
-    cellY: Math.max(0.4, settings.spacing / 50),
-    cellZ: Math.max(0.4, settings.zSpacing / 50),
+    cellX: cell,
+    cellY: cell,
+    cellZ: separatedPitch(settings.zSpacing, depthSpan),
   };
 }
 
-function rulesFromSlide(settings: { fontSize: number; letterThickness: number; yRotationEnabled: boolean; yRotationRange: number }): GenerationRules {
+const GAP_SLIDER_MAX = 120;
+
+/** Map a composition cell pitch back onto the shared gap slider. */
+function gapFromPitch(pitch: number, minimum: number) {
+  return Math.min(GAP_SLIDER_MAX, Math.max(minimum, Math.round(pitch * 50)));
+}
+
+function rulesFromSlide(settings: { fontSize: number; letterThickness: number; yRotationEnabled: boolean; yRotationRange: number; spacing: number; zSpacing: number; attractorGap?: number | null }): GenerationRules {
   const slideLetterSize = Math.max(0.1, settings.fontSize / 50);
   return {
     ...DEFAULT_RULES,
@@ -108,6 +125,9 @@ function rulesFromSlide(settings: { fontSize: number; letterThickness: number; y
     letterThicknessPercent: settings.letterThickness,
     allowRotationY: settings.yRotationEnabled,
     maximumRotationY: settings.yRotationRange,
+    xyGap: settings.spacing,
+    zGap: settings.zSpacing,
+    attractorGap: settings.attractorGap ?? undefined,
   };
 }
 
@@ -129,7 +149,7 @@ function placementScale(placement: CompositionPlacement): [number, number, numbe
 }
 
 function compositionObj(alternative: SpatialAlternative, thickness: number) {
-  const lines = ["# VUL optimized architectural composition", `o VUL_Optimizer_${alternative.seed}`];
+  const lines = ["# Units: feet; 1 coordinate unit = 1 ft", "# VUL optimized architectural composition", `o VUL_Optimizer_${alternative.seed}`];
   let offset = 1;
   const point = new THREE.Vector3();
   const matrix = new THREE.Matrix4();
@@ -186,16 +206,26 @@ function OptimizationScene({ alternative, grid, thickness, overlays, displayMode
   const zoom = Math.min(90, 380 / maxDimension);
   const showLetters = displayMode !== "void";
   const renderPlacements = alternative.selection && alternative.fullPlacements ? alternative.fullPlacements : alternative.placements;
-  const insideSelection = (placement: CompositionPlacement) => !alternative.selection || (
-    Math.abs(placement.x - alternative.selection.centerX) <= alternative.selection.width / 2
-    && Math.abs(placement.y - alternative.selection.centerY) <= alternative.selection.height / 2
-    && Math.abs(placement.z - alternative.selection.centerZ) <= alternative.selection.depth / 2
-  );
+  const groupBoxes = useMemo(() => octetBoxes(renderPlacements.map((placement) => {
+    const [width, height, depth] = placementScale(placement);
+    return {
+      col: placement.col,
+      row: placement.row,
+      layerIndex: placement.layerIndex,
+      x: placement.x,
+      y: placement.y,
+      z: placement.z,
+      halfX: (width * UNIT_LETTER_SPAN) / 2,
+      halfY: (height * UNIT_LETTER_SPAN) / 2,
+      halfZ: letterDepthSpan(depth, thickness, false) / 2,
+    };
+  }), { cols: grid.xCells, rows: grid.yCells, layers: grid.zCells }), [renderPlacements, grid.xCells, grid.yCells, grid.zCells, thickness]);
+  const insideSelection = (placement: CompositionPlacement) => !alternative.selection || placementCenterInSelection(placement, alternative.selection);
   return <Canvas dpr={[1, 1.5]} gl={{ antialias: true }}>
     <color attach="background" args={["#05080b"]} />
     <ambientLight intensity={0.65} />
     <directionalLight position={[8, 10, 12]} intensity={1.15} />
-    <OrthographicCamera makeDefault position={[maxDimension, maxDimension * 0.8, maxDimension * 1.2]} zoom={zoom} near={0.01} far={300} />
+    <OrthographicCamera makeDefault position={[maxDimension, -maxDimension, maxDimension * Math.SQRT2]} up={[0, 0, 1]} zoom={zoom} near={0.01} far={300} />
     <lineSegments>
       <edgesGeometry args={[new THREE.BoxGeometry(dimensions.width, dimensions.height, dimensions.depth)]} />
       <lineBasicMaterial color="#3dd6db" transparent opacity={0.7} />
@@ -208,9 +238,10 @@ function OptimizationScene({ alternative, grid, thickness, overlays, displayMode
       <boxGeometry args={[dimensions.width, dimensions.height, dimensions.depth]} />
       <meshStandardMaterial color="#4bc1d0" transparent opacity={displayMode === "void" ? 0.22 : 0.1} depthWrite={false} side={THREE.DoubleSide} />
     </mesh>}
+    <DashedOctetBoxes boxes={groupBoxes} />
     {alternative.selection && <lineSegments position={[alternative.selection.centerX, alternative.selection.centerY, alternative.selection.centerZ]}>
       <edgesGeometry args={[new THREE.BoxGeometry(alternative.selection.width, alternative.selection.height, alternative.selection.depth)]} />
-      <lineBasicMaterial color="#ffbd4a" />
+      <lineBasicMaterial color="#ffbd4a" depthTest={false} />
     </lineSegments>}
     {renderPlacements.map((placement, index) => {
       const selectedByWindow = insideSelection(placement);
@@ -259,7 +290,8 @@ function OptimizationScene({ alternative, grid, thickness, overlays, displayMode
       </bufferGeometry>
       <lineBasicMaterial color="#b38cff" />
     </lineSegments>}
-    <OrbitControls enablePan enableZoom enableRotate />
+    <TrackballControls makeDefault target={[0, 0, 0]} rotateSpeed={5} noRotate={false} noZoom={false} noPan={false} maxDistance={0} zoomSpeed={1.2} staticMoving />
+    <AxisIndicator scale={2 / 3} cornerInset={35}/>
   </Canvas>;
 }
 
@@ -273,12 +305,21 @@ function Slider({ label, value, onChange, color = "var(--accent-light)", disable
   </label>;
 }
 
+const NUMBER_ENTRY_LIMIT = 200;
+
 function NumberInput({ label, value, min, max, step = 1, disabled = false, onChange }: {
-  label: string; value: number; min: number; max: number; step?: number; disabled?: boolean; onChange: (value: number) => void;
+  label: string; value: number; min: number; max?: number; step?: number; disabled?: boolean; onChange: (value: number) => void;
 }) {
+  const factor=lengthControlScale(label), unitScale=factor??1;
+  const displayLabel=factor===undefined?label:`${label} (ft)`;
+  const ceiling = max === undefined ? undefined : Math.min(max, NUMBER_ENTRY_LIMIT);
   return <label className="flex items-center justify-between gap-2 text-[10px]">
-    <span style={{ color: "var(--muted)" }}>{label}</span>
-    <input type="number" value={value} min={min} max={max} step={step} disabled={disabled} onChange={(event) => onChange(Number(event.target.value))} className="w-20 rounded border px-1.5 py-1 text-right tabular-nums disabled:opacity-45" style={inputStyle} />
+    <span style={{ color: "var(--muted)" }}>{displayLabel}</span>
+    <input type="number" aria-label={displayLabel} value={Number((value*unitScale).toFixed(5))} min={min*unitScale} max={ceiling === undefined ? undefined : ceiling*unitScale} step={step*unitScale} disabled={disabled} onChange={(event) => {
+      const next = Number(event.target.value)/unitScale;
+      if (!Number.isFinite(next) || (ceiling !== undefined && next > ceiling)) return;
+      onChange(next);
+    }} className="w-20 rounded border px-1.5 py-1 text-right tabular-nums disabled:opacity-45" style={inputStyle} />
   </label>;
 }
 
@@ -332,16 +373,18 @@ export default function CompositionStudio() {
   const [prototypeTypology, setPrototypeTypology] = useState<PrototypeTypologyId>("stepped-amphitheater");
   const [presets, setPresets] = useState<Preset[]>([]);
   const [presetName, setPresetName] = useState("My preset");
+  const [selectedPresetId, setSelectedPresetId] = useState("");
+  const [storageMessage, setStorageMessage] = useState("");
   const [savedDesigns, setSavedDesigns] = useState<SavedDesign[]>([]);
   const [history, setHistory] = useState<RunHistory[]>([]);
   const [activeHistoryId, setActiveHistoryId] = useState<string | null>(null);
   const [storageReady, setStorageReady] = useState(false);
   const [keptNotice, setKeptNotice] = useState("Working session is kept in this browser.");
-  const slideSourceSignature = `${store.cols}:${store.rows}:${store.layerMode}:${store.zLayers}:${store.spacing}:${store.zSpacing}:${store.fontSize}:${store.letterThickness}:${store.yRotationEnabled}:${store.yRotationRange}`;
+  const slideSourceSignature = `${store.cols}:${store.rows}:${store.layerMode}:${store.zLayers}:${store.spacing}:${store.zSpacing}:${store.attractorGap ?? "auto"}:${store.fontSize}:${store.letterThickness}:${store.yRotationEnabled}:${store.yRotationRange}`;
   const lastSlideSourceSignature = useRef<string | null>(null);
   const sourceCells = useMemo(() => [store.cells, ...store.layerCells.slice(0, Math.max(0, store.zLayers - 1))].flat(), [store.cells, store.layerCells, store.zLayers]);
   const evaluationFocus = focus === "auto" ? "combined" : focus;
-  const evaluatedAlternatives = useMemo(() => alternatives.map((alternative) => ({
+  const evaluatedAlternatives = useMemo(() => alternatives.slice(0, 4).map((alternative) => ({
     ...alternative,
     evaluation: evaluateSpatialDesign({
       placements: alternative.placements,
@@ -351,6 +394,7 @@ export default function CompositionStudio() {
       controls,
       focus: evaluationFocus,
       sourceCount: alternative.selection ? undefined : sourceCells.length,
+      bounds: alternative.selection ? "center" : "body",
     }),
   })), [alternatives, grid, rules, descriptors, controls, evaluationFocus, sourceCells.length]);
   const selected = evaluatedAlternatives[Math.min(selectedIndex, Math.max(0, evaluatedAlternatives.length - 1))];
@@ -361,25 +405,43 @@ export default function CompositionStudio() {
     const offsetY = (grid.yCells - 1) * grid.cellY / 2;
     const offsetZ = (grid.zCells - 1) * grid.cellZ / 2;
     const capacity = grid.xCells * grid.yCells * grid.zCells;
-    const scale = Math.max(rules.minimumLetterSize, Math.min(rules.maximumLetterSize, Math.min(grid.cellX, grid.cellY, grid.cellZ) * 0.64));
+    const scale = Math.max(rules.minimumLetterSize, rules.maximumLetterSize);
+    const xyBlend = attractorBlend(rules.xyGap ?? 56);
+    const zBlend = attractorBlend(rules.zGap ?? 56);
+    const diagonalScale = rules.attractorGap == null
+      ? 1
+      : diagonalAttractorScale(rules.attractorGap, rules.xyGap ?? 56, scale * UNIT_LETTER_SPAN);
     return sourceCells.slice(0, capacity).map((cell, index) => {
       const xIndex = index % grid.xCells;
       const yIndex = Math.floor(index / grid.xCells) % grid.yCells;
       const zIndex = Math.floor(index / (grid.xCells * grid.yCells));
+      const x = xIndex * grid.cellX - offsetX;
+      const y = offsetY - yIndex * grid.cellY;
+      const z = zIndex * grid.cellZ - offsetZ;
+      const steps = {
+        col: xIndex, row: yIndex, layer: zIndex,
+        cols: grid.xCells, rows: grid.yCells, layers: grid.zCells,
+        x, y, z,
+        xStep: grid.cellX, yStep: -grid.cellY, zStep: grid.cellZ,
+      };
+      const pulled = pullToOctet({ ...steps, xyBlend, zBlend });
+      const attracted = diagonalScale === 1 ? pulled : scaleTowardOctet({ ...steps, scale: diagonalScale });
       return {
         cell,
         sourceIndex: index,
         layerIndex: zIndex,
-        x: xIndex * grid.cellX - offsetX,
-        y: offsetY - yIndex * grid.cellY,
-        z: zIndex * grid.cellZ - offsetZ,
+        col: xIndex,
+        row: yIndex,
+        x: attracted.x,
+        y: attracted.y,
+        z: attracted.z,
         rx: 0,
         ry: 0,
         rz: cell.rotation,
         scale,
       };
     });
-  }, [selected, sourceCells, grid, rules.minimumLetterSize, rules.maximumLetterSize]);
+  }, [selected, sourceCells, grid, rules.minimumLetterSize, rules.maximumLetterSize, rules.xyGap, rules.zGap, rules.attractorGap]);
   const prototypeSourcePlacements = useMemo<CompositionPlacement[]>(() => selected?.placements.length ? selected.placements : completePrototypePlacements, [selected, completePrototypePlacements]);
   const prototypeSourceOptions = useMemo(() => evaluatedAlternatives.map((alternative, index) => ({
     index,
@@ -393,6 +455,19 @@ export default function CompositionStudio() {
     && store.appliedComposition.alternativeIndex === selectedIndex);
   const activeWeight = DESCRIPTORS.reduce((sum, descriptor) => sum + descriptors[descriptor.id].importance, 0);
   const dimensions = useMemo(() => gridDimensions(grid), [grid]);
+  const dashedSelection = useMemo(() => dashedGroupMeasure({
+    cols: grid.xCells,
+    rows: grid.yCells,
+    layers: grid.zCells,
+    cellX: grid.cellX,
+    cellY: grid.cellY,
+    cellZ: grid.cellZ,
+    letterScale: Math.max(rules.minimumLetterSize, rules.maximumLetterSize),
+    thickness: rules.letterThicknessPercent,
+    attractorScale: rules.attractorGap == null
+      ? 1
+      : diagonalAttractorScale(rules.attractorGap, rules.xyGap ?? 56, Math.max(rules.minimumLetterSize, rules.maximumLetterSize) * UNIT_LETTER_SPAN),
+  }), [grid, rules.minimumLetterSize, rules.maximumLetterSize, rules.letterThicknessPercent, rules.attractorGap, rules.xyGap]);
   const selectionValid = !selection.enabled || (selection.width <= dimensions.width && selection.height <= dimensions.height && selection.depth <= dimensions.depth);
 
   useEffect(() => {
@@ -403,6 +478,23 @@ export default function CompositionStudio() {
       return unchanged ? current : clamped;
     });
   }, [dimensions]);
+  useEffect(() => {
+    if (!storageReady || !dashedSelection) return;
+    setSelection((current) => {
+      const next = clampSelectionToGrid({
+        ...current,
+        width: dashedSelection.width,
+        height: dashedSelection.height,
+        depth: dashedSelection.depth,
+        stepX: dashedSelection.stepX,
+        stepY: dashedSelection.stepY,
+        stepZ: dashedSelection.stepZ,
+      }, dimensions);
+      const unchanged = (Object.keys(next) as Array<keyof SelectionVolume>)
+        .every((key) => next[key] === current[key]);
+      return unchanged ? current : next;
+    });
+  }, [dashedSelection, dimensions, storageReady]);
 
   useEffect(() => {
     try {
@@ -416,17 +508,18 @@ export default function CompositionStudio() {
       setDescriptors(session.descriptors);
       setGrid(session.grid);
       setRules(session.rules);
-      setControls(session.controls);
+      setControls({ ...session.controls, alternatives: Math.min(4, session.controls.alternatives) });
       setSelection(session.selection);
       setFocus(session.focus);
       setAlternatives(Array.isArray(session.alternatives) ? session.alternatives : []);
-      setSelectedIndex(session.selectedIndex ?? 0);
+      setSelectedIndex(Math.min(3, session.selectedIndex ?? 0));
       setLockedParent(session.lockedParent ?? null);
       if (session.overlays) setOverlays(session.overlays);
       if (session.displayMode) setDisplayMode(session.displayMode);
       if (session.prototypeCategory) setPrototypeCategory(session.prototypeCategory);
       if (session.prototypeTypology) setPrototypeTypology(session.prototypeTypology);
       if (Array.isArray(session.history)) setHistory(session.history);
+      setActiveHistoryId(session.activeHistoryId ?? null);
       if (typeof session.rankingEnabled === "boolean") setRankingEnabled(session.rankingEnabled);
       const count = Array.isArray(session.alternatives) ? session.alternatives.length : 0;
       setKeptNotice(count > 0 ? `Restored ${count} result${count === 1 ? "" : "s"} from this browser.` : "Working session is kept in this browser.");
@@ -435,31 +528,30 @@ export default function CompositionStudio() {
   }, []);
   useEffect(() => {
     if (!storageReady) return;
-    writeJson("vul-optimizer-presets", presets);
-  }, [storageReady, presets]);
-  useEffect(() => {
-    if (!storageReady) return;
     writeJson("vul-optimizer-designs", savedDesigns);
   }, [storageReady, savedDesigns]);
   useEffect(() => {
     if (!storageReady || optimizing) return;
     const session: OptimizerSession = {
       descriptors, grid, rules, controls, selection, focus, alternatives, selectedIndex, lockedParent,
-      overlays, displayMode, prototypeCategory, prototypeTypology, history, rankingEnabled,
+      overlays, displayMode, prototypeCategory, prototypeTypology, history, activeHistoryId, rankingEnabled,
     };
     const persist = () => {
-      if (!writeJson(OPTIMIZER_SESSION_KEY, session)) writeJson(OPTIMIZER_SESSION_KEY, { ...session, history: [] });
+      if (!writeJson(OPTIMIZER_SESSION_KEY, session)) setStorageMessage("Browser storage is full or unavailable. Delete previous runs or presets before saving more.");
     };
     const timer = window.setTimeout(persist, 300);
     return () => {
       window.clearTimeout(timer);
       persist();
     };
-  }, [storageReady, optimizing, descriptors, grid, rules, controls, selection, focus, alternatives, selectedIndex, lockedParent, overlays, displayMode, prototypeCategory, prototypeTypology, history, rankingEnabled]);
+  }, [storageReady, optimizing, descriptors, grid, rules, controls, selection, focus, alternatives, selectedIndex, lockedParent, overlays, displayMode, prototypeCategory, prototypeTypology, history, activeHistoryId, rankingEnabled]);
   const displayModeForFocus = (next: OptimizationFocus): DisplayMode => next === "letter" ? "letters" : next === "void" ? "void" : "both";
 
   const runOptimization = useCallback(async () => {
     if (!grid.locked || !selectionValid || activeWeight === 0 || optimizing) return;
+    if (history.length >= 10) { setStorageMessage("Configuration history is full (10 runs). Delete a previous run before generating another."); return; }
+    setStorageMessage("");
+    setSelection((current) => ({ ...current, enabled: true }));
     setOptimizing(true);
     setProgress(0);
     const result = await optimizeSpatial({
@@ -469,7 +561,7 @@ export default function CompositionStudio() {
       rules,
       controls,
       focus,
-      selection,
+      selection: { ...selection, enabled: true },
       lockedParent,
     }, (nextProgress, strongest) => {
       setProgress(nextProgress);
@@ -479,7 +571,7 @@ export default function CompositionStudio() {
     setRankingEnabled(result.rankingEnabled);
     setSelectedIndex(0);
     const runId = `${Date.now()}`;
-    setHistory((current) => [{
+    const nextHistory: RunHistory[] = [{
       id: runId,
       seed: controls.seed,
       focus,
@@ -487,21 +579,20 @@ export default function CompositionStudio() {
       grid: structuredClone(grid),
       rules: structuredClone(rules),
       controls: structuredClone(controls),
-      selection: structuredClone(selection),
+      selection: { ...structuredClone(selection), enabled: true },
       descriptors: structuredClone(descriptors),
       alternatives: structuredClone(result.alternatives),
-    }, ...current].slice(0, 10));
-    setActiveHistoryId(runId);
+    }, ...history];
+    const saved = writeJson(OPTIMIZER_SESSION_KEY, { descriptors, grid, rules, controls, selection: { ...selection, enabled: true }, focus, alternatives: result.alternatives, selectedIndex: 0, lockedParent, overlays, displayMode, prototypeCategory, prototypeTypology, history: nextHistory, activeHistoryId: runId, rankingEnabled: result.rankingEnabled });
+    if (saved) { setHistory(nextHistory); setActiveHistoryId(runId); }
+    else setStorageMessage("This run could not be saved: browser storage is full or unavailable. Delete previous runs or presets, then generate again.");
     setOptimizing(false);
-  }, [grid, selectionValid, activeWeight, optimizing, sourceCells, descriptors, rules, controls, focus, selection, lockedParent]);
+  }, [grid, selectionValid, activeWeight, optimizing, sourceCells, descriptors, rules, controls, focus, selection, lockedParent, history, overlays, displayMode, prototypeCategory, prototypeTypology]);
 
   useEffect(() => {
     if (!store.slideReady) return;
-    if (lastSlideSourceSignature.current === null) {
-      lastSlideSourceSignature.current = slideSourceSignature;
-      return;
-    }
-    if (lastSlideSourceSignature.current === slideSourceSignature) return;
+    const firstSync = lastSlideSourceSignature.current === null;
+    if (!firstSync && lastSlideSourceSignature.current === slideSourceSignature) return;
     lastSlideSourceSignature.current = slideSourceSignature;
     const synchronizedGrid = gridFromSlide(store);
     const synchronizedRules = rulesFromSlide(store);
@@ -512,7 +603,11 @@ export default function CompositionStudio() {
       letterThicknessPercent: synchronizedRules.letterThicknessPercent,
       allowRotationY: synchronizedRules.allowRotationY,
       maximumRotationY: synchronizedRules.maximumRotationY,
+      xyGap: synchronizedRules.xyGap,
+      zGap: synchronizedRules.zGap,
+      attractorGap: synchronizedRules.attractorGap,
     }));
+    if (firstSync) return;
     setAlternatives([]);
     setSelectedIndex(0);
     setLockedParent(null);
@@ -536,9 +631,30 @@ export default function CompositionStudio() {
   const setDescriptor = (id: DescriptorId, key: "intensity" | "importance", value: number) => {
     setDescriptors((current) => ({ ...current, [id]: { ...current[id], [key]: value } }));
   };
-  const setGridValue = (key: keyof OrthogonalGrid, value: number | boolean) => setGrid((current) => ({ ...current, [key]: value }));
-  const setRule = (key: keyof GenerationRules, value: number | boolean) => setRules((current) => ({ ...current, [key]: value }));
-  const setControl = (key: keyof OptimizerControls, value: number) => setControls((current) => ({ ...current, [key]: value }));
+  const setGridValue = (key: keyof OrthogonalGrid, value: number | boolean) => {
+    if (key === "locked") {
+      setGrid((current) => ({ ...current, locked: Boolean(value) }));
+      return;
+    }
+    if (typeof value !== "number") return;
+    if (key === "xCells") store.resizeGrid(Math.round(value), store.rows);
+    else if (key === "yCells") store.resizeGrid(store.cols, Math.round(value));
+    else if (key === "zCells") {
+      store.setLayerMode(true);
+      store.setZLayers(Math.round(value));
+    } else if (key === "cellX" || key === "cellY") store.setSpacing(gapFromPitch(value, XY_GAP_MINIMUM));
+    else if (key === "cellZ") store.setZSpacing(gapFromPitch(value, Z_GAP_MINIMUM));
+  };
+  const setRule = (key: keyof GenerationRules, value: number | boolean) => {
+    if (key === "maximumLetterSize" && typeof value === "number") {
+      store.setFontSize(Math.min(96, Math.max(16, Math.round(value * 50))));
+    }
+    if (key === "letterThicknessPercent" && typeof value === "number") store.setLetterThickness(value);
+    if (key === "allowRotationY" && typeof value === "boolean") store.setYRotationEnabled(value);
+    if (key === "maximumRotationY" && typeof value === "number") store.setYRotationRange(value);
+    setRules((current) => ({ ...current, [key]: value }));
+  };
+  const setControl = (key: keyof OptimizerControls, value: number) => setControls((current) => ({ ...current, [key]: key === "alternatives" ? Math.min(4, value) : value }));
   const setSelectionValue = (key: keyof SelectionVolume, value: number | boolean) => setSelection((current) => (
     clampSelectionToGrid({ ...current, [key]: value }, dimensions)
   ));
@@ -554,7 +670,24 @@ export default function CompositionStudio() {
     setPrototypeTypology("stepped-amphitheater");
     setLockedParent(null);
   };
-  const savePreset = () => setPresets((current) => [{ id: `${Date.now()}`, name: presetName.trim() || "Preset", settings: structuredClone(descriptors), prototypeCategory, prototypeTypology, prototypeSource: (displayMode === "void" ? "voids" : displayMode === "both" ? "combined" : "letters") as PrototypeGeometryMode }, ...current].slice(0, 12));
+  const savePreset = () => {
+    if (presets.length >= 12) { setStorageMessage("Presets are full (12 presets). Delete a previous preset before saving another."); return; }
+    const next = [{ id: crypto.randomUUID(), name: presetName.trim() || "Preset", settings: structuredClone(descriptors), prototypeCategory, prototypeTypology, prototypeSource: (displayMode === "void" ? "voids" : displayMode === "both" ? "combined" : "letters") as PrototypeGeometryMode }, ...presets];
+    if (writeJson("vul-optimizer-presets", next)) { setPresets(next); setStorageMessage(""); }
+    else setStorageMessage("Preset could not be saved: browser storage is full or unavailable. Delete previous runs or presets and try again.");
+  };
+  const deletePreset = () => {
+    const next = presets.filter(p => p.id !== selectedPresetId);
+    if (writeJson("vul-optimizer-presets", next)) { setPresets(next); setSelectedPresetId(""); setStorageMessage(""); }
+    else setStorageMessage("Could not update presets in browser storage.");
+  };
+  const deleteHistory = (id: string) => {
+    const next = history.filter(run => run.id !== id);
+    const activeId = activeHistoryId === id ? null : activeHistoryId;
+    const session = { descriptors, grid, rules, controls, selection, focus, alternatives, selectedIndex, lockedParent, overlays, displayMode, prototypeCategory, prototypeTypology, history: next, activeHistoryId: activeId, rankingEnabled };
+    if (writeJson(OPTIMIZER_SESSION_KEY, session)) { setHistory(next); setActiveHistoryId(activeId); setStorageMessage(""); }
+    else setStorageMessage("Could not update history in browser storage.");
+  };
   const saveDesign = () => {
     if (!selected) return;
     const design: SavedDesign = {
@@ -576,8 +709,8 @@ export default function CompositionStudio() {
     setSavedDesigns((current) => [design, ...current].slice(0, 8));
   };
   const restoreDesign = (design: SavedDesign) => {
-    setGrid(design.grid); setRules(design.rules); setControls(design.controls); setSelection(design.selection ?? { ...DEFAULT_SELECTION }); setFocus(design.focus);
-    setDescriptors(design.descriptors); setAlternatives(design.alternatives); setSelectedIndex(design.selectedIndex);
+    setGrid(design.grid); setRules(design.rules); setControls({ ...design.controls, alternatives: Math.min(4, design.controls.alternatives) }); setSelection(design.selection ?? { ...DEFAULT_SELECTION }); setFocus(design.focus);
+    setDescriptors(design.descriptors); setAlternatives(design.alternatives); setSelectedIndex(Math.min(3, design.selectedIndex));
     if (design.prototypeCategory) setPrototypeCategory(design.prototypeCategory);
     if (design.prototypeTypology) setPrototypeTypology(design.prototypeTypology);
     setDisplayMode(design.prototypeSource ? (design.prototypeSource === "voids" ? "void" : design.prototypeSource === "combined" ? "both" : "letters") : displayModeForFocus(design.focus));
@@ -587,7 +720,7 @@ export default function CompositionStudio() {
     if (!previous) return;
     setGrid(previous.grid);
     setRules(previous.rules);
-    setControls(previous.controls);
+    setControls({ ...previous.controls, alternatives: Math.min(4, previous.controls.alternatives) });
     setSelection(previous.selection ?? { ...DEFAULT_SELECTION });
     setFocus(previous.focus);
     setDisplayMode(displayModeForFocus(previous.focus));
@@ -600,6 +733,7 @@ export default function CompositionStudio() {
   const undo = () => restoreHistoryRun(0);
 
   return <main data-board-page="composition" className="mx-auto flex min-h-screen w-full max-w-[1900px] flex-col gap-3 px-4 py-4 md:px-5">
+    {storageMessage && <p role="alert" className="rounded border p-2 text-xs text-amber-300" style={{borderColor:"var(--line)"}}>{storageMessage}</p>}
     <header className="flex flex-wrap items-center justify-between gap-2">
       <div className="flex flex-wrap items-center gap-3">
         <div><h1 className="text-lg font-semibold">Parametric Spatial Optimizer</h1><p className="text-[10px] uppercase tracking-[0.13em]" style={{ color: "var(--muted)" }}>fixed orthogonal grid · letter + void evaluation</p></div>
@@ -615,20 +749,19 @@ export default function CompositionStudio() {
         <button type="button" onClick={resetAll} className="rounded border px-2 py-1 text-[10px]" style={{ borderColor: "var(--line)" }}>Reset</button>
         <button type="button" onClick={() => void runOptimization()} disabled={!grid.locked || !selectionValid || activeWeight === 0 || optimizing} className="rounded px-3 py-1 text-[11px] font-semibold text-black disabled:opacity-40" style={{ background: "var(--accent-primary)" }}>{optimizing ? `Optimizing ${progress}%` : "Generate + optimize"}</button>
       </div>
-    </header>
+    </header><FeetScaleNote/>
 
     {optimizing && <div className="h-1 overflow-hidden rounded bg-[var(--input-background)]"><div className="h-full bg-[var(--accent)] transition-all" style={{ width: `${progress}%` }} /></div>}
     {!grid.locked && <p className="rounded border px-3 py-2 text-[11px]" style={{ borderColor: "#9b7634", color: "#ffd38a", background: "#2b2415" }}>Lock the orthogonal grid before optimization.</p>}
     {!selectionValid && <p className="rounded border px-3 py-2 text-[11px]" style={{ borderColor: "#9b563d", color: "#ffad95", background: "#2b1815" }}>The selection volume must fit completely inside the overall solution volume.</p>}
     {activeWeight === 0 && <p className="rounded border px-3 py-2 text-[11px]" style={{ borderColor: "#9b563d", color: "#ffad95", background: "#2b1815" }}>Automatic ranking is disabled. Set at least one applicable descriptor importance above zero.</p>}
     <p className="rounded border px-3 py-2 text-[10px]" style={{ borderColor: "var(--accent-secondary)", color: "var(--accent-pale)", background: "var(--panel-background)" }}>
-      Slide inputs synchronized: Gap {store.spacing} → Cell X/Y {(store.spacing / 50).toFixed(2)}, Z gap {store.zSpacing} → Cell Z {(store.zSpacing / 50).toFixed(2)}, Size {store.fontSize} → maximum letter size {(store.fontSize / 50).toFixed(2)}, Thickness {store.letterThickness}%. Generate creates alternatives without changing Slide; use Apply selected to Slide when you want to transfer one.
-    </p>
+      Slide and Composition share dimensions in feet. Gap controls specify nominal spacing; attraction can reduce actual separation. Letter size is the unrotated footprint span. The overlap threshold is 0.2 ft. Thickness is a percentage of letter size. Generate creates alternatives; Apply selected to Slide transfers the selected arrangement.</p>
 
     <div className="board-composition-content"><div className="grid gap-3 xl:grid-cols-[360px_minmax(0,1fr)_340px]">
       <aside className="space-y-3">
         <section className="rounded-xl border p-3" style={panelStyle}>
-          <div className="flex items-center justify-between"><div><h2 className="text-sm font-semibold">Fixed 3D grid</h2><p className="text-[9px]" style={{ color: "var(--muted)" }}>Dimensions must be locked for generation.</p></div><button type="button" onClick={() => setGridValue("locked", !grid.locked)} className="rounded px-2 py-1 text-[10px] font-medium" style={{ background: grid.locked ? "var(--accent-light)" : "var(--input-background)", color: grid.locked ? "var(--app-background)" : "var(--text-primary)" }}>{grid.locked ? "Locked" : "Unlocked"}</button></div>
+          <div className="flex items-center justify-between"><div><h2 className="text-sm font-semibold">Fixed 3D grid</h2><p className="text-[9px]" style={{ color: "var(--muted)" }}>Shared with Slide. Cell X and Cell Y use the same gap. Lock the dimensions before generation.</p></div><button type="button" onClick={() => setGridValue("locked", !grid.locked)} className="rounded px-2 py-1 text-[10px] font-medium" style={{ background: grid.locked ? "var(--accent-light)" : "var(--input-background)", color: grid.locked ? "var(--app-background)" : "var(--text-primary)" }}>{grid.locked ? "Locked" : "Unlocked"}</button></div>
           <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1">
             <NumberInput label="X cells" value={grid.xCells} min={2} max={16} disabled={grid.locked} onChange={(value) => setGridValue("xCells", value)} />
             <NumberInput label="Cell X" value={grid.cellX} min={0.4} max={8} step={0.1} disabled={grid.locked} onChange={(value) => setGridValue("cellX", value)} />
@@ -642,23 +775,23 @@ export default function CompositionStudio() {
             <NumberInput label="Overall Y" value={Number(dimensions.height.toFixed(2))} min={2} max={100} step={0.1} disabled={grid.locked} onChange={(value) => setGridValue("cellY", value / grid.yCells)} />
             <NumberInput label="Overall Z" value={Number(dimensions.depth.toFixed(2))} min={2} max={100} step={0.1} disabled={grid.locked} onChange={(value) => setGridValue("cellZ", value / grid.zCells)} />
           </div>
-          <p className="mt-2 rounded bg-[var(--input-background)] px-2 py-1 text-[10px] tabular-nums" style={{ color: "var(--accent-pale)" }}>Overall: {dimensions.width.toFixed(1)} × {dimensions.height.toFixed(1)} × {dimensions.depth.toFixed(1)} · {dimensions.volume.toFixed(1)} units³</p>
+          <p className="mt-2 rounded bg-[var(--input-background)] px-2 py-1 text-[10px] tabular-nums" style={{ color: "var(--accent-pale)" }}>Overall: {dimensions.width.toFixed(1)} × {dimensions.height.toFixed(1)} × {dimensions.depth.toFixed(1)} ft · {dimensions.volume.toFixed(1)} ft³</p>
         </section>
 
         <section className="rounded-xl border p-3" style={panelStyle}>
           <div className="flex items-center justify-between gap-2">
             <div><h2 className="text-sm font-semibold">Selection volume</h2><p className="text-[9px]" style={{ color: "var(--muted)" }}>Search a smaller composition inside the overall solution.</p></div>
-            <button type="button" onClick={() => setSelectionValue("enabled", !selection.enabled)} className="rounded px-2 py-1 text-[10px] font-medium" style={{ background: selection.enabled ? "var(--accent-gold)" : "var(--input-background)", color: selection.enabled ? "var(--app-background)" : "var(--text-primary)" }}>{selection.enabled ? "Enabled" : "Disabled"}</button>
+            <span className="text-[10px]" style={{ color: "var(--accent-gold)" }}>One box per alternative</span>
           </div>
           <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1">
-            <NumberInput label="Selection X" value={selection.width} min={Math.min(0.5, dimensions.width)} max={dimensions.width} step={0.1} disabled={!selection.enabled} onChange={(value) => setSelectionValue("width", value)} />
-            <NumberInput label="Search step X" value={selection.stepX} min={0.1} max={Math.max(0.1, dimensions.width)} step={0.1} disabled={!selection.enabled} onChange={(value) => setSelectionValue("stepX", value)} />
-            <NumberInput label="Selection Y" value={selection.height} min={Math.min(0.5, dimensions.height)} max={dimensions.height} step={0.1} disabled={!selection.enabled} onChange={(value) => setSelectionValue("height", value)} />
-            <NumberInput label="Search step Y" value={selection.stepY} min={0.1} max={Math.max(0.1, dimensions.height)} step={0.1} disabled={!selection.enabled} onChange={(value) => setSelectionValue("stepY", value)} />
-            <NumberInput label="Selection Z" value={selection.depth} min={Math.min(0.5, dimensions.depth)} max={dimensions.depth} step={0.1} disabled={!selection.enabled} onChange={(value) => setSelectionValue("depth", value)} />
-            <NumberInput label="Search step Z" value={selection.stepZ} min={0.1} max={Math.max(0.1, dimensions.depth)} step={0.1} disabled={!selection.enabled} onChange={(value) => setSelectionValue("stepZ", value)} />
+            <NumberInput label="Selection X" value={selection.width} min={Math.min(0.5, dimensions.width)} max={dimensions.width} step={0.1} disabled={!selection.enabled || Boolean(dashedSelection)} onChange={(value) => setSelectionValue("width", value)} />
+            <NumberInput label="Search step X" value={selection.stepX} min={0.1} max={Math.max(0.1, dimensions.width)} step={0.1} disabled={!selection.enabled || Boolean(dashedSelection)} onChange={(value) => setSelectionValue("stepX", value)} />
+            <NumberInput label="Selection Y" value={selection.height} min={Math.min(0.5, dimensions.height)} max={dimensions.height} step={0.1} disabled={!selection.enabled || Boolean(dashedSelection)} onChange={(value) => setSelectionValue("height", value)} />
+            <NumberInput label="Search step Y" value={selection.stepY} min={0.1} max={Math.max(0.1, dimensions.height)} step={0.1} disabled={!selection.enabled || Boolean(dashedSelection)} onChange={(value) => setSelectionValue("stepY", value)} />
+            <NumberInput label="Selection Z" value={selection.depth} min={Math.min(0.5, dimensions.depth)} max={dimensions.depth} step={0.1} disabled={!selection.enabled || Boolean(dashedSelection)} onChange={(value) => setSelectionValue("depth", value)} />
+            <NumberInput label="Search step Z" value={selection.stepZ} min={0.1} max={Math.max(0.1, dimensions.depth)} step={0.1} disabled={!selection.enabled || Boolean(dashedSelection)} onChange={(value) => setSelectionValue("stepZ", value)} />
           </div>
-          <p className="mt-2 text-[9px]" style={{ color: selection.enabled ? "var(--accent-gold)" : "var(--muted)" }}>{selection.enabled ? `The optimizer searches ${selection.width.toFixed(1)} × ${selection.height.toFixed(1)} × ${selection.depth.toFixed(1)} windows and exports the winning subsection. Selection dimensions automatically reduce when the overall solution becomes smaller.` : "The entire overall grid is evaluated and exported."}</p>
+          <p className="mt-2 text-[9px]" style={{ color: selection.enabled ? "var(--accent-gold)" : "var(--muted)" }}>{dashedSelection ? `The selection box matches each dashed group: ${selection.width.toFixed(2)} × ${selection.height.toFixed(2)} × ${selection.depth.toFixed(2)}, centered on that group. Search steps of ${selection.stepX.toFixed(2)} × ${selection.stepY.toFixed(2)} × ${selection.stepZ.toFixed(2)} move from one dashed box to the next.` : selection.enabled ? `The optimizer searches ${selection.width.toFixed(1)} × ${selection.height.toFixed(1)} × ${selection.depth.toFixed(1)} windows. Every letter whose center is inside the gold box is evaluated, including letters that cross the crop. Selection dimensions automatically reduce when the overall solution becomes smaller.` : "The entire overall grid is evaluated and exported."}</p>
         </section>
 
         <section className="rounded-xl border p-3" style={panelStyle}>
@@ -671,8 +804,9 @@ export default function CompositionStudio() {
             <NumberInput label="XY gap" value={store.spacing} min={8} max={120} onChange={store.setSpacing} />
             <NumberInput label="Letter size" value={store.fontSize} min={16} max={96} onChange={store.setFontSize} />
             <NumberInput label="Z layers" value={store.zLayers} min={2} max={8} disabled={!store.layerMode} onChange={store.setZLayers} />
-            <NumberInput label="Z gap" value={store.zSpacing} min={20} max={120} step={2} disabled={!store.layerMode} onChange={store.setZSpacing} />
-            <NumberInput label="Thickness %" value={store.letterThickness} min={4} max={50} step={2} onChange={store.setLetterThickness} />
+            <NumberInput label="Z gap" value={store.zSpacing} min={Z_GAP_MINIMUM} max={120} step={2} disabled={!store.layerMode} onChange={store.setZSpacing} />
+            <NumberInput label="45° gap" value={store.attractorGap ?? Math.round(diagonalCenterGap(store.spacing, Math.max(0.1, store.fontSize / 50) * UNIT_LETTER_SPAN))} min={DIAGONAL_GAP_MINIMUM} max={DIAGONAL_GAP_MAXIMUM} disabled={!store.layerMode} onChange={store.setAttractorGap} />
+            <NumberInput label="Thickness %" value={store.letterThickness} min={0.01} step={1} onChange={store.setLetterThickness} />
             <NumberInput label="Y range ±°" value={store.yRotationRange} min={0} max={180} step={15} disabled={!store.yRotationEnabled} onChange={store.setYRotationRange} />
           </div>
           <div className="mt-2 grid grid-cols-2 gap-1">
@@ -709,7 +843,8 @@ export default function CompositionStudio() {
             </div>)}
           </div>
           <div className="mt-2 flex gap-1"><input value={presetName} onChange={(event) => setPresetName(event.target.value)} className="min-w-0 flex-1 rounded border px-2 py-1 text-[10px]" style={inputStyle} /><button type="button" onClick={savePreset} className="rounded border px-2 py-1 text-[10px]" style={{ borderColor: "var(--line)" }}>Save preset</button></div>
-          {presets.length > 0 && <select aria-label="Load descriptor preset" defaultValue="" onChange={(event) => { const preset = presets.find((item) => item.id === event.target.value); if (preset) { setDescriptors(structuredClone(preset.settings)); if (preset.prototypeCategory) setPrototypeCategory(preset.prototypeCategory); if (preset.prototypeTypology) setPrototypeTypology(preset.prototypeTypology); if (preset.prototypeSource) setDisplayMode(preset.prototypeSource === "voids" ? "void" : preset.prototypeSource === "combined" ? "both" : "letters"); } }} className="mt-1 w-full rounded border px-2 py-1 text-[10px]" style={inputStyle}><option value="" disabled>Load descriptor preset…</option>{presets.map((preset) => <option key={preset.id} value={preset.id}>{preset.name}</option>)}</select>}
+          {presets.length > 0 && <select aria-label="Load descriptor preset" value={selectedPresetId} onChange={(event) => { setSelectedPresetId(event.target.value); const preset = presets.find((item) => item.id === event.target.value); if (preset) { setDescriptors(structuredClone(preset.settings)); if (preset.prototypeCategory) setPrototypeCategory(preset.prototypeCategory); if (preset.prototypeTypology) setPrototypeTypology(preset.prototypeTypology); if (preset.prototypeSource) setDisplayMode(preset.prototypeSource === "voids" ? "void" : preset.prototypeSource === "combined" ? "both" : "letters"); } }} className="mt-1 w-full rounded border px-2 py-1 text-[10px]" style={inputStyle}><option value="" disabled>Load descriptor preset…</option>{presets.map((preset) => <option key={preset.id} value={preset.id}>{preset.name}</option>)}</select>}
+          {selectedPresetId && <button type="button" onClick={deletePreset} className="mt-1 rounded border px-2 py-1 text-[10px]" style={{ borderColor: "var(--line)" }}>Delete selected preset</button>}
         </section>
       </aside>
 
@@ -721,7 +856,7 @@ export default function CompositionStudio() {
           </div>
           {(focus === "combined" || focus === "auto") && <div className="mt-2"><Slider label="Letter/void" value={controls.combinedBalance} onChange={(value) => setControl("combinedBalance", value)} /><div className="flex justify-between pl-[68px] text-[8px]" style={{ color: "var(--muted)" }}><span>0 · void</span><span>50 · equal</span><span>100 · letter</span></div></div>}
           <div className="mt-2 grid gap-2 border-t pt-2 sm:grid-cols-3" style={{ borderColor: "var(--line)" }}>
-            <NumberInput label="Alternatives" value={controls.alternatives} min={3} max={8} onChange={(value) => setControl("alternatives", value)} />
+            <NumberInput label="Alternatives" value={Math.min(4, controls.alternatives)} min={3} max={4} onChange={(value) => setControl("alternatives", value)} />
             <NumberInput label="Generations" value={controls.generations} min={1} max={30} onChange={(value) => setControl("generations", value)} />
             <NumberInput label="Random seed" value={controls.seed} min={1} max={999999} onChange={(value) => setControl("seed", value)} />
             <div className="sm:col-span-3"><Slider label="Intensity" value={controls.intensity} onChange={(value) => setControl("intensity", value)} /></div>
@@ -736,7 +871,7 @@ export default function CompositionStudio() {
             <div><h2 className="text-sm font-semibold">Alternative comparison</h2><p className="text-[9px]" style={{ color: "var(--muted)" }}>{focus === "auto" ? "All focus types are re-scored with the same combined objective before comparison." : "At least three alternatives share the same objective basis."}</p></div>
             <div className="flex gap-1"><select value={displayMode} onChange={(event) => setDisplayMode(event.target.value as DisplayMode)} className="rounded border px-2 py-1 text-[10px]" style={inputStyle}><option value="letters">Letters</option><option value="void">Void proxy</option><option value="both">Letters + void</option></select>{Object.entries(overlays).map(([key, value]) => <button key={key} type="button" onClick={() => setOverlays((current) => ({ ...current, [key]: !value }))} className="rounded border px-1.5 py-1 text-[9px]" style={{ borderColor: value ? "var(--accent)" : "var(--line)", color: value ? "var(--accent-pale)" : "var(--muted)" }}>{key}</button>)}</div>
           </div>
-          {evaluatedAlternatives.length === 0 ? <div className="flex h-72 items-center justify-center text-sm" style={{ color: "var(--muted)" }}>Generate alternatives to begin comparison.</div> : <div className="grid gap-2 lg:grid-cols-3">
+          {evaluatedAlternatives.length === 0 ? <div className="flex h-72 items-center justify-center text-sm" style={{ color: "var(--muted)" }}>Generate alternatives to begin comparison.</div> : <div className="grid gap-2 sm:grid-cols-2">
             {evaluatedAlternatives.slice(0, Math.max(3, controls.alternatives)).map((alternative, index) => <article key={alternative.id} className="overflow-hidden rounded-lg border" style={{ borderColor: index === selectedIndex ? "var(--accent)" : "var(--line)", background: "var(--input-background)" }}>
               <button type="button" onClick={() => setSelectedIndex(index)} className="flex w-full items-center justify-between px-2 py-1.5 text-left">
                 <span className="text-[10px] font-medium">Alt {index + 1} · {focusLabels[alternative.focus]}{index === selectedIndex ? " · prototype source" : ""}</span>
@@ -754,7 +889,7 @@ export default function CompositionStudio() {
             <div className="flex flex-wrap gap-1">
               <button type="button" onClick={() => setLockedParent(lockedParent?.id === selected.id ? null : selected)} className="rounded border px-2 py-1 text-[10px]" style={{ borderColor: lockedParent?.id === selected.id ? "var(--accent-light)" : "var(--line)", color: lockedParent?.id === selected.id ? "var(--accent-pale)" : "var(--ink)" }}>{lockedParent?.id === selected.id ? "Configuration locked" : "Lock for next run"}</button>
               <button type="button" onClick={() => downloadFile(`vul-optimized-${selected.seed}.obj`, compositionObj(selected, store.letterThickness), "text/plain")} className="rounded border px-2 py-1 text-[10px]" style={{ borderColor: "var(--line)" }}>Export OBJ</button>
-              <button type="button" onClick={() => downloadFile(`vul-analysis-${selected.seed}.json`, JSON.stringify({ grid, selection, rules, controls, focus, descriptors, alternative: selected }, null, 2), "application/json")} className="rounded border px-2 py-1 text-[10px]" style={{ borderColor: "var(--line)" }}>Export JSON</button>
+              <button type="button" onClick={() => downloadFile(`vul-analysis-${selected.seed}.json`, JSON.stringify({ units: "feet", feetPerModelUnit: 1, legacySliderUnitsPerFoot: 50, grid, selection, rules, controls, focus, descriptors, alternative: selected }, null, 2), "application/json")} className="rounded border px-2 py-1 text-[10px]" style={{ borderColor: "var(--line)" }}>Export JSON</button>
               <button type="button" onClick={() => downloadFile(`vul-analysis-${selected.seed}.csv`, resultsCsv(selected), "text/csv")} className="rounded border px-2 py-1 text-[10px]" style={{ borderColor: "var(--line)" }}>Export CSV</button>
             </div>
           </div>
@@ -801,7 +936,7 @@ export default function CompositionStudio() {
           <h2 className="text-sm font-semibold">Configuration history</h2>
           {history.length === 0 ? <p className="mt-2 text-[10px]" style={{ color: "var(--muted)" }}>Optimization runs are kept here. Select any run to restore it; newer runs stay available.</p> : <div className="mt-2 max-h-48 space-y-1 overflow-auto">{history.map((run, index) => {
             const isActive = run.id === activeHistoryId;
-            return <button key={run.id} type="button" onClick={() => restoreHistoryRun(index)} className="w-full rounded border p-2 text-left text-[9px] transition-colors hover:bg-[var(--panel-background)]" style={{ borderColor: isActive ? "var(--accent-secondary)" : "var(--line)", background: isActive ? "var(--panel-background)" : "var(--input-background)", color: isActive ? "var(--accent-light)" : undefined }}><strong>Run {history.length - index}</strong> · seed {run.seed} · {focusLabels[run.focus]} · {run.fit?.toFixed(1) ?? "unranked"}{isActive ? " · active" : ""}<div className="mt-0.5 text-[8px]" style={{ color: "var(--muted)" }}>{run.alternatives.length} alternatives · click to restore</div></button>;
+            return <div key={run.id} className="flex gap-1"><button type="button" onClick={() => restoreHistoryRun(index)} className="w-full rounded border p-2 text-left text-[9px] transition-colors hover:bg-[var(--panel-background)]" style={{ borderColor: isActive ? "var(--accent-secondary)" : "var(--line)", background: isActive ? "var(--panel-background)" : "var(--input-background)", color: isActive ? "var(--accent-light)" : undefined }}><strong>Run {history.length - index}</strong> · seed {run.seed} · {focusLabels[run.focus]} · {run.fit?.toFixed(1) ?? "unranked"}{isActive ? " · active" : ""}<div className="mt-0.5 text-[8px]" style={{ color: "var(--muted)" }}>{run.alternatives.length} alternatives · click to restore</div></button><button type="button" aria-label={`Delete run ${history.length - index}`} onClick={() => deleteHistory(run.id)} className="rounded border px-2 text-[9px]" style={{borderColor:"var(--line)"}}>Delete</button></div>;
           })}</div>}
         </section>
 
@@ -814,6 +949,8 @@ export default function CompositionStudio() {
       </aside>
     </div>
     <PrototypeDemonstration
+      key="architecture-workflow"
+      selectionOnly={Boolean(selected?.selection)}
       sourcePlacements={prototypeSourcePlacements}
       completeSourcePlacements={completePrototypePlacements}
       sourceLabel={prototypeSourceLabel}
@@ -832,3 +969,10 @@ export default function CompositionStudio() {
     />
   </div></main>;
 }
+
+
+
+
+
+
+

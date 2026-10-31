@@ -60,7 +60,7 @@ export async function exportVoidsGridObj(
   root.updateMatrixWorld(true);
 
   const exporter = new OBJExporter();
-  const objText = exporter.parse(root);
+  const objText = "# Units: feet; 1 coordinate unit = 1 ft\n" + exporter.parse(root);
   const blob = new Blob([objText], { type: "text/plain" });
   const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
   downloadBlob(blob, `lci-voids-8x2-${stamp}.obj`);

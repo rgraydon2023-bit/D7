@@ -2,6 +2,7 @@ export const OPTIMIZER_SESSION_KEY = "vul-optimizer-session";
 export const PROTOTYPE_SESSION_KEY = "vul-prototype-session";
 export const SLIDE_SESSION_KEY = "vul-slide-session";
 export const LATTICE_SESSION_KEY = "vul-lattice-session";
+export const PART3_REPO_KEY = "vul-part3-obj-repository";
 
 export function readJson<T>(key: string): T | null {
   if (typeof window === "undefined") return null;

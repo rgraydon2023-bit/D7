@@ -19,7 +19,7 @@ function plate(id: string, width: number, height: number, solid = false): TileMo
     voidCells: [],
     vertical: [],
     bounds: { minX: 0, minY: 0, minZ: 0, maxX: width - 1, maxY: width - 1, maxZ: Math.max(0, height - 1) },
-    faces: {},
+    faces: Object.fromEntries(["+X", "-X", "+Y", "-Y", "+Z", "-Z"].map((direction) => [direction, { cells: new Map(), projection: 0, recess: 0 }])) as TileVariant["faces"],
   } as TileVariant;
   return {
     id,

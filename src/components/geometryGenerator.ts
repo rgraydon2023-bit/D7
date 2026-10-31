@@ -1,4 +1,5 @@
 import { DESCRIPTORS, type CompositionPlacement, type DescriptorSettings } from "./compositionEngine";
+import { attractorBlend, diagonalAttractorScale, pullToOctet, scaleTowardOctet, UNIT_LETTER_SPAN } from "./letterVolumeLayout";
 import type { CandidateFocus, GenerationRules, OrthogonalGrid, SpatialAlternative } from "./optimizerTypes";
 import type { Cell } from "./letterTypes";
 
@@ -28,6 +29,8 @@ function slots(grid: OrthogonalGrid) {
     const yIndex = Math.floor(index / grid.xCells) % grid.yCells;
     const zIndex = Math.floor(index / (grid.xCells * grid.yCells));
     return {
+      col: xIndex,
+      row: yIndex,
       x: xIndex * grid.cellX - offsetX,
       y: offsetY - yIndex * grid.cellY,
       z: zIndex * grid.cellZ - offsetZ,
@@ -145,6 +148,19 @@ function snapRotation(value: number, rules: GenerationRules) {
   return Math.round(value / step) * step;
 }
 
+/** Added to each letter's slide rotation. Intensity 100 allows ±90°. */
+function zRotationLimit(intensity: number) {
+  return 90 * Math.max(0, Math.min(100, intensity)) / 100;
+}
+
+function clampZRotation(base: number, value: number, maxOffset: number, step: number) {
+  const safeStep = Math.max(1, step);
+  const delta = Math.max(-maxOffset, Math.min(maxOffset, value - base));
+  let snapped = Math.round(delta / safeStep) * safeStep;
+  if (Math.abs(snapped) > maxOffset) snapped = Math.sign(snapped) * Math.floor(maxOffset / safeStep) * safeStep;
+  return base + snapped;
+}
+
 export function generateSpatialCandidate(args: {
   sourceCells: Cell[];
   grid: OrthogonalGrid;
@@ -158,27 +174,43 @@ export function generateSpatialCandidate(args: {
 }) {
   const { sourceCells, grid, rules, descriptors, focus, seed, intensity, parent } = args;
   const random = seededRandom(seed);
+  const maxZOffset = zRotationLimit(intensity);
   const availableSlots = rules.allowReposition && !rules.lockExistingLocations ? shuffled(slots(grid), random) : slots(grid);
   let targetCount = Math.min(sourceCells.length, availableSlots.length);
   if (rules.allowRepeat) targetCount = availableSlots.length;
   if (rules.allowRemove) targetCount = Math.max(1, Math.round(targetCount * (0.86 + random() * 0.14)));
-  const baseScale = Math.max(rules.minimumLetterSize, Math.min(rules.maximumLetterSize, Math.min(grid.cellX, grid.cellY, grid.cellZ) * 0.64));
+  const baseScale = Math.max(rules.minimumLetterSize, rules.maximumLetterSize);
   const placements: CompositionPlacement[] = [];
   for (let index = 0; index < targetCount; index++) {
     const slot = availableSlots[index];
     const sourceIndex = rules.allowRepeat ? Math.floor(random() * sourceCells.length) : index % sourceCells.length;
     const cell = sourceCells[sourceIndex];
     const jitter = rules.allowReposition && !rules.lockExistingLocations ? intensity / 100 * 0.12 : 0;
+    const xyBlend = attractorBlend(rules.xyGap ?? 56);
+    const zBlend = attractorBlend(rules.zGap ?? 56);
+    const diagonalScale = rules.attractorGap == null
+      ? 1
+      : diagonalAttractorScale(rules.attractorGap, rules.xyGap ?? 56, baseScale * UNIT_LETTER_SPAN);
+    const steps = {
+      col: slot.col, row: slot.row, layer: slot.layerIndex,
+      cols: grid.xCells, rows: grid.yCells, layers: grid.zCells,
+      x: slot.x, y: slot.y, z: slot.z,
+      xStep: grid.cellX, yStep: -grid.cellY, zStep: grid.cellZ,
+    };
+    const pulled = pullToOctet({ ...steps, xyBlend, zBlend });
+    const attracted = diagonalScale === 1 ? pulled : scaleTowardOctet({ ...steps, scale: diagonalScale });
     placements.push({
       cell: { ...cell, id: `${cell.id}-candidate-${index}` },
       sourceIndex,
       layerIndex: slot.layerIndex,
-      x: slot.x + (random() - 0.5) * grid.cellX * jitter,
-      y: slot.y + (random() - 0.5) * grid.cellY * jitter,
-      z: slot.z + (random() - 0.5) * grid.cellZ * jitter,
+      col: slot.col,
+      row: slot.row,
+      x: attracted.x + (random() - 0.5) * grid.cellX * jitter,
+      y: attracted.y + (random() - 0.5) * grid.cellY * jitter,
+      z: attracted.z + (random() - 0.5) * grid.cellZ * jitter,
       rx: rules.allowRotationX ? snapRotation((random() - 0.5) * 120 * intensity / 100, rules) : 0,
       ry: rules.allowRotationY ? snapRotation((random() - 0.5) * 2 * (rules.maximumRotationY ?? 90) * intensity / 100, rules) : 0,
-      rz: rules.allowRotationZ ? snapRotation(cell.rotation + (random() - 0.5) * 90 * intensity / 100, rules) : cell.rotation,
+      rz: rules.allowRotationZ ? clampZRotation(cell.rotation, cell.rotation + (random() - 0.5) * 2 * maxZOffset, maxZOffset, rules.rotationStep) : cell.rotation,
       scale: baseScale,
       scaleX: 1,
       scaleY: rules.preserveProportions ? 1 : 0.82 + random() * 0.36,
@@ -209,9 +241,9 @@ export function generateSpatialCandidate(args: {
     if (!rules.allowRotationY) placement.ry = 0;
     else placement.ry = Math.max(-(rules.maximumRotationY ?? 90), Math.min(rules.maximumRotationY ?? 90, placement.ry));
     if (!rules.allowRotationZ) placement.rz = placement.cell.rotation;
+    else placement.rz = clampZRotation(placement.cell.rotation, placement.rz, maxZOffset, rules.rotationStep);
     placement.rx = snapRotation(placement.rx, rules);
     placement.ry = snapRotation(placement.ry, rules);
-    placement.rz = snapRotation(placement.rz, rules);
     if (rules.preserveProportions) placement.scaleX = placement.scaleY = placement.scaleZ = 1;
   });
   return placements;

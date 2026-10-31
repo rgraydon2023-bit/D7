@@ -137,7 +137,7 @@ export async function boundedVoidVolume(options: VolumeOptions, compositionPlace
 
 export function fusedVolumeObjText(mesh: TriangleMesh, target: VolumeExportTarget = "letters"): string {
   const name = target === "void" ? "VUL_Bounded_Void" : "VUL_Closed_Mesh";
-  const lines = [`# ${target === "void" ? "Bounded void around" : "Boolean-fused"} VUL letter volume`, `o ${name}`];
+  const lines = ["# Units: feet; 1 coordinate unit = 1 ft", `# ${target === "void" ? "Bounded void around" : "Boolean-fused"} VUL letter volume`, `o ${name}`];
   for (let i = 0; i < mesh.vertices.length; i += 3) {
     lines.push(`v ${mesh.vertices[i]} ${mesh.vertices[i + 1]} ${mesh.vertices[i + 2]}`);
   }
@@ -178,6 +178,7 @@ export async function fusedVolumePolysurface(mesh: TriangleMesh): Promise<Uint8A
   const brep = createBrep(rhinoMesh, true);
   if (!brep || !brep.isSolid) throw new Error("A closed polysurface needs touching letters throughout the volume. Reduce Gap and Z gap or increase Size and Thickness, then export again.");
   const doc = new rhino.File3dm();
+  doc.settings().modelUnitSystem = rhino.UnitSystem.Feet;
   const attributes = new rhino.ObjectAttributes();
   attributes.name = "VUL_Closed_Polysurface";
   doc.objects().addBrep(brep, attributes);

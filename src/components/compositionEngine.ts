@@ -31,6 +31,8 @@ export type CompositionPlacement = {
   cell: Cell;
   sourceIndex: number;
   layerIndex: number;
+  col?: number;
+  row?: number;
   x: number;
   y: number;
   z: number;

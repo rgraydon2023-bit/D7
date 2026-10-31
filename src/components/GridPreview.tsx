@@ -1,5 +1,6 @@
 "use client";
 
+import { letterPlanLayout } from "./letterVolumeLayout";
 import type { Cell, LetterAssets } from "./letterTypes";
 
 type GridPreviewProps = {
@@ -25,14 +26,16 @@ export default function GridPreview({
   showGuides,
   className = "",
 }: GridPreviewProps) {
+  const { pitch, width, height } = letterPlanLayout(cols, rows, spacing, fontSize);
   return (
     <div
       data-board-geometry
       className={`mx-auto w-fit ${className}`}
       style={{
         display: "grid",
-        gridTemplateColumns: `repeat(${cols}, ${spacing}px)`,
-        gridTemplateRows: `repeat(${rows}, ${spacing}px)`,
+        width, height,
+        gridTemplateColumns: `repeat(${cols}, ${pitch}px)`,
+        gridTemplateRows: `repeat(${rows}, ${pitch}px)`,
         justifyContent: "center",
         alignContent: "center",
       }}
@@ -40,13 +43,13 @@ export default function GridPreview({
       {cells.map((cell) => {
         const asset = useAssets ? assets[cell.letter] : null;
         const imageSrc = asset?.kind === "image" ? asset.url : null;
-        const circleSize = Math.min(fontSize * 0.85, spacing);
+        const circleSize = Math.min(fontSize * 0.85, pitch);
 
         return (
           <div
             key={cell.id}
             className="relative flex items-center justify-center"
-            style={{ width: spacing, height: spacing }}
+            style={{ width: pitch, height: pitch }}
           >
             {showGuides && (
               <span
@@ -67,6 +70,7 @@ export default function GridPreview({
                 alt={cell.letter}
                 className="pointer-events-none select-none object-contain"
                 style={{
+                  flexShrink: 0,
                   width: fontSize,
                   height: fontSize,
                   transform: `rotate(${cell.rotation}deg)`,

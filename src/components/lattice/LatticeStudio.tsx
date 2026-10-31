@@ -1073,9 +1073,13 @@ export default function LatticeStudio() {
                     style={buttonStyle}
                     type="number"
                     min={1}
-                    max={MAX_LATTICE_CELLS_PER_AXIS}
+                    max={Math.min(MAX_LATTICE_CELLS_PER_AXIS, 200)}
                     value={field[axis]}
-                    onChange={(event) => setLatticeCells(axis, Number(event.target.value))}
+                    onChange={(event) => {
+                      const next = Number(event.target.value);
+                      if (!Number.isFinite(next) || next > 200) return;
+                      setLatticeCells(axis, next);
+                    }}
                   />
                 </label>
               ))}
