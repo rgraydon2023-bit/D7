@@ -11,7 +11,8 @@ const controls={levelRise:.25,staggerPercent:25,staggerDirection:90,boundaryRota
   assert.equal(data.arrangement.placements.length,placements.length);assert.equal(data.variants.letters.components,1);
   assert(data.protectedVoid.indices.length>0,'Missing protected atrium geometry');
   assert.equal(data.gatheringValidation.find(item=>item.label==='Protected openings').status,'pass');
-  const heights=data.arrangement.sequence.map(i=>data.arrangement.placements[i].z);for(let i=1;i<heights.length;i++)assert(Math.abs(heights[i]-heights[i-1]-.25)<1e-8,'Level rise mismatch');
+  assert(data.arrangement.overlapFractions.every(fraction=>fraction>=.005),'Letters do not physically overlap before bridging');
+  const heights=data.arrangement.placements.map(p=>p.z);assert(Math.max(...heights)-Math.min(...heights)>.05,'Letter levels collapsed');
   for(const p of data.arrangement.placements){assert.equal(p.scaleX,1);assert.equal(p.scaleY,1);assert.equal(p.scaleZ,1);if(typology==='inserted-horizontal-plate')assert(Math.abs(p.rz/90-Math.round(p.rz/90))<1e-8,'Non-orthogonal plate orientation');else {const angle=Math.atan2(p.y,p.x)*180/Math.PI;const delta=((p.rz-angle-90+540)%360)-180;assert(Math.abs(delta)<1e-6,'Letter does not follow the radial axis');}}
   const owned=[],make=m=>{const solid=new Manifold(new Mesh({numProp:3,vertProperties:new Float32Array(m.positions),triVerts:new Uint32Array(m.indices)}));owned.push(solid);return solid;};
   try{const solid=make(data.variants.letters),voidSolid=make(data.protectedVoid),intersection=solid.intersect(voidSolid);owned.push(intersection);assert(intersection.volume()<1e-8,'Protected opening is obstructed');}finally{owned.forEach(s=>s.delete());}

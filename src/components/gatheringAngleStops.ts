@@ -18,7 +18,7 @@ export function gatheringAngleStops(source:IntersectionPlacement[],typology:stri
  const heading=.5*Math.atan2(2*xy,xx-yy)*180/Math.PI,priority=typologyLetterPriority(typology);
  const sequence=source.map((_,i)=>i).sort((a,b)=>priority.indexOf(source[a].letter)-priority.indexOf(source[b].letter)||a-b);
  const spacing=source.reduce((sum,p)=>sum+p.scale/n,0)*.7,foundation=foundationPoses(source,sequence,typology,spacing,heading);
- if(typology==='stepped-amphitheater')return {x:{min:0,max:0},y:{min:0,max:0},z:{min:0,max:360},yawChoices:[0,15,30,45,90].map(offset=>normalizeYaw(foundation.heading+offset)).sort((a,b)=>a-b)};
+ if(typology==='stepped-amphitheater')return {x:source.some(p=>p.letter!=='L')?{min:-90,max:90}:{min:0,max:0},y:{min:0,max:0},z:{min:0,max:360},yawChoices:[0,15,30,45,90].map(offset=>normalizeYaw(foundation.heading+offset)).sort((a,b)=>a-b)};
  const poses=ATRIUM_TYPOLOGIES.has(typology)?gatheringAtriumLayout(source,sequence,typology,operations).poses:['contained-room-within-volume','linear-edge-gallery'].includes(typology)?gatheringEnclosureLayout(source,sequence,typology,operations,foundation.heading):foundation.poses;
  return {x:range(poses.map(p=>p.rx),-180,180),y:range(poses.map(p=>p.ry),-180,180),z:range(poses.map(p=>normalizeYaw(p.rz)),0,360)};
 }

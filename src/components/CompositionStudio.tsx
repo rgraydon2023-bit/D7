@@ -194,6 +194,17 @@ function resultsCsv(alternative: SpatialAlternative) {
   return `${rows.join("\n")}\n`;
 }
 
+/** Letters whose centers sit inside the alternative's crop. The full grid is not sent to the generator. */
+function cropRegionPlacements(alternative: SpatialAlternative): CompositionPlacement[] {
+  const window = alternative.selection;
+  const field = alternative.fullPlacements;
+  if (window && field?.length) {
+    const contained = field.filter((placement) => placementCenterInSelection(placement, window));
+    if (contained.length) return contained.map((placement) => ({ ...placement, x: placement.x - window.centerX, y: placement.y - window.centerY, z: placement.z - window.centerZ }));
+  }
+  return alternative.placements;
+}
+
 function OptimizationScene({ alternative, grid, thickness, overlays, displayMode }: {
   alternative: SpatialAlternative;
   grid: OrthogonalGrid;
@@ -442,13 +453,16 @@ export default function CompositionStudio() {
       };
     });
   }, [selected, sourceCells, grid, rules.minimumLetterSize, rules.maximumLetterSize, rules.xyGap, rules.zGap, rules.attractorGap]);
-  const prototypeSourcePlacements = useMemo<CompositionPlacement[]>(() => selected?.placements.length ? selected.placements : completePrototypePlacements, [selected, completePrototypePlacements]);
-  const prototypeSourceOptions = useMemo(() => evaluatedAlternatives.map((alternative, index) => ({
-    index,
-    label: `Alternative ${index + 1} · seed ${alternative.seed} · ${alternative.placements.length} objects${alternative.selection ? ` · center ${alternative.selection.centerX.toFixed(1)}, ${alternative.selection.centerY.toFixed(1)}, ${alternative.selection.centerZ.toFixed(1)}` : ""}`,
-  })), [evaluatedAlternatives]);
+  const prototypeSourcePlacements = useMemo<CompositionPlacement[]>(() => selected ? cropRegionPlacements(selected) : completePrototypePlacements, [selected, completePrototypePlacements]);
+  const prototypeSourceOptions = useMemo(() => evaluatedAlternatives.map((alternative, index) => {
+    const crop = cropRegionPlacements(alternative);
+    return {
+      index,
+      label: `Alternative ${index + 1} · seed ${alternative.seed} · ${crop.length} crop letters${alternative.selection ? ` · center ${alternative.selection.centerX.toFixed(1)}, ${alternative.selection.centerY.toFixed(1)}, ${alternative.selection.centerZ.toFixed(1)}` : ""}`,
+    };
+  }), [evaluatedAlternatives]);
   const prototypeSourceLabel = selected
-    ? `Alternative ${selectedIndex + 1} · seed ${selected.seed} · ${selected.placements.length} objects${selected.selection ? ` · selected ${selected.selection.width.toFixed(1)} × ${selected.selection.height.toFixed(1)} × ${selected.selection.depth.toFixed(1)} at center (${selected.selection.centerX.toFixed(1)}, ${selected.selection.centerY.toFixed(1)}, ${selected.selection.centerZ.toFixed(1)})` : " · complete grid"}`
+    ? `Alternative ${selectedIndex + 1} · seed ${selected.seed} · ${prototypeSourcePlacements.length} crop letters${selected.selection ? ` · selected ${selected.selection.width.toFixed(1)} × ${selected.selection.height.toFixed(1)} × ${selected.selection.depth.toFixed(1)} at center (${selected.selection.centerX.toFixed(1)}, ${selected.selection.centerY.toFixed(1)}, ${selected.selection.centerZ.toFixed(1)})` : ""}`
     : `Original synchronized grid · ${prototypeSourcePlacements.length} objects`;
   const selectedIsApplied = Boolean(selected
     && store.appliedComposition?.seed === selected.seed
@@ -619,7 +633,7 @@ export default function CompositionStudio() {
     setAppliedComposition({
       seed: selected.seed,
       alternativeIndex: selectedIndex,
-      placements: selected.placements,
+      placements: cropRegionPlacements(selected),
       width: activeBounds.width,
       height: activeBounds.height,
       depth: activeBounds.depth,
@@ -885,7 +899,7 @@ export default function CompositionStudio() {
 
         {selected && <section className="rounded-xl border p-3" style={panelStyle}>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div><h2 className="text-sm font-semibold">Selected configuration</h2><p className="text-[9px]" style={{ color: "var(--muted)" }}>Seed {selected.seed} · {focusLabels[selected.focus]} · {selected.placements.length} objects{selected.selection ? ` · window center (${selected.selection.centerX.toFixed(1)}, ${selected.selection.centerY.toFixed(1)}, ${selected.selection.centerZ.toFixed(1)})` : ""}</p></div>
+            <div><h2 className="text-sm font-semibold">Selected configuration</h2><p className="text-[9px]" style={{ color: "var(--muted)" }}>Seed {selected.seed} · {focusLabels[selected.focus]} · {cropRegionPlacements(selected).length} crop letters{selected.selection ? ` · window center (${selected.selection.centerX.toFixed(1)}, ${selected.selection.centerY.toFixed(1)}, ${selected.selection.centerZ.toFixed(1)})` : ""}</p></div>
             <div className="flex flex-wrap gap-1">
               <button type="button" onClick={() => setLockedParent(lockedParent?.id === selected.id ? null : selected)} className="rounded border px-2 py-1 text-[10px]" style={{ borderColor: lockedParent?.id === selected.id ? "var(--accent-light)" : "var(--line)", color: lockedParent?.id === selected.id ? "var(--accent-pale)" : "var(--ink)" }}>{lockedParent?.id === selected.id ? "Configuration locked" : "Lock for next run"}</button>
               <button type="button" onClick={() => downloadFile(`vul-optimized-${selected.seed}.obj`, compositionObj(selected, store.letterThickness), "text/plain")} className="rounded border px-2 py-1 text-[10px]" style={{ borderColor: "var(--line)" }}>Export OBJ</button>
