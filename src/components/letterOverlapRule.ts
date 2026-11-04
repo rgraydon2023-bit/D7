@@ -102,7 +102,8 @@ export function enforceContactOverlap(input:IntersectionPlacement[],makeSolid:(p
    const rest=solids.filter((_,j)=>j!==i),others=union(rest);
    const ratio=(solid:Manifold)=>{const overlap=solid.intersect(others);try{return overlap.volume()/Math.max(solid.volume(),1e-12);}finally{overlap.delete();}};
    try{
-    let best=fractions[i],chosen=result[i],chosenSolid=solids[i],start=result[i];
+    let best=fractions[i],chosen=result[i],chosenSolid=solids[i];
+    const start=result[i];
     const candidates:IntersectionPlacement[]=[];
     for(const factor of [1.08,1.2])candidates.push(face({...start,scale:start.scale*factor,letterRules:start.letterRules?{...start.letterRules,strokeWidth:start.letterRules.strokeWidth*factor}:undefined}));
     for(const portion of [.2,.35,.55])for(let j=0;j<result.length;j++)if(j!==i){

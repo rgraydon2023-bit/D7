@@ -58,9 +58,9 @@ export function arrangeTypologyLetters(source:IntersectionPlacement[],originals:
 
  const overlap=gathering?enforceContactOverlap(result,makeSolid,{minimum:.05,lockZ:false,radialYaw:typology==='void-field-gathering',protectedCircle:atrium?{center:atrium.center,radius:atrium.radius}:undefined}):enforceLetterOverlap(result,makeSolid,layout.topographic?center:undefined,foundation.family==='void');
  result=overlap.placements;
- const boundsOf=(placements:IntersectionPlacement[])=>{let min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];for(const solid of placements.map(makeSolid)){const box=solid.boundingBox();for(let axis=0;axis<3;axis++){min[axis]=Math.min(min[axis],box.min[axis]);max[axis]=Math.max(max[axis],box.max[axis]);}}return Math.max(...max.map((value,axis)=>value-min[axis]),1e-8);};
+ const boundsOf=(placements:IntersectionPlacement[])=>{const min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];for(const solid of placements.map(makeSolid)){const box=solid.boundingBox();for(let axis=0;axis<3;axis++){min[axis]=Math.min(min[axis],box.min[axis]);max[axis]=Math.max(max[axis],box.max[axis]);}}return Math.max(...max.map((value,axis)=>value-min[axis]),1e-8);};
  const gapOptions={radialYaw:typology==='void-field-gathering',protectedCircle:atrium?{center:atrium.center,radius:atrium.radius}:undefined};
- let maxGap=typology==='vertical-void-lobby'?0.1*boundsOf(result)/20:0.1;
+ const maxGap=typology==='vertical-void-lobby'?0.1*boundsOf(result)/20:0.1;
  let closed=limitAdjacentLetterGap(result,sequence,makeSolid,maxGap,gapOptions);
  result=closed.placements;
  if(typology==='vertical-void-lobby'){const span=boundsOf(result);if(closed.largest*20/span>0.1+1e-4){closed=limitAdjacentLetterGap(result,sequence,makeSolid,0.1*span/20,gapOptions);result=closed.placements;}}

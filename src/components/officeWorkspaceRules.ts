@@ -157,7 +157,8 @@ function fitsSquare(poly: Pt[], size: number, angles: number[], obstacles: Pt[][
       for (let i = 0; i <= 6; i++) for (let j = 0; j <= 6; j++) {
         const x = boxL.minX + (boxL.maxX - boxL.minX - size) * i / 6;
         const y = boxL.minY + (boxL.maxY - boxL.minY - size) * j / 6;
-        const corners: Pt[] = [[x, y], [x + size, y], [x + size, y + size], [x, y + size], [x + size / 2, y + size / 2]].map(toWorld);
+        const samples: Pt[] = [[x, y], [x + size, y], [x + size, y + size], [x, y + size], [x + size / 2, y + size / 2]];
+        const corners = samples.map(toWorld);
         if (corners.every((p) => pointInPoly(p, poly) && !blocked(p))) return true;
       }
     }
@@ -444,7 +445,7 @@ function cascaded(): Omit<OfficePlan, "rotation"> {
   const squareAngles = [0, leftAngle, rightAngle];
   const squareFlags = terracePolys.map((t) => fitsSquare(t.poly, 5, squareAngles));
   const squares = squareFlags.every(Boolean);
-  const spread = (parts: Pt[]) => Math.max(...parts.map(area)) - Math.min(...parts.map(area));
+  const spread = (parts: Pt[][]) => Math.max(...parts.map(area)) - Math.min(...parts.map(area));
   const equalA = wingA.length === countA && spread(wingA) < 1.5;
   const equalB = wingB.length === countB && spread(wingB) < 1.5;
   const risesA = wingA.length >= 2 && terracePolys.filter((t) => t.wing === "A").every((t, i, list) => i === 0 || Math.abs(t.z - list[i - 1].z - 2) < 1e-6);
