@@ -7,6 +7,8 @@ export type FaceBridgeMode = "same" | "different" | "all";
 
 export type FaceBridgeSettings = {
   enabled: boolean;
+  /** Use straight interpolation between the two attachment outlines. */
+  linear?: boolean;
   /** Restricts all bridges, including required-gap bridges, to layout neighbors. */
   adjacentPairs?: number[][];
   /** Additional eligible pairs, measured by actual surface gap in feet. */
@@ -432,10 +434,10 @@ function loftAttachment(attachment: Attachment, fromPatch: Patch, toPatch: Patch
   const grid: THREE.Vector3[][] = [];
   for (let station = 0; station <= stations; station++) {
     const t = station / stations;
-    const row = attachment.starts.map((start, index) => hermite(start, attachment.ends[index], m0, m1, t));
+    const row = attachment.starts.map((start, index) => settings.linear?start.clone().lerp(attachment.ends[index],t):hermite(start, attachment.ends[index], m0, m1, t));
     const center = row.reduce((sum, point) => sum.add(point), new THREE.Vector3()).multiplyScalar(1 / row.length);
     const waist = 1 - curvature * .72 * Math.sin(Math.PI * t);
-    row.forEach((point) => {
+    if(!settings.linear)row.forEach((point) => {
       const delta=point.clone().sub(center).multiplyScalar(waist);
       const profile=Math.sin(Math.PI*t);
       const u=fromPatch.tangent.clone().lerp(toPatch.tangent,t).normalize();
@@ -446,7 +448,7 @@ function loftAttachment(attachment: Attachment, fromPatch: Patch, toPatch: Patch
     });
     if(station===0) row.forEach((p,i)=>p.copy(attachment.starts[i]));
     if(station===stations) row.forEach((p,i)=>p.copy(attachment.ends[i]));
-    if (settings.typologyShape && station>0 && station<stations) {
+    if (!settings.linear && settings.typologyShape && station>0 && station<stations) {
       const shape=settings.typologyShape, envelope=Math.sin(Math.PI*t)**2;
       const terrace=Math.round(center.z / Math.max(.04,attachment.gap/6))*Math.max(.04,attachment.gap/6)-center.z;
       const lift=envelope*(terrace*shape.terracing + Math.sin(2*Math.PI*t)*attachment.gap*.12*shape.topography);

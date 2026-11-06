@@ -7,17 +7,25 @@ export const BOARD_WIDTH = 7407;
 export const BOARD_HEIGHT = 2160;
 const BoardContext = createContext(false);
 export const useBoardMode = () => useContext(BoardContext);
+const GlobalBoardContext = createContext(false);
+export const useGlobalBoardMode = () => useContext(GlobalBoardContext);
+export const PRESENTATION_BOARD_STORAGE_KEY = 'presentation-board-mode';
 
 /** Keeps the page mounted: changing presentation never resets application state. */
 export default function BoardMode({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [enabled, setEnabled] = useState(false);
+  const [globalEnabled, setGlobalEnabled] = useState(false);
+  const [presentationEnabled, setPresentationEnabled] = useState(false);
+  const enabled = pathname === '/composition-presentation' ? presentationEnabled : globalEnabled;
   const [capture, setCapture] = useState(false);
   const [viewport, setViewport] = useState({ width: BOARD_WIDTH, height: BOARD_HEIGHT });
   useEffect(() => {
     const update = () => {
       const params = new URLSearchParams(window.location.search);
-      setEnabled(params.get("board") === "7407x2160");
+      setGlobalEnabled(params.get("board") === "7407x2160");
+      let savedPresentation = false;
+      try { savedPresentation = sessionStorage.getItem(PRESENTATION_BOARD_STORAGE_KEY) === 'true'; } catch { /* URL state still works if storage is unavailable. */ }
+      setPresentationEnabled(params.has('presentationBoard') ? params.get('presentationBoard') === '7407x2160' : savedPresentation);
       setCapture(params.get("capture") === "1");
       setViewport({ width: window.innerWidth, height: window.innerHeight });
     };
@@ -41,11 +49,11 @@ export default function BoardMode({ children }: { children: React.ReactNode }) {
     left: capture ? 0 : (viewport.width - BOARD_WIDTH * scale) / 2,
     top: capture ? 0 : (viewport.height - BOARD_HEIGHT * scale) / 2,
   } : undefined;
-  return <BoardContext.Provider value={enabled}>
+  return <GlobalBoardContext.Provider value={globalEnabled}><BoardContext.Provider value={enabled}>
     <div className={enabled ? "board-preview" : "board-normal"}>
       <div data-board={enabled ? "7407x2160" : undefined} data-board-capture={enabled && capture ? "true" : undefined} className={enabled ? "board-canvas" : "board-normal"} style={style}>
         {children}
       </div>
     </div>
-  </BoardContext.Provider>;
+  </BoardContext.Provider></GlobalBoardContext.Provider>;
 }

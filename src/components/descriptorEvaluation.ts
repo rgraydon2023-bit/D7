@@ -246,11 +246,12 @@ export function evaluateSpatialDesign(args: {
   focus: CandidateFocus;
   sourceCount?: number;
   bounds?: "body" | "center";
+  ignoreCirculationClearance?: boolean;
 }): SpatialEvaluation {
   const raw = measureSpatialMetrics(args.placements, args.grid, args.rules);
   const measurements = descriptorMeasurements(raw, args.controls);
   const scored = scoreMeasurements(measurements, args.descriptors, args.focus, args.controls.combinedBalance);
-  const constraints = validateConstraints(args.placements, args.grid, args.rules, args.sourceCount, args.bounds ?? "body");
+  const constraints = validateConstraints(args.placements, args.grid, args.rules, args.sourceCount, args.bounds ?? "body", args.ignoreCirculationClearance ?? false);
   const tradeoffs: string[] = [];
   if (raw.voidRatio > 0.8 && raw.adjacencyRatio < 0.25) tradeoffs.push("Greater open volume reduces letter adjacency.");
   if (raw.scaleVariance > 0.25 && raw.skyExposureRatio < 0.6) tradeoffs.push("Stronger hierarchy reduces the daylight proxy.");

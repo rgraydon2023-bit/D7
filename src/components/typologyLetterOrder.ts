@@ -17,11 +17,11 @@ const priorities:Record<string,Letter[]>={
  "flat-deep-plan-plate":["L","V","U"],
  "void-edge-workspace":["U","L","V"],
  "folded-undulating-work-surface":["U","V","L"],
- "vertical-void-lobby":["U","L","V"],
+ "vertical-void-lobby":["L","U","V"],
  "compressed-sequential-lobby":["L","V","U"],
- "continuous-hall-lobby":["U","V","L"],
- "topographic-ground-field-lobby":["U","V","L"],
- "linear-gallery-lobby":["L","V","U"],
+ "continuous-hall-lobby":["U","L","V"],
+ "topographic-ground-field-lobby":["U","L","V"],
+ "linear-gallery-lobby":["L","U","V"],
 };
 export function typologyLetterPriority(typology:string):readonly Letter[]{return priorities[typology]??["U","L","V"];}
 export function orderTypologyLetters<T extends {cell:{letter:Letter}}>(source:readonly T[],typology:string):T[]{

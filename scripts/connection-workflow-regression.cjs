@@ -1,3 +1,4 @@
+// Gathering direct-letter policy: bridge switches do not change A/B/C geometry.
 const assert=require('node:assert/strict');
 (async()=>{
  const {default:Module}=await import('manifold-3d/manifold');const wasm=await Module();wasm.setup();const {Manifold,Mesh}=wasm;
@@ -16,12 +17,13 @@ const assert=require('node:assert/strict');
   assert(Math.abs(hold(source.subtract(a)).volume())<tolerance,'A lost source letters');
   assert(Math.abs(hold(bridges.subtract(a)).volume())<tolerance,'A lost bridge geometry');
   const expected=hold(a.add(b));
-  assert(Math.abs(hold(c.subtract(expected)).volume())<tolerance,'C has unrelated geometry');
-  assert(Math.abs(hold(expected.subtract(c)).volume())<tolerance,'C omits A/B geometry');
+  const combinedTolerance=Math.max(tolerance,expected.volume()*1e-8); // Mesh coordinates are serialized as float32.
+  assert(Math.abs(hold(c.subtract(expected)).volume())<combinedTolerance,'C has unrelated geometry');
+  assert(Math.abs(hold(expected.subtract(c)).volume())<combinedTolerance,'C omits A/B geometry');
   for(const [mode,m] of Object.entries(data.variants)){assert(m.positions.every(Number.isFinite));assert(m.indices.length>0);assert(m.components>0);assert(m.volume>0);console.log(mode,m.volume,m.components);}
  }finally{own.forEach(s=>s.delete());}
- const off=await fetch('http://127.0.0.1:3000/api/letter-intersections',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,faceBridges:{...body.faceBridges,enabled:false}})});assert(off.ok);const none=await off.json();assert.equal(none.links.length,0);assert.equal(none.variants.voids.indices.length,0);assert.equal(none.variants.letters.volume,none.variants.combined.volume);
- console.log('PASS: A contains source and bridges; B excludes letters; C equals A union B; disabled bridges create no gap geometry.');
+ const off=await fetch('http://127.0.0.1:3000/api/letter-intersections',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,faceBridges:{...body.faceBridges,enabled:false}})});assert(off.ok);const none=await off.json();assert.equal(none.links.length,0);assert.equal(none.bridges.indices.length,0);assert.equal(data.bridges.indices.length,0);assert.deepEqual(none.variants,data.variants,"Gathering bridge toggles must not alter the letter-only variants");
+ console.log('PASS: Gathering A contains the source letters; B excludes letters; C equals A union B within float32 precision; bridge toggles do not alter the direct-letter variants.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
 
 

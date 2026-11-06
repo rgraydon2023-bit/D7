@@ -20,7 +20,9 @@ export function gatheringAngleStops(source:IntersectionPlacement[],typology:stri
  const spacing=source.reduce((sum,p)=>sum+p.scale/n,0)*.7,foundation=foundationPoses(source,sequence,typology,spacing,heading);
  if(typology==='stepped-amphitheater')return {x:source.some(p=>p.letter!=='L')?{min:-90,max:90}:{min:0,max:0},y:{min:0,max:0},z:{min:0,max:360},yawChoices:[0,15,30,45,90].map(offset=>normalizeYaw(foundation.heading+offset)).sort((a,b)=>a-b)};
  const poses=ATRIUM_TYPOLOGIES.has(typology)?gatheringAtriumLayout(source,sequence,typology,operations).poses:['contained-room-within-volume','linear-edge-gallery'].includes(typology)?gatheringEnclosureLayout(source,sequence,typology,operations,foundation.heading):foundation.poses;
- return {x:range(poses.map(p=>p.rx),-180,180),y:range(poses.map(p=>p.ry),-180,180),z:range(poses.map(p=>normalizeYaw(p.rz)),0,360)};
+ // The current Void-Field override uses horizontal layers, regardless of semantic role.
+ const effective=typology==='void-field-gathering'?poses.map(p=>({...p,rx:0,ry:0})):poses;
+ return {x:range(effective.map(p=>p.rx),-180,180),y:range(effective.map(p=>p.ry),-180,180),z:range(effective.map(p=>normalizeYaw(p.rz)),0,360)};
 }
 
 /** Expand limits only as necessary when the typology or source changes. */

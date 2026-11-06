@@ -45,6 +45,9 @@ export function foundationPoses(source:IntersectionPlacement[],sequence:number[]
    // Local openings: U points -Y, V +Y, L toward its inner (+X,+Y) corner.
    p.rz=angle+(source[id].letter==='U'?-90:source[id].letter==='V'?90:135);p.rx=0;p.ry=0;
   }
+  if(['compressed-sequential-lobby','continuous-hall-lobby','linear-gallery-lobby'].includes(typology)){
+   p.u=(k-(n-1)/2)*spacing*.45;p.v=0;p.z=0;
+  }
   if(/topographic|folded-undulating/.test(typology)){
    const tilt=source[id].letter==='V'?90:Math.round(90*k/Math.max(1,n-1)/15)*15;
    const axis=source[id].letter==='L'?new THREE.Vector3(1,1,0).normalize():new THREE.Vector3(0,1,0);
@@ -55,6 +58,10 @@ export function foundationPoses(source:IntersectionPlacement[],sequence:number[]
    const q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),p.rz*Math.PI/180).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),Math.PI/4));
    const e=new THREE.Euler().setFromQuaternion(q,'XYZ');p.rx=e.x*180/Math.PI;p.ry=e.y*180/Math.PI;p.rz=e.z*180/Math.PI;
   }
+  if(['compressed-sequential-lobby','continuous-hall-lobby','linear-gallery-lobby'].includes(typology)){
+   // The local letter face starts in XY. Turn it onto YZ, then rotate around world X.
+   p.rx=(k%4)*90;p.ry=90;p.rz=0;
+  }
  });
- return {poses:result,family,steps,heading:yaw,description:typology==='stepped-amphitheater'?'Stepped amphitheater foundation: yaw offsets 0°, 15°, 30°, 45° or 90° relative to the circulation axis; L and U are horizontal and V uses upright tilts of ±90°. Alternating lateral offsets start at 25% of representative letter width.':family+' foundation: XY rotations in '+steps.xy+'° steps; '+((typology==='flat-deep-plan-plate'||typology==='inserted-horizontal-plate')?'XZ level (0°), YZ 90° steps': 'XZ/YZ '+(steps.vertical?steps.vertical+'° steps':'level (0°)'))+'.'+(family==='rigid'||family==='flat'?' Centered symmetric placement grid.':family==='void'?' Letters stack along a shared Z axis with bridges between adjacent levels.':family==='terrain'?(/topographic|folded-undulating/.test(typology)?' Inward-facing spiral spans 90 degrees (within the 90–120 degree range) around Z; letter faces progressively tilt from 0 to 90 degrees.':' Closely spaced levels emphasize Z interlocking.'):' Shared continuous axis.')};
+ return {poses:result,family,steps,heading:yaw,description:['compressed-sequential-lobby','continuous-hall-lobby','linear-gallery-lobby'].includes(typology)?'Letters start in the YZ plane with equal X offsets; alternate letters rotate 45 degrees around Y.':typology==='stepped-amphitheater'?'Stepped amphitheater foundation: yaw offsets 0°, 15°, 30°, 45° or 90° relative to the circulation axis; L and U are horizontal and V uses upright tilts of ±90°. Alternating lateral offsets start at 25% of representative letter width.':family+' foundation: XY rotations in '+steps.xy+'° steps; '+((typology==='flat-deep-plan-plate'||typology==='inserted-horizontal-plate')?'XZ level (0°), YZ 90° steps': 'XZ/YZ '+(steps.vertical?steps.vertical+'° steps':'level (0°)'))+'.'+(family==='rigid'||family==='flat'?' Centered symmetric placement grid.':family==='void'?' Letters stack along a shared Z axis with bridges between adjacent levels.':family==='terrain'?(/topographic|folded-undulating/.test(typology)?' Inward-facing spiral spans 90 degrees (within the 90–120 degree range) around Z; letter faces progressively tilt from 0 to 90 degrees.':' Closely spaced levels emphasize Z interlocking.'):' Shared continuous axis.')};
 }

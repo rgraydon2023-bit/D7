@@ -87,7 +87,7 @@ export function enforceLetterOverlap(input:IntersectionPlacement[],makeSolid:(p:
 }
 
 /** A smaller solid overlap used before bridges when a typology must keep its levels, yaw, and protected opening. */
-export function enforceContactOverlap(input:IntersectionPlacement[],makeSolid:(p:IntersectionPlacement)=>Manifold,options?:{minimum?:number;lockZ?:boolean;radialYaw?:boolean;protectedCircle?:{center:[number,number];radius:number}}){
+export function enforceContactOverlap(input:IntersectionPlacement[],makeSolid:(p:IntersectionPlacement)=>Manifold,options?:{minimum?:number;lockZ?:boolean;radialYaw?:boolean;protectedCircle?:{center:[number,number];radius:number};allowIncomplete?:boolean}){
  const minimum=options?.minimum??.05;
  if(input.length<2)return {placements:input.map(p=>({...p})),fractions:input.map(()=>1),riseFractions:[] as number[]};
  const result=input.map(p=>({...p})),solids=result.map(makeSolid);
@@ -182,7 +182,7 @@ export function enforceContactOverlap(input:IntersectionPlacement[],makeSolid:(p
   }
   fractions=letterOverlapFractions(solids);
  }
- if(fractions.some(f=>f<.005))throw new Error('Could not give every letter a physical overlap before bridging: '+fractions.map(f=>(f*100).toFixed(1)+'%').join(', '));
+ if(!options?.allowIncomplete&&fractions.some(f=>f<.005))throw new Error('Could not give every letter a physical overlap before bridging: '+fractions.map(f=>(f*100).toFixed(1)+'%').join(', '));
  return {placements:result,fractions,riseFractions:[] as number[]};
 }
 
@@ -193,7 +193,7 @@ export function letterBoxGap(a:{min:number[]|Float32Array|[number,number,number]
 }
 
 /** Move each later sequence letter toward the previous one until the clear gap is at most maxGap feet. */
-export function limitAdjacentLetterGap(input:IntersectionPlacement[],sequence:number[],makeSolid:(p:IntersectionPlacement)=>Manifold,maxGap:number,options?:{radialYaw?:boolean;protectedCircle?:{center:[number,number];radius:number}}){
+export function limitAdjacentLetterGap(input:IntersectionPlacement[],sequence:number[],makeSolid:(p:IntersectionPlacement)=>Manifold,maxGap:number,options?:{radialYaw?:boolean;verticalOnly?:boolean;xOnly?:boolean;protectedCircle?:{center:[number,number];radius:number}}){
  const result=input.map(p=>({...p})),solids=result.map(makeSolid),circle=options?.protectedCircle;
  const clears=(solid:Manifold)=>{if(!circle||circle.radius<=0)return true;const box=solid.boundingBox(),x=Math.max(box.min[0],Math.min(circle.center[0],box.max[0])),y=Math.max(box.min[1],Math.min(circle.center[1],box.max[1]));return Math.hypot(x-circle.center[0],y-circle.center[1])>=circle.radius+.02;};
  const face=(p:IntersectionPlacement)=>{if(!options?.radialYaw)return p;const angle=Math.atan2(p.y,p.x)*180/Math.PI,rz=((angle+90)%360+360)%360;return {...p,rz,letterRules:p.letterRules?{...p.letterRules,yaw:rz}:undefined};};
@@ -202,7 +202,7 @@ export function limitAdjacentLetterGap(input:IntersectionPlacement[],sequence:nu
   if(gap.dist<=maxGap+1e-6)continue;
   const start=result[j],full=(gap.dist-maxGap)/gap.dist;let lo=0,hi=full,chosen=start,chosenSolid=solids[j];
   for(let attempt=0;attempt<12;attempt++){
-   const t=attempt===0?full:(lo+hi)/2,pose=face({...start,x:start.x+gap.signed[0]*t,y:start.y+gap.signed[1]*t,z:start.z+gap.signed[2]*t,letterRules:start.letterRules?{...start.letterRules,supportZ:start.letterRules.supportZ+gap.signed[2]*t}:undefined});
+   const t=attempt===0?full:(lo+hi)/2,pose=face({...start,x:start.x+(options?.verticalOnly?0:gap.signed[0]*t),y:start.y+(options?.verticalOnly||options?.xOnly?0:gap.signed[1]*t),z:start.z+(options?.xOnly?0:gap.signed[2]*t),letterRules:start.letterRules?{...start.letterRules,supportZ:start.letterRules.supportZ+(options?.xOnly?0:gap.signed[2]*t)}:undefined});
    const solid=makeSolid(pose);if(!clears(solid)){hi=t;continue;}
    lo=t;chosen=pose;chosenSolid=solid;if(t===full)break;
   }

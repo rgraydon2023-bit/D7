@@ -5,6 +5,7 @@ import { DEFAULT_GATHERING_OPERATIONS, defaultGatheringBoundaryRoles, type Gathe
 import { DEFAULT_GATHERING_ANGLES, type GatheringAngleLimits } from "@/components/typologyLetterArrangement";
 import { buildConnectionWorkflow, buildBridgeSpaceMesh, buildArchitecturalSpaceMesh, buildLetterIntersectionSpaces, type ArchitecturalSpaceBehaviors, type ArchitecturalSpaceMode, type IntersectionPlacement } from "@/components/letterIntersectionSpaces";
 import type { Letter } from "@/components/letterTypes";
+import type { WorkspaceEdits } from "@/components/letterIntersectionSpaces";
 
 export const runtime = "nodejs";
 
@@ -30,7 +31,16 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
-  const payload = body as { thickness?: unknown; placements?: unknown; mode?: unknown; behaviors?: unknown; faceBridges?: Partial<FaceBridgeSettings>; typology?: string; workflow?: boolean; gatheringAngles?: unknown; gatheringOperations?: unknown };
+  const payload = body as { thickness?: unknown; placements?: unknown; mode?: unknown; behaviors?: unknown; faceBridges?: Partial<FaceBridgeSettings>; typology?: string; workflow?: boolean; gatheringAngles?: unknown; gatheringOperations?: unknown; workspaceEdits?:WorkspaceEdits };
+  if(payload.workspaceEdits&&(!Array.isArray(payload.workspaceEdits.scales)||payload.workspaceEdits.scales.length>240||!payload.workspaceEdits.scales.every(v=>finite(v)&&v>=.1&&v<=5)||!Array.isArray(payload.workspaceEdits.mirror)||payload.workspaceEdits.mirror.length!==3||!payload.workspaceEdits.mirror.every(v=>typeof v==='boolean')))return NextResponse.json({error:'Invalid workspace letter edits.'},{status:400});
+  if(payload.workspaceEdits?.rotations&&(!Array.isArray(payload.workspaceEdits.rotations)||payload.workspaceEdits.rotations.length!==payload.workspaceEdits.scales.length||!payload.workspaceEdits.rotations.every(r=>Array.isArray(r)&&r.length===3&&r.every(v=>finite(v)&&Math.abs(v)<=36000))))return NextResponse.json({error:'Invalid workspace letter rotations.'},{status:400});
+  if(payload.workspaceEdits?.zScales&&(!Array.isArray(payload.workspaceEdits.zScales)||payload.workspaceEdits.zScales.length!==payload.workspaceEdits.scales.length||!payload.workspaceEdits.zScales.every(v=>finite(v)&&v>=.001&&v<=1000)))return NextResponse.json({error:'Invalid letter Z thickness.'},{status:400});
+  if(payload.workspaceEdits?.zOffsets&&(!Array.isArray(payload.workspaceEdits.zOffsets)||payload.workspaceEdits.zOffsets.length!==payload.workspaceEdits.scales.length||!payload.workspaceEdits.zOffsets.every(v=>finite(v)&&Math.abs(v)<=1000)))return NextResponse.json({error:'Invalid letter Z offsets.'},{status:400});
+  if(payload.workspaceEdits?.basePlacements&&(!Array.isArray(payload.workspaceEdits.basePlacements)||payload.workspaceEdits.basePlacements.length>240||!payload.workspaceEdits.basePlacements.every(p=>validPlacement(p)&&p.scale>0&&p.scaleX>0&&p.scaleY>0&&p.scaleZ>0)))return NextResponse.json({error:'Invalid editor starting placements.'},{status:400});
+  if(payload.workspaceEdits?.enclosureCenter&&(!Array.isArray(payload.workspaceEdits.enclosureCenter)||payload.workspaceEdits.enclosureCenter.length!==3||!payload.workspaceEdits.enclosureCenter.every(finite)))return NextResponse.json({error:'Invalid fixed enclosure center.'},{status:400});
+  if(payload.workspaceEdits?.referenceCenter&&(!Array.isArray(payload.workspaceEdits.referenceCenter)||payload.workspaceEdits.referenceCenter.length!==3||!payload.workspaceEdits.referenceCenter.every(finite)))return NextResponse.json({error:'Invalid quadrant reference center.'},{status:400});
+  if(payload.workspaceEdits?.duplicates&&(!Array.isArray(payload.workspaceEdits.duplicates)||payload.workspaceEdits.duplicates.length>240||!payload.workspaceEdits.duplicates.every(c=>c&&Number.isInteger(c.source)&&c.source>=0&&[0,1].includes(c.axis)&&(c.deleted===undefined||typeof c.deleted==='boolean'))||payload.workspaceEdits.duplicates.length>0&&payload.typology!=='open-hall-workspace'))return NextResponse.json({error:'Mirrored copies are available only for Open Hall and must use an XY quadrant divider.'},{status:400});
+  if(payload.typology==='open-hall-workspace'&&payload.workspaceEdits&&(payload.workspaceEdits.mirror[2]||payload.workspaceEdits.rotations?.some(r=>Math.abs(r[0]%360)>1e-8||Math.abs(r[1]%360)>1e-8)))return NextResponse.json({error:'Open Hall letters rotate around their pair Z-axis and mirror through the pair XZ or YZ plane. Reset the edits to restore this alignment.'},{status:400});
   if (!finite(payload.thickness) || (payload.thickness as number) <= 0) {
     return NextResponse.json({ error: "Thickness must be greater than 0." }, { status: 400 });
   }
@@ -81,7 +91,7 @@ export async function POST(request: Request) {
              if(cancelled||request.signal.aborted)throw new Error("Generation cancelled");
              send({type:"progress",percent:Math.round(percent),label});
              await new Promise(resolve=>setTimeout(resolve,0));
-            },gatheringAngles,gatheringOperations);
+            },gatheringAngles,gatheringOperations,payload.workspaceEdits);
             send({type:"result",data});
            }catch(error){send({type:"error",message:error instanceof Error?error.message:"Generation failed"});}
            finally{if(!cancelled)controller.close();}
@@ -90,7 +100,7 @@ export async function POST(request: Request) {
         });
         return new Response(stream,{headers:{"Content-Type":"application/x-ndjson","Cache-Control":"no-store","X-Accel-Buffering":"no"}});
        }
-       return NextResponse.json(await buildConnectionWorkflow(placements,thickness,settings,rule.id,undefined,gatheringAngles,gatheringOperations));
+       return NextResponse.json(await buildConnectionWorkflow(placements,thickness,settings,rule.id,undefined,gatheringAngles,gatheringOperations,payload.workspaceEdits));
       }
       const mesh=await buildBridgeSpaceMesh(payload.placements,payload.thickness as number,mode??"combined",typologyBridgeSettings(base,rule.behaviors));
       return NextResponse.json(mesh);

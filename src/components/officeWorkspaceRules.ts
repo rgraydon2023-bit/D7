@@ -37,6 +37,8 @@ export type OfficeSlot = {
   prefer: Letter;
 };
 export type OfficePlan = {
+  /** Original selection index for every generated instance, when filtered or repeated. */
+  letterSources?: number[];
   typology: string;
   rotation: number;
   plates: OfficePlate[];
@@ -637,7 +639,7 @@ export function officePlanReady(plan: OfficePlan) {
   return plan.checks.every((item) => item.status === "pass");
 }
 
-export function arrangeOfficeLetters(source: IntersectionPlacement[], typology: string) {
+export function arrangeOfficeLetters(source: IntersectionPlacement[], typology: string, thicknessPercent = 12) {
   const n = source.length;
   const sequence = source.map((_, i) => i);
   if (!n) return { placements: [], sequence, preservedPairs: [] as number[][], overlapFractions: [] as number[], riseFractions: [] as number[], officePlan: null as OfficePlan | null, operations: [] as string[], supported: true };
@@ -657,13 +659,19 @@ export function arrangeOfficeLetters(source: IntersectionPlacement[], typology: 
     const chosen = slot ?? fallback;
     if (!chosen) return;
     const sourcePlacement = source[id];
+    // Keep a small lap with the supporting plate while exposing the letter's
+    // upper face and outline as a visible part of the workspace.
+    const host = officePlan.plates.filter(plate => plate.role !== 'roof' && plate.role !== 'support' && pointInPoly([chosen.x, chosen.y], plate.polygon))
+      .sort((a, b) => Math.abs((a.zTop - a.thickness / 2) - chosen.z) - Math.abs((b.zTop - b.thickness / 2) - chosen.z))[0];
+    const depth = chosen.scale * (sourcePlacement.scaleZ ?? 1) * (thicknessPercent / 100 + .02);
+    const visibleZ = host && chosen.rx === 0 && chosen.ry === 0 ? host.zTop + depth * .35 : chosen.z;
     placements[id] = {
       ...sourcePlacement,
-      x: chosen.x, y: chosen.y, z: chosen.z,
+      x: chosen.x, y: chosen.y, z: visibleZ,
       rx: chosen.rx, ry: chosen.ry, rz: chosen.rz,
       scale: chosen.scale,
       letterRules: {
-        yaw: chosen.rz, level: index, supportZ: chosen.z, strokeWidth: chosen.scale * 0.14,
+        yaw: chosen.rz, level: index, supportZ: visibleZ, strokeWidth: chosen.scale * 0.14,
         footTilt: 0, armRoll: 0, deviations: [], architectural: true, mirrored: false, enclosed: false,
       },
     };
@@ -678,6 +686,7 @@ export function arrangeOfficeLetters(source: IntersectionPlacement[], typology: 
     detail: vocabularyOk ? `${permitted} All ${source.length} selected letters are placed on the plates.` : `This selection does not include the letters this typology uses for its plates. ${permitted}`,
   });
   officePlan.operations.push(permitted);
+  officePlan.operations.push("Horizontal letter forms rise above their supporting surfaces while retaining a solid overlap with the floor.");
   return {
     placements, sequence, preservedPairs: [] as number[][], overlapFractions: [] as number[], riseFractions: [] as number[],
     officePlan, operations: officePlan.operations, supported: officePlanReady(officePlan),

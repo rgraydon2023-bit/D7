@@ -3,15 +3,18 @@ import type { IntersectionPlacement } from './architecturalConnections';
 import type { GatheringOperations } from './gatheringOperations';
 
 /** Staggered floor plates for the amphitheater, void field, and linear gallery, also used by the other gathering typologies. Level rise comes from the arranged placement heights. */
-export function canyonStaggering(wasm:ManifoldToplevel,letters:Manifold[],placements:IntersectionPlacement[],sequence:number[],controls:GatheringOperations,protectedVoid:Manifold|null,own:(solid:Manifold)=>Manifold) {
- const {Manifold}=wasm,plates:Manifold[]=[],sourceIndices:number[]=[];let recesses=0,skippedClearance=0;const measurements:{sourceIndex:number;min:[number,number,number];max:[number,number,number]}[]=[];
+export function canyonStaggering(wasm:ManifoldToplevel,letters:Manifold[],placements:IntersectionPlacement[],sequence:number[],controls:GatheringOperations,protectedVoid:Manifold|null,own:(solid:Manifold)=>Manifold,includePlates=true) {
+ const {Manifold}=wasm,plates:Manifold[]=[],sourceIndices:number[]=[];let recesses=0,skippedClearance=0,adjustedLevels=0;const measurements:{sourceIndex:number;min:[number,number,number];max:[number,number,number]}[]=[];
+ if(!includePlates)return {solid:null,count:0,recesses,skippedClearance,clearanceSatisfied:false,sourceIndices,measurements,laps:0,adjustedLevels};
  const dimensions=letters.flatMap(letter=>{const box=letter.boundingBox();return box.max.map((value,axis)=>value-box.min[axis]);}).filter(value=>value>1e-8);
  const thickness=Math.min(...dimensions)*.06;
  for(let level=0;level<sequence.length;level++){
   const sourceIndex=sequence[level],letter=letters[sourceIndex],placement=placements[sourceIndex],role=controls.boundaryRoles[placement.letter],box=letter.boundingBox(),width=box.max[0]-box.min[0],depth=box.max[1]-box.min[1],height=box.max[2]-box.min[2];
   if(role==='wall'||role==='void'||width<=1e-8||depth<=1e-8||height<=1e-8)continue;
-  const edge=Math.min(width,depth)*.06,z=placement.z-thickness/2;
-  if(z<box.min[2]-1e-8||z+thickness>box.max[2]+1e-8)throw new Error(`Cannot place the floor at the requested level for source letter ${sourceIndex+1}.`);
+  const edge=Math.min(width,depth)*.06,requestedZ=placement.z-thickness/2;
+  if(thickness>height+1e-8){adjustedLevels++;continue;}
+  const z=Math.max(box.min[2],Math.min(requestedZ,box.max[2]-thickness));
+  if(Math.abs(z-requestedZ)>1e-8)adjustedLevels++;
   const outline=letter.project(),expanded=outline.offset(edge);let plate:Manifold;
   try{plate=own(own(expanded.extrude(thickness)).translate([0,0,z]));}finally{outline.delete();expanded.delete();}
   const notchDepth=depth*controls.alcoveDepthPercent/100,notchWidth=width*controls.alcoveWidthPercent/100;
@@ -58,5 +61,5 @@ export function canyonStaggering(wasm:ManifoldToplevel,letters:Manifold[],placem
   if(protectedVoid)lap=own(lap.subtract(protectedVoid));
   if(!lap.isEmpty()&&overlapsEnough(lap,letters[i],1e-8)&&overlapsEnough(lap,plates[nearest],1e-8)){plates.push(lap);laps++;}
  }
- return {solid:plates.length?own(Manifold.union(plates)):null,count:plates.length,recesses,skippedClearance,clearanceSatisfied:true,sourceIndices,measurements,laps};
+ return {solid:plates.length?own(Manifold.union(plates)):null,count:plates.length,recesses,skippedClearance,clearanceSatisfied:true,sourceIndices,measurements,laps,adjustedLevels};
 }

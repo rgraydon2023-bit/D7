@@ -33,6 +33,7 @@ import { placementCenterInSelection, selectionEvaluationGrid } from "./selection
 import PrototypeDemonstration from "./UnifiedPrototype";
 import { DEFAULT_TYPOLOGY_BY_CATEGORY, type PrototypeCategory, type PrototypeGeometryMode, type PrototypeTypologyId } from "./amphitheaterPrototype";
 import { OPTIMIZER_SESSION_KEY, readJson, writeJson } from "./browserSession";
+import type { Letter } from "./letterTypes";
 
 type OverlayState = { circulation: boolean; volume: boolean; sightlines: boolean; hierarchy: boolean; vertical: boolean };
 type DisplayMode = "letters" | "void" | "both";
@@ -49,6 +50,7 @@ type SavedDesign = {
   descriptors: DescriptorSettings;
   alternatives: SpatialAlternative[];
   selectedIndex: number;
+  selectedLetters?: Letter[];
   prototypeCategory?: PrototypeCategory;
   prototypeTypology?: PrototypeTypologyId;
   prototypeSource?: PrototypeGeometryMode;
@@ -64,6 +66,7 @@ type RunHistory = {
   selection: SelectionVolume;
   descriptors: DescriptorSettings;
   alternatives: SpatialAlternative[];
+  selectedLetters?: Letter[];
 };
 type OptimizerSession = {
   descriptors: DescriptorSettings;
@@ -82,6 +85,7 @@ type OptimizerSession = {
   history: RunHistory[];
   activeHistoryId?: string | null;
   rankingEnabled: boolean;
+  selectedLetters?: Letter[];
 };
 
 const panelStyle = { borderColor: "var(--line)", background: "var(--panel)" } as const;
@@ -92,6 +96,16 @@ const focusLabels: Record<OptimizationFocus, string> = {
   combined: "Combined",
   auto: "Auto-Select",
 };
+const comparisonLetters: Letter[] = ["L", "U", "V"];
+
+function selectedLetterCount(alternative: SpatialAlternative, selectedLetters: readonly Letter[]) {
+  const selected = new Set(selectedLetters);
+  return alternative.placements.reduce((count, placement) => count + (selected.has(placement.cell.letter) ? 1 : 0), 0);
+}
+
+function letterInventory(alternative: SpatialAlternative) {
+  return comparisonLetters.map((letter) => `${letter} ${alternative.placements.filter((placement) => placement.cell.letter === letter).length}`).join(" · ");
+}
 
 function gridFromSlide(settings: { cols: number; rows: number; zLayers: number; spacing: number; zSpacing: number; fontSize: number; letterThickness: number }): OrthogonalGrid {
   const letterSize = Math.max(0.1, settings.fontSize / 50);
@@ -372,6 +386,7 @@ export default function CompositionStudio() {
   const [controls, setControls] = useState<OptimizerControls>(() => ({ ...DEFAULT_OPTIMIZER_CONTROLS }));
   const [selection, setSelection] = useState<SelectionVolume>(() => ({ ...DEFAULT_SELECTION }));
   const [focus, setFocus] = useState<OptimizationFocus>("combined");
+  const [selectedLetters, setSelectedLetters] = useState<Letter[]>([...comparisonLetters]);
   const [alternatives, setAlternatives] = useState<SpatialAlternative[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -394,6 +409,7 @@ export default function CompositionStudio() {
   const slideSourceSignature = `${store.cols}:${store.rows}:${store.layerMode}:${store.zLayers}:${store.spacing}:${store.zSpacing}:${store.attractorGap ?? "auto"}:${store.fontSize}:${store.letterThickness}:${store.yRotationEnabled}:${store.yRotationRange}`;
   const lastSlideSourceSignature = useRef<string | null>(null);
   const sourceCells = useMemo(() => [store.cells, ...store.layerCells.slice(0, Math.max(0, store.zLayers - 1))].flat(), [store.cells, store.layerCells, store.zLayers]);
+  const selectedSourceCells = useMemo(() => sourceCells.filter((cell) => selectedLetters.includes(cell.letter)), [sourceCells, selectedLetters]);
   const evaluationFocus = focus === "auto" ? "combined" : focus;
   const evaluatedAlternatives = useMemo(() => alternatives.slice(0, 4).map((alternative) => ({
     ...alternative,
@@ -404,10 +420,11 @@ export default function CompositionStudio() {
       descriptors,
       controls,
       focus: evaluationFocus,
-      sourceCount: alternative.selection ? undefined : sourceCells.length,
+      sourceCount: alternative.selection ? undefined : selectedSourceCells.length,
       bounds: alternative.selection ? "center" : "body",
+      ignoreCirculationClearance: true,
     }),
-  })), [alternatives, grid, rules, descriptors, controls, evaluationFocus, sourceCells.length]);
+  })).sort((a, b) => selectedLetterCount(b, selectedLetters) - selectedLetterCount(a, selectedLetters) || (b.evaluation.fit ?? -1) - (a.evaluation.fit ?? -1)), [alternatives, grid, rules, descriptors, controls, evaluationFocus, selectedSourceCells.length, selectedLetters]);
   const selected = evaluatedAlternatives[Math.min(selectedIndex, Math.max(0, evaluatedAlternatives.length - 1))];
   const completePrototypePlacements = useMemo<CompositionPlacement[]>(() => {
     if (selected?.fullPlacements?.length) return selected.fullPlacements;
@@ -467,7 +484,6 @@ export default function CompositionStudio() {
   const selectedIsApplied = Boolean(selected
     && store.appliedComposition?.seed === selected.seed
     && store.appliedComposition.alternativeIndex === selectedIndex);
-  const activeWeight = DESCRIPTORS.reduce((sum, descriptor) => sum + descriptors[descriptor.id].importance, 0);
   const dimensions = useMemo(() => gridDimensions(grid), [grid]);
   const dashedSelection = useMemo(() => dashedGroupMeasure({
     cols: grid.xCells,
@@ -525,6 +541,7 @@ export default function CompositionStudio() {
       setControls({ ...session.controls, alternatives: Math.min(4, session.controls.alternatives) });
       setSelection(session.selection);
       setFocus(session.focus);
+      if (Array.isArray(session.selectedLetters) && session.selectedLetters.length) setSelectedLetters(session.selectedLetters.filter((letter): letter is Letter => comparisonLetters.includes(letter)));
       setAlternatives(Array.isArray(session.alternatives) ? session.alternatives : []);
       setSelectedIndex(Math.min(3, session.selectedIndex ?? 0));
       setLockedParent(session.lockedParent ?? null);
@@ -548,7 +565,7 @@ export default function CompositionStudio() {
     if (!storageReady || optimizing) return;
     const session: OptimizerSession = {
       descriptors, grid, rules, controls, selection, focus, alternatives, selectedIndex, lockedParent,
-      overlays, displayMode, prototypeCategory, prototypeTypology, history, activeHistoryId, rankingEnabled,
+      overlays, displayMode, prototypeCategory, prototypeTypology, history, activeHistoryId, rankingEnabled, selectedLetters,
     };
     const persist = () => {
       if (!writeJson(OPTIMIZER_SESSION_KEY, session)) setStorageMessage("Browser storage is full or unavailable. Delete previous runs or presets before saving more.");
@@ -558,18 +575,19 @@ export default function CompositionStudio() {
       window.clearTimeout(timer);
       persist();
     };
-  }, [storageReady, optimizing, descriptors, grid, rules, controls, selection, focus, alternatives, selectedIndex, lockedParent, overlays, displayMode, prototypeCategory, prototypeTypology, history, activeHistoryId, rankingEnabled]);
+  }, [storageReady, optimizing, descriptors, grid, rules, controls, selection, focus, alternatives, selectedIndex, lockedParent, overlays, displayMode, prototypeCategory, prototypeTypology, history, activeHistoryId, rankingEnabled, selectedLetters]);
   const displayModeForFocus = (next: OptimizationFocus): DisplayMode => next === "letter" ? "letters" : next === "void" ? "void" : "both";
 
   const runOptimization = useCallback(async () => {
-    if (!grid.locked || !selectionValid || activeWeight === 0 || optimizing) return;
+    if (!grid.locked || !selectionValid || !selectedSourceCells.length || optimizing) return;
     if (history.length >= 10) { setStorageMessage("Configuration history is full (10 runs). Delete a previous run before generating another."); return; }
     setStorageMessage("");
     setSelection((current) => ({ ...current, enabled: true }));
     setOptimizing(true);
     setProgress(0);
     const result = await optimizeSpatial({
-      sourceCells,
+      sourceCells: selectedSourceCells,
+      selectedLetters,
       descriptors,
       grid,
       rules,
@@ -596,12 +614,13 @@ export default function CompositionStudio() {
       selection: { ...structuredClone(selection), enabled: true },
       descriptors: structuredClone(descriptors),
       alternatives: structuredClone(result.alternatives),
+      selectedLetters: [...selectedLetters],
     }, ...history];
-    const saved = writeJson(OPTIMIZER_SESSION_KEY, { descriptors, grid, rules, controls, selection: { ...selection, enabled: true }, focus, alternatives: result.alternatives, selectedIndex: 0, lockedParent, overlays, displayMode, prototypeCategory, prototypeTypology, history: nextHistory, activeHistoryId: runId, rankingEnabled: result.rankingEnabled });
+    const saved = writeJson(OPTIMIZER_SESSION_KEY, { descriptors, grid, rules, controls, selection: { ...selection, enabled: true }, focus, alternatives: result.alternatives, selectedIndex: 0, lockedParent, overlays, displayMode, prototypeCategory, prototypeTypology, history: nextHistory, activeHistoryId: runId, rankingEnabled: result.rankingEnabled, selectedLetters });
     if (saved) { setHistory(nextHistory); setActiveHistoryId(runId); }
     else setStorageMessage("This run could not be saved: browser storage is full or unavailable. Delete previous runs or presets, then generate again.");
     setOptimizing(false);
-  }, [grid, selectionValid, activeWeight, optimizing, sourceCells, descriptors, rules, controls, focus, selection, lockedParent, history, overlays, displayMode, prototypeCategory, prototypeTypology]);
+  }, [grid, selectionValid, optimizing, selectedSourceCells, selectedLetters, descriptors, rules, controls, focus, selection, lockedParent, history, overlays, displayMode, prototypeCategory, prototypeTypology]);
 
   useEffect(() => {
     if (!store.slideReady) return;
@@ -679,6 +698,7 @@ export default function CompositionStudio() {
     setControls({ ...DEFAULT_OPTIMIZER_CONTROLS });
     setSelection({ ...DEFAULT_SELECTION });
     setFocus("combined");
+    setSelectedLetters([...comparisonLetters]);
     setDisplayMode("both");
     setPrototypeCategory("gathering");
     setPrototypeTypology("stepped-amphitheater");
@@ -698,7 +718,7 @@ export default function CompositionStudio() {
   const deleteHistory = (id: string) => {
     const next = history.filter(run => run.id !== id);
     const activeId = activeHistoryId === id ? null : activeHistoryId;
-    const session = { descriptors, grid, rules, controls, selection, focus, alternatives, selectedIndex, lockedParent, overlays, displayMode, prototypeCategory, prototypeTypology, history: next, activeHistoryId: activeId, rankingEnabled };
+    const session = { descriptors, grid, rules, controls, selection, focus, alternatives, selectedIndex, lockedParent, overlays, displayMode, prototypeCategory, prototypeTypology, history: next, activeHistoryId: activeId, rankingEnabled, selectedLetters };
     if (writeJson(OPTIMIZER_SESSION_KEY, session)) { setHistory(next); setActiveHistoryId(activeId); setStorageMessage(""); }
     else setStorageMessage("Could not update history in browser storage.");
   };
@@ -716,6 +736,7 @@ export default function CompositionStudio() {
       descriptors: structuredClone(descriptors),
       alternatives: structuredClone(evaluatedAlternatives),
       selectedIndex,
+      selectedLetters: [...selectedLetters],
       prototypeCategory,
       prototypeTypology,
       prototypeSource: (displayMode === "void" ? "voids" : displayMode === "both" ? "combined" : "letters") as PrototypeGeometryMode,
@@ -725,6 +746,7 @@ export default function CompositionStudio() {
   const restoreDesign = (design: SavedDesign) => {
     setGrid(design.grid); setRules(design.rules); setControls({ ...design.controls, alternatives: Math.min(4, design.controls.alternatives) }); setSelection(design.selection ?? { ...DEFAULT_SELECTION }); setFocus(design.focus);
     setDescriptors(design.descriptors); setAlternatives(design.alternatives); setSelectedIndex(Math.min(3, design.selectedIndex));
+    if (design.selectedLetters?.length) setSelectedLetters(design.selectedLetters);
     if (design.prototypeCategory) setPrototypeCategory(design.prototypeCategory);
     if (design.prototypeTypology) setPrototypeTypology(design.prototypeTypology);
     setDisplayMode(design.prototypeSource ? (design.prototypeSource === "voids" ? "void" : design.prototypeSource === "combined" ? "both" : "letters") : displayModeForFocus(design.focus));
@@ -737,6 +759,7 @@ export default function CompositionStudio() {
     setControls({ ...previous.controls, alternatives: Math.min(4, previous.controls.alternatives) });
     setSelection(previous.selection ?? { ...DEFAULT_SELECTION });
     setFocus(previous.focus);
+    if (previous.selectedLetters?.length) setSelectedLetters(previous.selectedLetters);
     setDisplayMode(displayModeForFocus(previous.focus));
     setDescriptors(previous.descriptors);
     setAlternatives(previous.alternatives);
@@ -745,6 +768,14 @@ export default function CompositionStudio() {
     setActiveHistoryId(previous.id);
   };
   const undo = () => restoreHistoryRun(0);
+  const toggleComparisonLetter = (letter: Letter) => {
+    const enabled = selectedLetters.includes(letter);
+    if (enabled && selectedLetters.length === 1) return;
+    setSelectedLetters(enabled ? selectedLetters.filter((item) => item !== letter) : comparisonLetters.filter((item) => item === letter || selectedLetters.includes(item)));
+    setAlternatives([]);
+    setSelectedIndex(0);
+    setLockedParent(null);
+  };
 
   return <main data-board-page="composition" className="mx-auto flex min-h-screen w-full max-w-[1900px] flex-col gap-3 px-4 py-4 md:px-5">
     {storageMessage && <p role="alert" className="rounded border p-2 text-xs text-amber-300" style={{borderColor:"var(--line)"}}>{storageMessage}</p>}
@@ -761,14 +792,14 @@ export default function CompositionStudio() {
         <button type="button" onClick={undo} disabled={!history.length} className="rounded border px-2 py-1 text-[10px] disabled:opacity-40" style={{ borderColor: "var(--line)" }}>Undo run</button>
         <button type="button" onClick={saveDesign} disabled={!selected} className="rounded border px-2 py-1 text-[10px] disabled:opacity-40" style={{ borderColor: "var(--line)" }}>Save configuration</button>
         <button type="button" onClick={resetAll} className="rounded border px-2 py-1 text-[10px]" style={{ borderColor: "var(--line)" }}>Reset</button>
-        <button type="button" onClick={() => void runOptimization()} disabled={!grid.locked || !selectionValid || activeWeight === 0 || optimizing} className="rounded px-3 py-1 text-[11px] font-semibold text-black disabled:opacity-40" style={{ background: "var(--accent-primary)" }}>{optimizing ? `Optimizing ${progress}%` : "Generate + optimize"}</button>
+        <button type="button" onClick={() => void runOptimization()} disabled={!grid.locked || !selectionValid || !selectedSourceCells.length || optimizing} className="rounded px-3 py-1 text-[11px] font-semibold text-black disabled:opacity-40" style={{ background: "var(--accent-primary)" }}>{optimizing ? `Optimizing ${progress}%` : "Generate + optimize"}</button>
       </div>
     </header><FeetScaleNote/>
 
     {optimizing && <div className="h-1 overflow-hidden rounded bg-[var(--input-background)]"><div className="h-full bg-[var(--accent)] transition-all" style={{ width: `${progress}%` }} /></div>}
     {!grid.locked && <p className="rounded border px-3 py-2 text-[11px]" style={{ borderColor: "#9b7634", color: "#ffd38a", background: "#2b2415" }}>Lock the orthogonal grid before optimization.</p>}
     {!selectionValid && <p className="rounded border px-3 py-2 text-[11px]" style={{ borderColor: "#9b563d", color: "#ffad95", background: "#2b1815" }}>The selection volume must fit completely inside the overall solution volume.</p>}
-    {activeWeight === 0 && <p className="rounded border px-3 py-2 text-[11px]" style={{ borderColor: "#9b563d", color: "#ffad95", background: "#2b1815" }}>Automatic ranking is disabled. Set at least one applicable descriptor importance above zero.</p>}
+    {!selectedSourceCells.length && <p className="rounded border px-3 py-2 text-[11px]" style={{ borderColor: "#9b563d", color: "#ffad95", background: "#2b1815" }}>None of the enabled letter types are present in the current composition.</p>}
     <p className="rounded border px-3 py-2 text-[10px]" style={{ borderColor: "var(--accent-secondary)", color: "var(--accent-pale)", background: "var(--panel-background)" }}>
       Slide and Composition share dimensions in feet. Gap controls specify nominal spacing; attraction can reduce actual separation. Letter size is the unrotated footprint span. The overlap threshold is 0.2 ft. Thickness is a percentage of letter size. Generate creates alternatives; Apply selected to Slide transfers the selected arrangement.</p>
 
@@ -882,17 +913,26 @@ export default function CompositionStudio() {
 
         <section className="rounded-xl border p-3" style={panelStyle}>
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-            <div><h2 className="text-sm font-semibold">Alternative comparison</h2><p className="text-[9px]" style={{ color: "var(--muted)" }}>{focus === "auto" ? "All focus types are re-scored with the same combined objective before comparison." : "At least three alternatives share the same objective basis."}</p></div>
+            <div><h2 className="text-sm font-semibold">Alternative comparison</h2><p className="text-[9px]" style={{ color: "var(--muted)" }}>Alternatives are generated from the enabled letters and ranked by how many of those letters they contain. Descriptor fit breaks ties.</p></div>
             <div className="flex gap-1"><select value={displayMode} onChange={(event) => setDisplayMode(event.target.value as DisplayMode)} className="rounded border px-2 py-1 text-[10px]" style={inputStyle}><option value="letters">Letters</option><option value="void">Void proxy</option><option value="both">Letters + void</option></select>{Object.entries(overlays).map(([key, value]) => <button key={key} type="button" onClick={() => setOverlays((current) => ({ ...current, [key]: !value }))} className="rounded border px-1.5 py-1 text-[9px]" style={{ borderColor: value ? "var(--accent)" : "var(--line)", color: value ? "var(--accent-pale)" : "var(--muted)" }}>{key}</button>)}</div>
+          </div>
+          <div className="mb-2 flex flex-wrap items-center gap-2 rounded-lg border px-2 py-2" style={{ borderColor: "var(--line)", background: "var(--panel-soft)" }}>
+            <span className="text-[9px] uppercase tracking-[0.12em]" style={{ color: "var(--muted)" }}>Generate with</span>
+            {comparisonLetters.map((letter) => {
+              const enabled = selectedLetters.includes(letter);
+              const available = sourceCells.filter((cell) => cell.letter === letter).length;
+              return <button key={letter} type="button" aria-pressed={enabled} onClick={() => toggleComparisonLetter(letter)} className="rounded border px-3 py-1 text-[10px] font-semibold" style={{ borderColor: enabled ? "var(--accent-gold)" : "var(--line)", background: enabled ? "var(--accent-dark)" : "transparent", color: enabled ? "var(--accent-pale)" : "var(--muted)" }}>{letter} · {available}</button>;
+            })}
+            <span className="text-[9px]" style={{ color: "var(--muted)" }}>{selectedSourceCells.length} source letters enabled</span>
           </div>
           {evaluatedAlternatives.length === 0 ? <div className="flex h-72 items-center justify-center text-sm" style={{ color: "var(--muted)" }}>Generate alternatives to begin comparison.</div> : <div className="grid gap-2 sm:grid-cols-2">
             {evaluatedAlternatives.slice(0, Math.max(3, controls.alternatives)).map((alternative, index) => <article key={alternative.id} className="overflow-hidden rounded-lg border" style={{ borderColor: index === selectedIndex ? "var(--accent)" : "var(--line)", background: "var(--input-background)" }}>
               <button type="button" onClick={() => setSelectedIndex(index)} className="flex w-full items-center justify-between px-2 py-1.5 text-left">
                 <span className="text-[10px] font-medium">Alt {index + 1} · {focusLabels[alternative.focus]}{index === selectedIndex ? " · prototype source" : ""}</span>
-                <span className="text-[10px] tabular-nums" style={{ color: alternative.evaluation.fit === null ? "#ff927f" : "#7ee8c2" }}>{alternative.evaluation.fit === null ? "Infeasible" : `Fit ${alternative.evaluation.fit.toFixed(1)}`}</span>
+                <span className="text-[10px] tabular-nums" style={{ color: "#7ee8c2" }}>{selectedLetterCount(alternative, selectedLetters)} selected letters</span>
               </button>
               <div className="h-60"><OptimizationScene alternative={alternative} grid={grid} thickness={store.letterThickness} overlays={overlays} displayMode={displayMode} /></div>
-              <div className="flex items-center justify-between border-t px-2 py-1 text-[9px]" style={{ borderColor: "var(--line)", color: "var(--muted)" }}><span>seed {alternative.seed} · gen {alternative.generation + 1}</span><span>{alternative.selection ? `${alternative.placements.length} selected · ${alternative.selection.exhaustive ? "full search" : "sampled"}` : alternative.evaluation.constraints.feasible ? "constraints passed" : `${alternative.evaluation.constraints.violations.length} violations`}</span></div>
+              <div className="flex items-center justify-between border-t px-2 py-1 text-[9px]" style={{ borderColor: "var(--line)", color: "var(--muted)" }}><span>seed {alternative.seed} · gen {alternative.generation + 1}</span><span>{letterInventory(alternative)}</span></div>
             </article>)}
           </div>}
         </section>
@@ -935,7 +975,6 @@ export default function CompositionStudio() {
             {selected.selection && <div className="mt-2 rounded border p-2 text-[9px]" style={{ borderColor: "var(--accent-gold)", color: "var(--accent-gold)", background: "var(--input-background)" }}>
               Best {selected.selection.width.toFixed(1)} × {selected.selection.height.toFixed(1)} × {selected.selection.depth.toFixed(1)} subsection at overall coordinates ({selected.selection.centerX.toFixed(2)}, {selected.selection.centerY.toFixed(2)}, {selected.selection.centerZ.toFixed(2)}). Evaluated {selected.selection.evaluatedPositions} candidate positions{selected.selection.exhaustive ? " exhaustively" : ` from ${selected.selection.totalPositions} grid positions plus source-aware samples`}.
             </div>}
-            <div className="mt-2 rounded border p-2 text-[10px]" style={{ borderColor: selected.evaluation.constraints.feasible ? "#245e4d" : "#874b3e", color: selected.evaluation.constraints.feasible ? "#7ee8c2" : "#ff927f" }}>{selected.evaluation.constraints.feasible ? "All hard constraints satisfied." : selected.evaluation.constraints.violations.map((violation) => <div key={violation}>• {violation}</div>)}</div>
             <div className="mt-2"><h3 className="text-[10px] font-medium">Key tradeoffs</h3>{selected.evaluation.tradeoffs.map((tradeoff) => <p key={tradeoff} className="mt-1 text-[9px]" style={{ color: "var(--muted)" }}>• {tradeoff}</p>)}</div>
             <p className="mt-2 text-[9px]" style={{ color: "var(--text-secondary)" }}>Void connectivity, visibility, and daylight are geometric voxel proxies. They are not validated circulation, code, or daylight-performance simulations.</p>
           </>}
@@ -956,9 +995,8 @@ export default function CompositionStudio() {
 
         <section className="rounded-xl border p-3 text-[9px]" style={panelStyle}>
           <h2 className="text-sm font-semibold">Evaluation basis</h2>
-          <p className="mt-2" style={{ color: "var(--muted)" }}>Fit = 100 − [Σ(importance × absolute target deviation) ÷ Σ applicable importance]. Hard-constraint failures receive no fit and cannot outrank feasible alternatives.</p>
-          <p className="mt-2" style={{ color: "var(--muted)" }}>Auto-Select generates Letter, Void, and Combined candidates, then re-scores all of them with the same Combined objective and current balance.</p>
-          {!rankingEnabled && <p className="mt-2" style={{ color: "#ff927f" }}>Ranking disabled because no active objective was available.</p>}
+          <p className="mt-2" style={{ color: "var(--muted)" }}>Enabled-letter count determines comparison order. Descriptor fit resolves ties between alternatives with the same selected-letter count.</p>
+          <p className="mt-2" style={{ color: "var(--muted)" }}>Circulation clearance is excluded from comparison ranking and does not produce an invalid warning in this panel.</p>
         </section>
       </aside>
     </div>

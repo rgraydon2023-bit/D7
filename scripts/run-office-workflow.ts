@@ -23,7 +23,8 @@ for (const typology of OFFICE_TYPOLOGIES) {
     const checks = workflow.officeValidation ?? [];
     const unverified = checks.filter((item) => item.status !== "pass");
     const components = workflow.variants.letters.components;
-    const ok = unverified.length === 0 && components === 1 && workflow.variants.letters.volume > 0;
+    const required = ["Selected letter geometry", "Direct letter connectivity", "No added bridges or plates", "20 ft envelope"];
+    const ok = required.every(label => checks.some(item => item.label === label && item.status === "pass")) && components === 1 && workflow.variants.letters.volume > 0 && workflow.bridges.indices.length === 0 && !workflow.floors?.indices.length && workflow.links.length === 0;
     if (!ok) failed++;
     console.log(`\n${typology} ${ok ? "PASS" : "FAIL"} ${((Date.now() - started) / 1000).toFixed(1)}s  components=${components} volume=${workflow.variants.letters.volume.toFixed(1)} bridges=${workflow.links.length}`);
     for (const item of unverified) console.log(`  [unverified] ${item.label}: ${item.detail}`);

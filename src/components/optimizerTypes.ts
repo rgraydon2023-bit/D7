@@ -1,5 +1,5 @@
 import type { CompositionPlacement, DescriptorId, DescriptorSettings } from "./compositionEngine";
-import type { Cell } from "./letterTypes";
+import type { Cell, Letter } from "./letterTypes";
 
 export type OptimizationFocus = "letter" | "void" | "combined" | "auto";
 export type CandidateFocus = Exclude<OptimizationFocus, "auto">;
@@ -145,6 +145,7 @@ export type SpatialAlternative = {
 
 export type OptimizationInput = {
   sourceCells: Cell[];
+  selectedLetters: Letter[];
   descriptors: DescriptorSettings;
   grid: OrthogonalGrid;
   rules: GenerationRules;

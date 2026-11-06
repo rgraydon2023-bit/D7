@@ -41,15 +41,23 @@ export function sheetPdf(images:Uint8Array[],title:string,subtitle:string):Blob 
  return new Blob([output],{type:'application/pdf'});
 }
 
-export async function exportGeneratorSheet(mesh:Mesh,title:string,subtitle:string,voidMode=false):Promise<Blob> {
+export async function exportGeneratorSheet(mesh:Mesh,title:string,subtitle:string,voidMode=false,format:'pdf'|'board'='pdf',enclosure?:Mesh,iso:'NW'|'SW'|'SE'|'NE'='SE'):Promise<Blob> {
  if(!mesh.indices.length)throw new Error('Generate a variation before exporting.');
  const width=Math.round(PANEL_WIDTH/72*PRINT_DPI),height=Math.round(PANEL_HEIGHT/72*PRINT_DPI);
  const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
  const geometry=new THREE.BufferGeometry(),scene=new THREE.Scene();
  const material=new THREE.MeshStandardMaterial({color:'#f4f1ea',roughness:.6,metalness:.01,side:THREE.DoubleSide,transparent:voidMode,opacity:voidMode?.2:1,depthWrite:!voidMode});
- const box=modelCube(mesh),center=box.getCenter(new THREE.Vector3()),extent=box.getSize(new THREE.Vector3()),span=Math.max(extent.length(),1);
+ const box=enclosure?.positions.length?new THREE.Box3().setFromBufferAttribute(new THREE.Float32BufferAttribute(enclosure.positions,3)):modelCube(mesh),center=box.getCenter(new THREE.Vector3()),extent=box.getSize(new THREE.Vector3()),span=Math.max(extent.length(),1);
  const cube=new THREE.BoxGeometry(extent.x,extent.y,extent.z),edges=new THREE.EdgesGeometry(cube),lineMaterial=new THREE.LineBasicMaterial({color:'#8ca4b6',transparent:true,opacity:.65});
  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+ const board=document.createElement('canvas');
+ if(format==='board'){
+  board.width=1980;board.height=750;
+  const ctx=board.getContext('2d');if(!ctx)throw new Error('Board image creation is unavailable.');
+  const scale=board.width/SHEET_WIDTH;ctx.scale(scale,scale);ctx.fillStyle='#000000';ctx.fillRect(0,0,SHEET_WIDTH,SHEET_HEIGHT);ctx.fillStyle='#d6ad4f';ctx.font='20px Arial';ctx.fillText(title,margin,40);ctx.font='10px Arial';ctx.fillText(subtitle,margin,62);
+  ctx.font='12px Arial';['PLAN','SECTION','ISOMETRIC'].forEach((name,i)=>ctx.fillText(name,margin+i*(PANEL_WIDTH+gap),header-9));
+  ctx.font='9px Arial';ctx.fillText('33 x 12.5 inches | Views fitted to sheet; not a fixed architectural scale.',margin,SHEET_HEIGHT-18);
+ }
  try {
   const gl=renderer.getContext();if(Math.max(width,height)>gl.getParameter(gl.MAX_RENDERBUFFER_SIZE))throw new Error('This GPU cannot render the requested 300-dpi sheet.');
   renderer.setPixelRatio(1);renderer.setSize(width,height,false);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;
@@ -62,7 +70,7 @@ export async function exportGeneratorSheet(mesh:Mesh,title:string,subtitle:strin
    await new Promise(resolve=>setTimeout(resolve,0));
    const camera=new THREE.OrthographicCamera(-width/2,width/2,height/2,-height/2,.001,span*20);
    camera.up.set(...(view==='plan'?[0,1,0]:[0,0,1]) as [number,number,number]);
-   camera.position.copy(center).add(view==='plan'?new THREE.Vector3(0,0,span*2):view==='section'?new THREE.Vector3(0,-span*2,0):new THREE.Vector3(span,-span,span*Math.SQRT2));
+   camera.position.copy(center).add(view==='plan'?new THREE.Vector3(0,0,span*2):view==='section'?new THREE.Vector3(0,-span*2,0):new THREE.Vector3(iso.includes("E")?span:-span,iso.includes("N")?span:-span,span*Math.SQRT2));
    camera.zoom=Math.min(width,height)*.82/span;camera.lookAt(center);camera.updateProjectionMatrix();camera.updateMatrixWorld();renderer.render(scene,camera);
    const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Image export is unavailable.');ctx.drawImage(renderer.domElement,0,0);
    // Match the generator's rotating XYZ reference in each fixed export view.
@@ -73,8 +81,13 @@ export async function exportGeneratorSheet(mesh:Mesh,title:string,subtitle:strin
     if(Math.hypot(v.x,v.y)>.05){const a=Math.atan2(y-origin[1],x-origin[0]);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-18*Math.cos(a-.4),y-18*Math.sin(a-.4));ctx.lineTo(x-18*Math.cos(a+.4),y-18*Math.sin(a+.4));ctx.closePath();ctx.fill();}
     ctx.fillStyle='#d6ad4f';ctx.font='bold 28px Arial';ctx.fillText(axis,x+10,y-10);
    }
-   const image=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Could not encode view.')),'image/jpeg',.96));images.push(new Uint8Array(await image.arrayBuffer()));
+   if(format==='board'){
+    const ctx=board.getContext('2d')!;const i=images.length;ctx.drawImage(canvas,margin+i*(PANEL_WIDTH+gap),header,PANEL_WIDTH,PANEL_HEIGHT);images.push(new Uint8Array());
+   }else{
+    const image=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Could not encode view.')),'image/jpeg',.96));images.push(new Uint8Array(await image.arrayBuffer()));
+   }
   }
+  if(format==='board')return await new Promise<Blob>((resolve,reject)=>board.toBlob(b=>b?resolve(b):reject(new Error('Could not encode the geometry board.')),'image/png'));
   return sheetPdf(images,title,subtitle);
- } finally {geometry.dispose();material.dispose();cube.dispose();edges.dispose();lineMaterial.dispose();renderer.dispose();renderer.forceContextLoss();canvas.width=canvas.height=1;}
+ } finally {geometry.dispose();material.dispose();cube.dispose();edges.dispose();lineMaterial.dispose();renderer.dispose();renderer.forceContextLoss();canvas.width=canvas.height=board.width=board.height=1;}
 }

@@ -3,6 +3,7 @@ import { evaluateSpatialDesign } from "./descriptorEvaluation";
 import { gridDimensions } from "./constraintValidation";
 import { letterDepthSpan, octetBoxes, UNIT_LETTER_SPAN } from "./letterVolumeLayout";
 import type { CandidateFocus, GenerationRules, OptimizerControls, OrthogonalGrid, SelectionVolume, SpatialAlternative } from "./optimizerTypes";
+import type { Letter } from "./letterTypes";
 
 function axisCenters(overall: number, selection: number, step: number) {
   const extent = Math.max(0, (overall - selection) / 2);
@@ -67,6 +68,11 @@ function rank(alternative: SpatialAlternative) {
   return -1000 - alternative.evaluation.constraints.violations.length * 10 + Math.min(alternative.placements.length, 9);
 }
 
+function selectedLetterCount(alternative: SpatialAlternative, selectedLetters: readonly Letter[]) {
+  const selected = new Set(selectedLetters);
+  return alternative.placements.reduce((count, placement) => count + (selected.has(placement.cell.letter) ? 1 : 0), 0);
+}
+
 export function selectBestSubvolume(args: {
   fullPlacements: CompositionPlacement[];
   overallGrid: OrthogonalGrid;
@@ -77,6 +83,8 @@ export function selectBestSubvolume(args: {
   focus: CandidateFocus;
   seed: number;
   generation: number;
+  selectedLetters: Letter[];
+  ignoreCirculationClearance?: boolean;
   maxPositions?: number;
 }) {
   const overall = gridDimensions(args.overallGrid);
@@ -154,6 +162,7 @@ export function selectBestSubvolume(args: {
       controls: args.controls,
       focus: args.focus,
       bounds: "center",
+      ignoreCirculationClearance: args.ignoreCirculationClearance,
     });
     candidates.push({
       id: `selection-${args.seed}-${args.generation}-${centerIndex}`,
@@ -176,5 +185,5 @@ export function selectBestSubvolume(args: {
       },
     });
   });
-  return candidates.sort((a, b) => rank(b) - rank(a))[0] ?? null;
+  return candidates.sort((a, b) => selectedLetterCount(b, args.selectedLetters) - selectedLetterCount(a, args.selectedLetters) || rank(b) - rank(a))[0] ?? null;
 }

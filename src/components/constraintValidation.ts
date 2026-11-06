@@ -103,6 +103,7 @@ export function validateConstraints(
   rules: GenerationRules,
   sourceCount?: number,
   bounds: "body" | "center" = "body",
+  ignoreCirculationClearance = false,
 ): ConstraintStatus {
   const dimensions = gridDimensions(grid);
   const half = { x: dimensions.width / 2, y: dimensions.height / 2, z: dimensions.depth / 2 };
@@ -114,7 +115,7 @@ export function validateConstraints(
       && Math.abs(placement.y) + extent.y <= half.y + 1e-6
       && Math.abs(placement.z) + extent.z <= half.z + 1e-6;
   });
-  const clearanceSatisfied = placements.every((placement) => Math.abs(placement.x) - extents(placement, rules).x >= rules.minimumClearance / 2 - 1e-6);
+  const clearanceSatisfied = ignoreCirculationClearance || placements.every((placement) => Math.abs(placement.x) - extents(placement, rules).x >= rules.minimumClearance / 2 - 1e-6);
   const sizeSatisfied = placements.every((placement) => {
     const dimensions = [placement.scale * (placement.scaleX ?? 1), placement.scale * (placement.scaleY ?? 1)];
     return Math.min(...dimensions) >= rules.minimumLetterSize - 1e-6 && Math.max(...dimensions) <= rules.maximumLetterSize + 1e-6;

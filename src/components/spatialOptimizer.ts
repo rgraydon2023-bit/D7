@@ -3,20 +3,26 @@ import { evaluateSpatialDesign } from "./descriptorEvaluation";
 import { generateSpatialCandidate } from "./geometryGenerator";
 import type { CandidateFocus, OptimizationInput, SpatialAlternative } from "./optimizerTypes";
 import { selectBestSubvolume, selectionEvaluationGrid } from "./selectionSearch";
+import type { Letter } from "./letterTypes";
 
 function rankingValue(alternative: SpatialAlternative) {
   if (!alternative.evaluation.constraints.feasible) return -1000 - alternative.evaluation.constraints.violations.length;
   return alternative.evaluation.fit ?? 0;
 }
 
-function topAlternatives(alternatives: SpatialAlternative[], count: number) {
+function selectedLetterCount(alternative: SpatialAlternative, selectedLetters: readonly Letter[]) {
+  const selected = new Set(selectedLetters);
+  return alternative.placements.reduce((count, placement) => count + (selected.has(placement.cell.letter) ? 1 : 0), 0);
+}
+
+function topAlternatives(alternatives: SpatialAlternative[], count: number, selectedLetters: readonly Letter[]) {
   const unique = new Map<string, SpatialAlternative>();
   for (const alternative of alternatives) {
     const signature = alternative.placements.slice(0, 12).map((placement) => `${placement.x.toFixed(2)},${placement.y.toFixed(2)},${placement.z.toFixed(2)},${placement.rz}`).join("|");
     const current = unique.get(signature);
-    if (!current || rankingValue(alternative) > rankingValue(current)) unique.set(signature, alternative);
+    if (!current || selectedLetterCount(alternative, selectedLetters) > selectedLetterCount(current, selectedLetters) || (selectedLetterCount(alternative, selectedLetters) === selectedLetterCount(current, selectedLetters) && rankingValue(alternative) > rankingValue(current))) unique.set(signature, alternative);
   }
-  return [...unique.values()].sort((a, b) => rankingValue(b) - rankingValue(a)).slice(0, count);
+  return [...unique.values()].sort((a, b) => selectedLetterCount(b, selectedLetters) - selectedLetterCount(a, selectedLetters) || rankingValue(b) - rankingValue(a)).slice(0, count);
 }
 
 function candidateFocus(input: OptimizationInput, index: number): CandidateFocus {
@@ -56,6 +62,7 @@ function evaluateCandidate(input: OptimizationInput, focus: CandidateFocus, seed
     controls: input.controls,
     focus: evaluationFocus,
     sourceCount: input.sourceCells.length,
+    ignoreCirculationClearance: true,
   });
   const fullAlternative = { id: `${focus}-${seed}-${generation}`, seed, focus, placements, evaluation, generation } satisfies SpatialAlternative;
   if (!input.selection.enabled) return fullAlternative;
@@ -69,6 +76,8 @@ function evaluateCandidate(input: OptimizationInput, focus: CandidateFocus, seed
     focus: evaluationFocus,
     seed,
     generation,
+    selectedLetters: input.selectedLetters,
+    ignoreCirculationClearance: true,
     maxPositions: 36,
   }) ?? fullAlternative;
 }
@@ -89,7 +98,7 @@ export async function optimizeSpatial(
       const parent = input.lockedParent ?? strongest[index % Math.max(strongest.length, 1)] ?? null;
       pool.push(evaluateCandidate(input, focus, seed, generation, parent));
     }
-    strongest = topAlternatives(pool, input.controls.alternatives);
+    strongest = topAlternatives(pool, input.controls.alternatives, input.selectedLetters);
     onProgress?.(Math.round((generation + 1) / input.controls.generations * 100), strongest);
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
   }
@@ -107,15 +116,11 @@ export async function optimizeSpatial(
         focus: "combined",
         sourceCount: alternative.selection ? undefined : input.sourceCells.length,
         bounds: alternative.selection ? "center" : "body",
+        ignoreCirculationClearance: true,
       }),
     }));
-    const ranked = topAlternatives(common, common.length);
-    const overall = ranked[0];
-    const contrasting = (["letter", "void", "combined"] as CandidateFocus[])
-      .map((candidateFocus) => ranked.find((alternative) => alternative.focus === candidateFocus))
-      .filter((alternative): alternative is SpatialAlternative => Boolean(alternative));
-    const chosen = [overall, ...contrasting, ...ranked].filter((alternative): alternative is SpatialAlternative => Boolean(alternative));
-    strongest = [...new Map(chosen.map((alternative) => [alternative.id, alternative])).values()].slice(0, input.controls.alternatives);
+    const ranked = topAlternatives(common, common.length, input.selectedLetters);
+    strongest = ranked.slice(0, input.controls.alternatives);
   }
   if (input.selection.enabled) {
     strongest = strongest.map((alternative) => {
@@ -130,16 +135,16 @@ export async function optimizeSpatial(
         focus: input.focus === "auto" ? "combined" : alternative.focus,
         seed: alternative.seed,
         generation: alternative.generation,
+        selectedLetters: input.selectedLetters,
+        ignoreCirculationClearance: true,
         maxPositions: 1200,
       });
       return refined ? { ...refined, focus: alternative.focus } : alternative;
     });
     if (input.focus === "auto") {
-      const ranked = [...strongest].sort((a, b) => rankingValue(b) - rankingValue(a));
-      const overall = ranked[0];
-      const contrasts = (["letter", "void", "combined"] as CandidateFocus[]).map((candidateFocus) => ranked.find((alternative) => alternative.focus === candidateFocus)).filter((alternative): alternative is SpatialAlternative => Boolean(alternative));
-      strongest = [...new Map([overall, ...contrasts, ...ranked].filter(Boolean).map((alternative) => [alternative.id, alternative])).values()].slice(0, input.controls.alternatives);
-    } else strongest = topAlternatives(strongest, input.controls.alternatives);
+      const ranked = [...strongest].sort((a, b) => selectedLetterCount(b, input.selectedLetters) - selectedLetterCount(a, input.selectedLetters) || rankingValue(b) - rankingValue(a));
+      strongest = ranked.slice(0, input.controls.alternatives);
+    } else strongest = topAlternatives(strongest, input.controls.alternatives, input.selectedLetters);
   }
-  return { alternatives: strongest, rankingEnabled: activeWeights > 0 };
+  return { alternatives: strongest, rankingEnabled: input.selectedLetters.length > 0 || activeWeights > 0 };
 }

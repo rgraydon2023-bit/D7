@@ -19,7 +19,7 @@ const familyLabel: Record<OrientationFamily, string> = {
   terrain: "Terrain / stepped",
 };
 const rotationGroups: RotationGroup[] = (Object.keys(familyLabel) as OrientationFamily[]).flatMap((family) => {
-  const familyMembers = TYPOLOGY_RULES.filter((rule) => orientationFamily(rule.id) === family);
+  const familyMembers = TYPOLOGY_RULES.filter((rule) => orientationFamily(rule.id) === family && rule.id !== "open-hall-workspace");
   if (!familyMembers.length) return [];
   if (family === "flat") {
     return [{ key: family, label: familyLabel[family], members: familyMembers.map((rule) => rule.id), xy: "90° steps", xz: "Level (0°)", yz: "90° steps" }];
@@ -28,7 +28,7 @@ const rotationGroups: RotationGroup[] = (Object.keys(familyLabel) as Orientation
     const radial=familyMembers.filter(rule=>rule.id==='void-field-gathering');
     const others=familyMembers.filter(rule=>rule.id!=='void-field-gathering');
     return [
-      ...(radial.length?[{key:'void-radial',label:'Radial atrium',members:radial.map(rule=>rule.id),xy:'Radial; 15° increments',xz:'0°',yz:'0° or ±90°'}]:[]),
+      ...(radial.length?[{key:'void-radial',label:'Radial atrium',members:radial.map(rule=>rule.id),xy:'Radial; 15° increments',xz:'0°',yz:'0° (horizontal layers)'}]:[]),
       ...(others.length?[{key:'void',label:'Void',members:others.map(rule=>rule.id),xy:'15° steps',xz:'15° steps',yz:'15° steps'}]:[]),
     ];
   }
@@ -51,7 +51,7 @@ const rotationGroups: RotationGroup[] = (Object.keys(familyLabel) as Orientation
     xz: `${steps.vertical}° steps`,
     yz: `${steps.vertical}° steps`,
   }];
-});
+}).concat([{key:"open-hall-l",label:"L wall and floor pairs",members:["open-hall-workspace"],xy:"Mirrored L pair + 90°",xz:"90° to place walls on YZ",yz:"Mirrored L pair + 90°"}] as RotationGroup[]);
 
 export function TypologyRotationChart() {
   const categories: Array<keyof typeof CATEGORY_DEFINITIONS> = ["lobby", "gathering", "office"];
