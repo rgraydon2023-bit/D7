@@ -284,7 +284,8 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
       const raw = window.localStorage.getItem(SLIDER_VALUES_STORAGE_KEY);
       if (!raw) return;
       const saved = JSON.parse(raw) as Partial<SavedSliderValues>;
-      if (!Number.isFinite(saved.cols) || !Number.isFinite(saved.rows)) return;
+      const isFiniteNumber = (value: unknown): value is number => Number.isFinite(value);
+      if (!isFiniteNumber(saved.cols) || !isFiniteNumber(saved.rows)) return;
 
       const nextCols = Math.max(2, Math.min(16, Math.round(saved.cols)));
       const nextRows = Math.max(2, Math.min(12, Math.round(saved.rows)));
@@ -293,22 +294,22 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
       const options: RotationOptions = {
         direction,
         mode,
-        lessDegrees: Number.isFinite(saved.lessDegrees) ? saved.lessDegrees : DEFAULT_ROTATION.lessDegrees,
-        moreDegrees: Number.isFinite(saved.moreDegrees) ? saved.moreDegrees : DEFAULT_ROTATION.moreDegrees,
+        lessDegrees: isFiniteNumber(saved.lessDegrees) ? saved.lessDegrees : DEFAULT_ROTATION.lessDegrees,
+        moreDegrees: isFiniteNumber(saved.moreDegrees) ? saved.moreDegrees : DEFAULT_ROTATION.moreDegrees,
       };
 
       setCols(nextCols);
       setRows(nextRows);
-      if (Number.isFinite(saved.spacing)) setSpacing(saved.spacing);
-      if (Number.isFinite(saved.fontSize)) setFontSize(saved.fontSize);
+      if (isFiniteNumber(saved.spacing)) setSpacing(saved.spacing);
+      if (isFiniteNumber(saved.fontSize)) setFontSize(saved.fontSize);
       setGradientDirection(direction);
       setGradientMode(mode);
       setLessDegrees(options.lessDegrees);
       setMoreDegrees(options.moreDegrees);
-      if (Number.isFinite(saved.zLayers)) setZLayers(saved.zLayers);
-      if (Number.isFinite(saved.zSpacing)) setZSpacing(saved.zSpacing);
-      if (Number.isFinite(saved.letterThickness)) setLetterThickness(saved.letterThickness);
-      if (Number.isFinite(saved.yRotationRange)) setYRotationRange(saved.yRotationRange);
+      if (isFiniteNumber(saved.zLayers)) setZLayers(saved.zLayers);
+      if (isFiniteNumber(saved.zSpacing)) setZSpacing(saved.zSpacing);
+      if (isFiniteNumber(saved.letterThickness)) setLetterThickness(saved.letterThickness);
+      if (isFiniteNumber(saved.yRotationRange)) setYRotationRange(saved.yRotationRange);
       setCells(createGrid(nextCols, nextRows, options));
       setLayerCells(createDepthGrids(nextCols, nextRows, options));
       setPermutations(createPermutations(nextCols, nextRows, options));

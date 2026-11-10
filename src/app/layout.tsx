@@ -1,18 +1,28 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import Providers from "@/components/Providers";
 import "./globals.css";
 
-const plexSans = IBM_Plex_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+const plexSans = localFont({
+  src: [
+    { path: "./fonts/sans/ibm-plex-sans-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/sans/ibm-plex-sans-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/sans/ibm-plex-sans-latin-600-normal.woff2", weight: "600", style: "normal" },
+  ],
   variable: "--font-sans",
+  display: "swap",
+  fallback: ["Segoe UI", "sans-serif"],
 });
 
-const plexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
+const plexMono = localFont({
+  src: [
+    { path: "./fonts/mono/ibm-plex-mono-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/mono/ibm-plex-mono-latin-500-normal.woff2", weight: "500", style: "normal" },
+  ],
   variable: "--font-mono",
+  display: "swap",
+  fallback: ["monospace"],
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {

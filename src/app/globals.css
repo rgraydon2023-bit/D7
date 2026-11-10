@@ -31,7 +31,7 @@ body {
     radial-gradient(ellipse 60% 40% at 90% 5%, rgba(255, 255, 255, 0.03), transparent 50%),
     #000000;
   color: var(--ink);
-  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  font-family: var(--font-sans, "IBM Plex Sans", "Segoe UI", sans-serif);
   color-scheme: dark;
 }
 

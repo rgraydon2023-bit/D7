@@ -156,7 +156,6 @@ export default function ThreeDCropsPage() {
                     depthCells={matchingDepthCrop(evaluation, layerCells[0] ?? [], cols)}
                     spacing={spacing}
                     fontSize={fontSize}
-                    clipPositions={clipPositions}
                     yRotationEnabled={yRotationEnabled}
                     yRotationRange={yRotationRange}
                   />
