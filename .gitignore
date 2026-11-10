@@ -18,6 +18,7 @@
 
 # production
 /build
+/public/presentation-assets/
 
 # misc
 .DS_Store

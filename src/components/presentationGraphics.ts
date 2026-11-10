@@ -69,12 +69,35 @@ export async function loadPresentationPdf(id = 'current'): Promise<Blob | null> 
   } finally { db.close(); }
 }
 export type PdfBoard = { id: string; title: string };
-export async function loadPdfBoards(): Promise<PdfBoard[]> {
+type PublishedGraphic = Omit<PresentationGraphic, "image"> & { url: string };
+export type PublishedPresentation = {
+  boards: PdfBoard[];
+  pdfs: { id: string; url: string }[];
+  geometry: PublishedGraphic[];
+  rules: PublishedGraphic[];
+};
+
+export async function loadPublishedPresentation(signal: AbortSignal): Promise<PublishedPresentation | null> {
+  const response = await fetch("/presentation-assets/index.json", { signal });
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error("Could not load the published presentation.");
+  return response.json();
+}
+
+export async function loadPdfBoards(publishedBoards?: PdfBoard[]): Promise<PdfBoard[]> {
   const db = await openStore();
   try {
     return await new Promise((resolve, reject) => {
       const request = db.transaction('pdfBoard', 'readonly').objectStore('pdfBoard').get('boards');
-      request.onsuccess = () => resolve(request.result ?? [{id:'current', title:'Blank Board'}]);
+      request.onsuccess = () => {
+        const localBoards = request.result as PdfBoard[] | undefined;
+        if (!localBoards) {
+          resolve(publishedBoards ?? [{ id: 'current', title: 'Blank Board' }]);
+          return;
+        }
+        const localIds = new Set(localBoards.map(board => board.id));
+        resolve([...localBoards, ...(publishedBoards ?? []).filter(board => !localIds.has(board.id))]);
+      };
       request.onerror = () => reject(request.error);
     });
   } finally { db.close(); }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { loadPresentationGraphics, loadPresentationPdf, savePresentationPdf, loadPdfBoards, savePdfBoards, type PdfBoard } from "@/components/presentationGraphics";
+import { loadPresentationGraphics, loadPresentationPdf, savePresentationPdf, loadPdfBoards, savePdfBoards, loadPublishedPresentation, type PdfBoard, type PublishedPresentation } from "@/components/presentationGraphics";
 import type { PrototypeCategory, PrototypeTypologyId } from "@/components/amphitheaterPrototype";
 import AppNav from "@/components/AppNav";
 import { PRESENTATION_BOARD_STORAGE_KEY, useBoardMode } from "@/components/BoardMode";
@@ -41,7 +41,30 @@ export default function CompositionPresentationPage() {
   const [pdfBoards, setPdfBoards] = useState<PdfBoard[]>([{id:'current', title:'Blank Board'}]);
   const [draggedBoard, setDraggedBoard] = useState<string | null>(null);
   const isPdfBoard = board !== 'geometry' && board !== 'rules';
-  useEffect(() => { void loadPdfBoards().then(setPdfBoards).catch(() => setError('Could not load board titles.')); }, []);
+  const [published, setPublished] = useState<PublishedPresentation | null>(null);
+  useEffect(() => {
+    const request = new AbortController();
+    async function initializeBoards() {
+      let snapshot: PublishedPresentation | null = null;
+      try {
+        snapshot = await loadPublishedPresentation(request.signal);
+      } catch {
+        if (!request.signal.aborted) setError('Could not load the published presentation.');
+      }
+      if (request.signal.aborted) return;
+      const boards = await loadPdfBoards(snapshot?.boards.length ? snapshot.boards : undefined);
+      if (request.signal.aborted) return;
+      setPublished(snapshot);
+      setPdfBoards(boards);
+      setBoard(selected => selected === 'current' && !boards.some(item => item.id === selected)
+        ? boards[0]?.id ?? 'geometry'
+        : selected);
+    }
+    void initializeBoards().catch(() => {
+      if (!request.signal.aborted) setError('Could not load board titles.');
+    });
+    return () => request.abort();
+  }, []);
   const [pdfUrl, setPdfUrl] = useState('');
   const [pdfError, setPdfError] = useState('');
   const [draggingPdf, setDraggingPdf] = useState(false);
@@ -55,6 +78,7 @@ export default function CompositionPresentationPage() {
         const records = await loadPresentationGraphics(board);
         if (!active || request !== revision) return;
         const next: Partial<Record<PrototypeTypologyId, DisplayGraphic>> = {}; const nextUrls: string[] = [];
+        for (const record of published?.[board] ?? []) next[record.typology] = { name: record.name, url: record.url };
         for (const record of records) { const url = URL.createObjectURL(record.image); nextUrls.push(url); next[record.typology] = { name: record.name, url }; }
         setGraphics(next); setError(""); currentUrls.forEach(URL.revokeObjectURL); currentUrls = nextUrls;
       } catch { if (active && request === revision) setError("Could not load the saved presentation graphics."); }
@@ -63,17 +87,18 @@ export default function CompositionPresentationPage() {
     const channel = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("composition-presentation") : null;
     if (channel) channel.onmessage = () => { void refresh(); };
     return () => { active = false; window.removeEventListener("focus", refresh); channel?.close(); currentUrls.forEach(URL.revokeObjectURL); };
-  }, [board]);
+  }, [board, published]);
   useEffect(() => {
     let active = true; let url = '';
     setPdfUrl('');
     if (isPdfBoard) void loadPresentationPdf(board).then(file => {
-      if (!active || !file) return;
-      url = URL.createObjectURL(file); setPdfUrl(url);
+      if (!active) return;
+      if (file) url = URL.createObjectURL(file);
+      setPdfUrl(url || published?.pdfs.find(item => item.id === board)?.url || '');
     }).catch(() => setPdfError('Could not load the PDF board.'));
     else setPdfUrl('');
     return () => { active = false; if (url) URL.revokeObjectURL(url); };
-  }, [board]);
+  }, [board, isPdfBoard, published]);
   const addPdf = async (file?: File) => {
     if (!file) return;
     if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) { setPdfError('Drop a PDF file onto the board.'); return; }
