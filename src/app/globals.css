@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "./board.css";
 
+/* Saved board snapshots are data, so keep them out of utility class detection. */
+@source not "../../presentation";
+
 :root {
   --app-background: #000000;
   --panel-background: #101D2B;
