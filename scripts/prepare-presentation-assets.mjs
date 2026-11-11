@@ -25,7 +25,7 @@ async function preparePresentationAssets() {
 
   await mkdir(output, { recursive: true });
   async function writeAsset(name, file, type, extension) {
-    if (file?.type !== type || typeof file.data !== "string" || !file.data.length) {
+    if (!extension || file?.type !== type || typeof file.data !== "string" || !file.data.length) {
       throw new Error(`Invalid presentation asset: ${name}`);
     }
     const filename = `${name}.${extension}`;
@@ -35,7 +35,7 @@ async function preparePresentationAssets() {
 
   const pdfs = await Promise.all(backup.pdfs.map(async ({ id, file }, index) => ({
     id,
-    url: await writeAsset(`pdf-${index}`, file, "application/pdf", "pdf"),
+    url: await writeAsset(`pdf-${index}`, file, file.type, ({ "application/pdf": "pdf", "image/png": "png", "image/webp": "webp" })[file.type]),
   })));
   const writeGraphics = (board) => Promise.all(backup[board].map(async ({ typology, name, image }, index) => ({
     typology,

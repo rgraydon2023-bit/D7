@@ -66,6 +66,7 @@ export default function CompositionPresentationPage() {
     return () => request.abort();
   }, []);
   const [pdfUrl, setPdfUrl] = useState('');
+  const [boardImage, setBoardImage] = useState(false);
   const [pdfError, setPdfError] = useState('');
   const [draggingPdf, setDraggingPdf] = useState(false);
   useEffect(() => {
@@ -94,15 +95,17 @@ export default function CompositionPresentationPage() {
     if (isPdfBoard) void loadPresentationPdf(board).then(file => {
       if (!active) return;
       if (file) url = URL.createObjectURL(file);
-      setPdfUrl(url || published?.pdfs.find(item => item.id === board)?.url || '');
+      const publishedUrl = published?.pdfs.find(item => item.id === board)?.url || '';
+      setBoardImage(file ? file.type.startsWith('image/') : /\.(png|webp)$/i.test(publishedUrl));
+      setPdfUrl(url || publishedUrl);
     }).catch(() => setPdfError('Could not load the PDF board.'));
     else setPdfUrl('');
     return () => { active = false; if (url) URL.revokeObjectURL(url); };
   }, [board, isPdfBoard, published]);
   const addPdf = async (file?: File) => {
     if (!file) return;
-    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) { setPdfError('Drop a PDF file onto the board.'); return; }
-    try { setPdfError(''); await savePresentationPdf(file, board); setPdfUrl(current => { if (current) URL.revokeObjectURL(current); return URL.createObjectURL(file); }); }
+    if (!['application/pdf', 'image/png', 'image/webp'].includes(file.type)) { setPdfError('Choose a PDF, PNG, or WebP file.'); return; }
+    try { setPdfError(''); await savePresentationPdf(file, board); setBoardImage(file.type.startsWith('image/')); setPdfUrl(current => { if (current.startsWith('blob:')) URL.revokeObjectURL(current); return URL.createObjectURL(file); }); }
     catch { setPdfError('Could not add this PDF to the board.'); }
   };
   const boardOrder = [...pdfBoards.map(item => item.id), 'geometry', 'rules'];
@@ -138,7 +141,7 @@ export default function CompositionPresentationPage() {
       </div>
       <div className={`presentation-board-viewport mt-2 max-h-[75vh] overflow-auto ${isPdfBoard ? 'pdf-board-viewport' : ''}`} aria-label="Presentation board viewport">
       {isPdfBoard ? <div onDragEnter={event => {event.preventDefault();setDraggingPdf(true);}} onDragOver={event => event.preventDefault()} onDragLeave={event => {if(!event.currentTarget.contains(event.relatedTarget as Node|null))setDraggingPdf(false);}} onDrop={event => {event.preventDefault();setDraggingPdf(false);void addPdf(event.dataTransfer.files[0]);}} className="presentation-pdf-board relative flex items-center justify-center overflow-hidden border border-dashed" style={{aspectRatio:'33 / 12.5',borderColor:draggingPdf?'#d6ad4f':'#b9bec6',background:'#050709'}}>
-        {pdfUrl ? <><iframe title="PDF presentation board" src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`} className="absolute inset-0 h-full w-full border-0" /><div aria-hidden="true" className="absolute inset-0 z-10" /></> : <label className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-2 text-center text-xs text-white"><span>Drop a PDF here to place it on this board</span><span className="text-[#d6ad4f]">or choose a PDF</span><input type="file" accept="application/pdf,.pdf" className="sr-only" onChange={event => void addPdf(event.target.files?.[0])}/></label>}
+        {pdfUrl ? <>{boardImage ? <img alt="Presentation board" src={pdfUrl} className="absolute inset-0 h-full w-full object-contain" /> : <iframe title="PDF presentation board" src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`} className="absolute inset-0 h-full w-full border-0" />}<div aria-hidden="true" className="absolute inset-0 z-10" /></> : <label className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-2 text-center text-xs text-white"><span>Drop a PDF, PNG, or WebP here</span><span className="text-[#d6ad4f]">or choose a file</span><input type="file" accept="application/pdf,image/png,image/webp,.pdf,.png,.webp" className="sr-only" onChange={event => void addPdf(event.target.files?.[0])}/></label>}
         {pdfError && <p role="alert" className="absolute bottom-2 left-2 bg-black/80 p-2 text-xs text-red-300">{pdfError}</p>}
       </div> : <div className="space-y-2" style={{width: zoom + "%", minWidth: (11 * zoom) + "px"}}>
         {rows.map((row) => <section key={row.category} aria-label={`${row.title} typologies`}>
