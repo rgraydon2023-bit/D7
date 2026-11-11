@@ -94,7 +94,7 @@ export default function CompositionPresentationPage() {
     }).catch(() => setPdfError('Could not load the PDF board.'));
     else setPdfUrl('');
     return () => { active = false; if (url) URL.revokeObjectURL(url); };
-  }, [board, boardRevision]);
+  }, [board, boardRevision, published, isPdfBoard]);
   const addPdf = async (file?: File) => {
     if (!file) return;
     if (!['application/pdf', 'image/png', 'image/webp', 'image/jpeg'].includes(file.type)) { setPdfError('Choose a PDF, PNG, WebP, or JPEG file.'); return; }
