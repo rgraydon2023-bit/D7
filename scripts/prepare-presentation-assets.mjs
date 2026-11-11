@@ -35,7 +35,7 @@ async function preparePresentationAssets() {
 
   const pdfs = await Promise.all(backup.pdfs.map(async ({ id, file }, index) => ({
     id,
-    url: await writeAsset(`pdf-${index}`, file, file.type, ({ "application/pdf": "pdf", "image/png": "png", "image/webp": "webp" })[file.type]),
+    url: await writeAsset(`pdf-${index}`, file, file.type, ({ "application/pdf": "pdf", "image/png": "png", "image/webp": "webp", "image/jpeg": "jpg" })[file.type]),
   })));
   const writeGraphics = (board) => Promise.all(backup[board].map(async ({ typology, name, image }, index) => ({
     typology,

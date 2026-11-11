@@ -69,21 +69,86 @@ export async function loadPresentationPdf(id = 'current'): Promise<Blob | null> 
   } finally { db.close(); }
 }
 export type PdfBoard = { id: string; title: string };
-type PublishedGraphic = Omit<PresentationGraphic, "image"> & { url: string };
-export type PublishedPresentation = {
+type EncodedBlob = { type: string; data: string };
+export type PresentationBackup = {
+  version: 1;
   boards: PdfBoard[];
-  pdfs: { id: string; url: string }[];
-  geometry: PublishedGraphic[];
-  rules: PublishedGraphic[];
+  pdfs: { id: string; file: EncodedBlob }[];
+  geometry: { typology: PrototypeTypologyId; name: string; image: EncodedBlob }[];
+  rules: { typology: PrototypeTypologyId; name: string; image: EncodedBlob }[];
 };
 
+async function encodeBlob(blob: Blob): Promise<EncodedBlob> {
+  const data = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(',')[1]);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+  return { type: blob.type, data };
+}
+
+function decodeBlob(value: EncodedBlob): Blob {
+  if (!value || typeof value.type !== 'string' || typeof value.data !== 'string') throw new Error('Invalid file in GitHub backup.');
+  const binary = atob(value.data);
+  const bytes = Uint8Array.from(binary, character => character.charCodeAt(0));
+  return new Blob([bytes], { type: value.type });
+}
+
+export async function exportPresentationBackup(): Promise<PresentationBackup> {
+  const boards = await loadPdfBoards();
+  const [pdfs, geometry, rules] = await Promise.all([
+    Promise.all(boards.map(async board => {
+      const file = await loadPresentationPdf(board.id);
+      return file ? { id: board.id, file: await encodeBlob(file) } : null;
+    })),
+    loadPresentationGraphics('geometry'),
+    loadPresentationGraphics('rules'),
+  ]);
+  const encodeGraphics = (records: PresentationGraphic[]) => Promise.all(records.map(async record => ({ ...record, image: await encodeBlob(record.image) })));
+  return { version: 1, boards, pdfs: pdfs.filter((item): item is NonNullable<typeof item> => item !== null), geometry: await encodeGraphics(geometry), rules: await encodeGraphics(rules) };
+}
+
+export async function importPresentationBackup(backup: PresentationBackup): Promise<void> {
+  if (backup?.version !== 1 || !Array.isArray(backup.boards) || !Array.isArray(backup.pdfs) || !Array.isArray(backup.geometry) || !Array.isArray(backup.rules)
+    || backup.boards.some(board => !board || typeof board.id !== 'string' || typeof board.title !== 'string')
+    || new Set(backup.boards.map(board => board.id)).size !== backup.boards.length
+    || backup.boards.some(board => ['boards', 'geometry', 'rules', 'video'].includes(board.id))) throw new Error('Invalid GitHub board backup.');
+  const ids = new Set(backup.boards.map(board => board.id));
+  const pdfs = backup.pdfs.map(item => {
+    if (!item || !ids.has(item.id)) throw new Error('Invalid PDF board in backup.');
+    return { id: item.id, file: decodeBlob(item.file) };
+  });
+  const decodeGraphics = (records: PresentationBackup['geometry']) => records.map(record => {
+    if (!record || typeof record.typology !== 'string' || typeof record.name !== 'string') throw new Error('Invalid graphic in backup.');
+    return { ...record, image: decodeBlob(record.image) };
+  });
+  const geometry = decodeGraphics(backup.geometry), rules = decodeGraphics(backup.rules);
+  const db = await openStore();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(['pdfBoard', 'geometry', 'graphics'], 'readwrite');
+      const pdfStore = tx.objectStore('pdfBoard');
+      pdfStore.clear();
+      pdfStore.put(backup.boards, 'boards');
+      for (const item of pdfs) pdfStore.put(item.file, item.id);
+      for (const [name, records] of [['geometry', geometry], ['graphics', rules]] as const) {
+        const store = tx.objectStore(name);
+        store.clear();
+        for (const record of records) store.put(record);
+      }
+      tx.oncomplete = () => resolve();
+      tx.onabort = tx.onerror = () => reject(tx.error ?? new Error('Could not restore presentation boards.'));
+    });
+  } finally { db.close(); }
+}
+export type PublishedPresentation = { boards: PdfBoard[]; pdfs: { id: string; url: string }[]; geometry: { typology: PrototypeTypologyId; name: string; url: string }[]; rules: { typology: PrototypeTypologyId; name: string; url: string }[] };
 export async function loadPublishedPresentation(signal: AbortSignal): Promise<PublishedPresentation | null> {
   const response = await fetch("/presentation-assets/index.json", { signal });
   if (response.status === 404) return null;
   if (!response.ok) throw new Error("Could not load the published presentation.");
   return response.json();
 }
-
 export async function loadPdfBoards(publishedBoards?: PdfBoard[]): Promise<PdfBoard[]> {
   const db = await openStore();
   try {
@@ -91,12 +156,9 @@ export async function loadPdfBoards(publishedBoards?: PdfBoard[]): Promise<PdfBo
       const request = db.transaction('pdfBoard', 'readonly').objectStore('pdfBoard').get('boards');
       request.onsuccess = () => {
         const localBoards = request.result as PdfBoard[] | undefined;
-        if (!localBoards) {
-          resolve(publishedBoards ?? [{ id: 'current', title: 'Blank Board' }]);
-          return;
-        }
-        const localIds = new Set(localBoards.map(board => board.id));
-        resolve([...localBoards, ...(publishedBoards ?? []).filter(board => !localIds.has(board.id))]);
+        if (!localBoards) { resolve(publishedBoards ?? [{id:'current', title:'Blank Board'}]); return; }
+        const ids = new Set(localBoards.map(board => board.id));
+        resolve([...localBoards, ...(publishedBoards ?? []).filter(board => !ids.has(board.id))]);
       };
       request.onerror = () => reject(request.error);
     });
@@ -110,6 +172,20 @@ export async function savePdfBoards(boards: PdfBoard[]) {
       tx.objectStore('pdfBoard').put(boards, 'boards');
       tx.oncomplete = () => resolve();
       tx.onabort = tx.onerror = () => reject(tx.error);
+    });
+  } finally { db.close(); }
+}
+/** Delete a PDF and its tab together so a failed write cannot leave them inconsistent. */
+export async function deletePdfBoard(id: string, boards: PdfBoard[]) {
+  const db = await openStore();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction('pdfBoard', 'readwrite');
+      const store = tx.objectStore('pdfBoard');
+      store.delete(id);
+      store.put(boards, 'boards');
+      tx.oncomplete = () => resolve();
+      tx.onabort = tx.onerror = () => reject(tx.error ?? new Error('Could not delete the PDF board.'));
     });
   } finally { db.close(); }
 }
