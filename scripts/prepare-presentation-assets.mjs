@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+﻿import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 const source = new URL("../presentation/", import.meta.url);
 const output = new URL("../public/presentation-assets/", import.meta.url);

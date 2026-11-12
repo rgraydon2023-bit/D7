@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { loadPresentationGraphics, loadPresentationPdfs, savePresentationPdf, loadPdfBoards, savePdfBoards, deletePdfBoard, exportPresentationBackup, importPresentationBackup, type PdfBoard } from "@/components/presentationGraphics";
+import { loadPresentationGraphics, loadPresentationPdfs, savePresentationPdf, loadPdfBoards, savePdfBoards, deletePdfBoard, exportPresentationBackup, importPresentationBackup, loadPublishedPresentation, type PublishedPresentation, type PdfBoard } from "@/components/presentationGraphics";
 import { lightenBoardFile } from "@/components/boardRaster";
 import type { PrototypeCategory, PrototypeTypologyId } from "@/components/amphitheaterPrototype";
 import AppNav from "@/components/AppNav";
@@ -50,7 +50,21 @@ export default function CompositionPresentationPage() {
   const [boardRevision, setBoardRevision] = useState(0);
   const [draggedBoard, setDraggedBoard] = useState<string | null>(null);
   const isPdfBoard = board !== 'geometry' && board !== 'rules' && board !== 'video';
-  useEffect(() => { void loadPdfBoards().then(boards => { setPdfBoards(boards); setBoard(current => boards.some(item => item.id === current) ? current : boards[0]?.id ?? 'geometry'); }).catch(() => setError('Could not load board titles.')); }, []);
+  const [published, setPublished] = useState<PublishedPresentation | null>(null);
+  useEffect(() => {
+    const request = new AbortController();
+    void (async () => {
+      let snapshot: PublishedPresentation | null = null;
+      try { snapshot = await loadPublishedPresentation(request.signal); }
+      catch { if (!request.signal.aborted) setError('Could not load the published presentation.'); }
+      if (request.signal.aborted) return;
+      const boards = await loadPdfBoards(snapshot?.boards.length ? snapshot.boards : undefined);
+      if (request.signal.aborted) return;
+      setPublished(snapshot); setPdfBoards(boards);
+      setBoard(current => boards.some(item => item.id === current) ? current : boards[0]?.id ?? 'geometry');
+    })().catch(() => { if (!request.signal.aborted) setError('Could not load board titles.'); });
+    return () => request.abort();
+  }, []);
   const [readyBoards, setReadyBoards] = useState<Record<string, ReadyBoard>>({});
   const [checkedBoards, setCheckedBoards] = useState<Record<string, true>>({});
   const readyRef = useRef(readyBoards);
@@ -77,6 +91,7 @@ export default function CompositionPresentationPage() {
         const records = await loadPresentationGraphics(board);
         if (!active) return;
         const next: Partial<Record<PrototypeTypologyId, DisplayGraphic>> = {}; const nextUrls: string[] = [];
+        for (const record of published?.[board] ?? []) next[record.typology] = { name: record.name, url: record.url };
         for (const record of records) { const url = URL.createObjectURL(record.image); nextUrls.push(url); next[record.typology] = { name: record.name, url }; }
         const previous = graphicCache.current[board];
         graphicCache.current[board] = { graphics: next, urls: nextUrls };
@@ -84,11 +99,11 @@ export default function CompositionPresentationPage() {
         previous?.urls.forEach(URL.revokeObjectURL);
       } catch { if (active) setError("Could not load the saved presentation graphics."); }
     };
-    if (!cached) void refresh();
+    if (!cached || published) void refresh();
     const channel = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("composition-presentation") : null;
     if (channel) channel.onmessage = () => { void refresh(); };
     return () => { active = false; channel?.close(); };
-  }, [board, boardRevision]);
+  }, [board, boardRevision, published]);
   useEffect(() => {
     let active = true;
     if (seenRevision.current !== boardRevision) {
@@ -109,11 +124,23 @@ export default function CompositionPresentationPage() {
       for (const id of ordered) {
         if (!active) return;
         const file = files.get(id);
-        if (!file) continue;
-        const slide = await lightenBoardFile(file);
+        const publishedSlide = published?.pdfs.find(item => item.id === id);
+        let slide = file;
+        if (!slide && publishedSlide) {
+          if (/\.pdf($|\?)/i.test(publishedSlide.url)) {
+            const response = await fetch(publishedSlide.url);
+            if (!response.ok) throw new Error('Could not load the published slide.');
+            slide = new Blob([await response.arrayBuffer()], { type: 'application/pdf' });
+          } else {
+            setReadyBoards(current => current[id] ? current : { ...current, [id]: { url: publishedSlide.url, image: true } });
+            continue;
+          }
+        }
+        if (!slide) continue;
+        const image = await lightenBoardFile(slide);
         if (!active) return;
-        if (slide !== file) await savePresentationPdf(slide, id);
-        const entry = rememberBoard(slide);
+        if (image !== slide) await savePresentationPdf(image, id);
+        const entry = rememberBoard(image);
         setReadyBoards(current => {
           if (current[id]) { URL.revokeObjectURL(entry.url); return current; }
           return { ...current, [id]: entry };
@@ -124,7 +151,7 @@ export default function CompositionPresentationPage() {
       for (const id of missing) checkedRef.current[id] = true;
     }).catch(() => { if (active) setPdfError('Could not convert this PDF into a WebP slide.'); });
     return () => { active = false; };
-  }, [board, pdfBoards, boardRevision]);
+  }, [board, pdfBoards, boardRevision, published]);
   useEffect(() => () => { for (const item of Object.values(readyRef.current)) URL.revokeObjectURL(item.url); }, []);
   const addPdf = async (file?: File) => {
     if (!file) return;
