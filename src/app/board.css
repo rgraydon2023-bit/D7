@@ -61,11 +61,11 @@ html.board-capture-active, html.board-capture-active body { width: 7407px; heigh
 .board-canvas [data-board-page="presentation"] { display: flex; flex-direction: column; gap: 0; }
 .board-canvas [data-board-page="presentation"] > p { max-width: none; }
 .board-canvas [data-board-page="presentation"] .presentation-board-viewport {
-  flex: 1 1 auto; min-height: 0; max-height: none; width: 90%;
+  flex: 1 1 auto; min-height: 0; max-height: none; width: 100%; overflow: hidden;
 }
-.board-canvas [data-board-page="presentation"] .pdf-board-viewport { width: 100%; }
+.board-canvas [data-board-page="presentation"] .pdf-board-viewport { width: 100%; height: 100%; }
 .board-canvas [data-board-page="presentation"] .graphic-board-viewport { margin-left: auto; margin-right: auto; }
-.board-canvas [data-board-page="presentation"] .presentation-pdf-board { height: auto; }
+.board-canvas [data-board-page="presentation"] .presentation-pdf-board { width: 100%; height: 100%; aspect-ratio: auto; }
 .board-canvas [data-board-page="evaluations"] .evaluations-layout {
   flex: 1; min-height: 0;
   grid-template-columns: 900px minmax(0,1fr) 1000px;

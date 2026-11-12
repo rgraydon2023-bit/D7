@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { loadPresentationGraphics, loadPresentationPdf, savePresentationPdf, loadPdfBoards, savePdfBoards, deletePdfBoard, exportPresentationBackup, importPresentationBackup, loadPublishedPresentation, type PublishedPresentation, type PdfBoard } from "@/components/presentationGraphics";
+import { loadPresentationGraphics, loadPresentationPdfs, savePresentationPdf, loadPdfBoards, savePdfBoards, deletePdfBoard, exportPresentationBackup, importPresentationBackup, type PdfBoard } from "@/components/presentationGraphics";
+import { lightenBoardFile } from "@/components/boardRaster";
 import type { PrototypeCategory, PrototypeTypologyId } from "@/components/amphitheaterPrototype";
 import AppNav from "@/components/AppNav";
 import { PRESENTATION_BOARD_STORAGE_KEY, useBoardMode } from "@/components/BoardMode";
@@ -19,7 +20,14 @@ const rows: { category: PrototypeCategory; title: string; typologies: { id: Prot
   ] },
 ];
 type DisplayGraphic = { name: string; url: string };
+type ReadyBoard = { url: string; image: boolean };
 const walkthroughUrl = "/tutorials/vertical-void-walkthrough.mp4";
+function rememberBoard(file: Blob) {
+  const url = URL.createObjectURL(file);
+  const image = file.type.startsWith('image/');
+  if (image) { const preload = new Image(); preload.src = url; void preload.decode().catch(() => undefined); }
+  return { url, image };
+}
 
 export default function CompositionPresentationPage() {
   const presentationMode = useBoardMode();
@@ -42,63 +50,97 @@ export default function CompositionPresentationPage() {
   const [boardRevision, setBoardRevision] = useState(0);
   const [draggedBoard, setDraggedBoard] = useState<string | null>(null);
   const isPdfBoard = board !== 'geometry' && board !== 'rules' && board !== 'video';
-  const [published, setPublished] = useState<PublishedPresentation | null>(null);
-  useEffect(() => {
-    const request = new AbortController();
-    async function initialize() {
-      let snapshot: PublishedPresentation | null = null;
-      try { snapshot = await loadPublishedPresentation(request.signal); }
-      catch { if (!request.signal.aborted) setError('Could not load the published presentation.'); }
-      if (request.signal.aborted) return;
-      const boards = await loadPdfBoards(snapshot?.boards.length ? snapshot.boards : undefined);
-      if (request.signal.aborted) return;
-      setPublished(snapshot); setPdfBoards(boards);
-      setBoard(current => boards.some(item => item.id === current) ? current : boards[0]?.id ?? 'geometry');
-    }
-    void initialize().catch(() => { if (!request.signal.aborted) setError('Could not load board titles.'); });
-    return () => request.abort();
-  }, []);
-  const [pdfUrl, setPdfUrl] = useState('');
-  const [boardImage, setBoardImage] = useState(false);
+  useEffect(() => { void loadPdfBoards().then(boards => { setPdfBoards(boards); setBoard(current => boards.some(item => item.id === current) ? current : boards[0]?.id ?? 'geometry'); }).catch(() => setError('Could not load board titles.')); }, []);
+  const [readyBoards, setReadyBoards] = useState<Record<string, ReadyBoard>>({});
+  const [checkedBoards, setCheckedBoards] = useState<Record<string, true>>({});
+  const readyRef = useRef(readyBoards);
+  readyRef.current = readyBoards;
+  const checkedRef = useRef(checkedBoards);
+  checkedRef.current = checkedBoards;
+  const seenRevision = useRef(boardRevision);
+  const graphicCache = useRef<Partial<Record<'geometry' | 'rules', { graphics: Partial<Record<PrototypeTypologyId, DisplayGraphic>>; urls: string[] }>>>({});
   const [pdfError, setPdfError] = useState('');
   const [draggingPdf, setDraggingPdf] = useState(false);
+  const graphicRevision = useRef(boardRevision);
   useEffect(() => {
-    let active = true; let currentUrls: string[] = []; let revision = 0;
-    setGraphics({});
+    if (board !== 'geometry' && board !== 'rules') return;
+    let active = true;
+    if (graphicRevision.current !== boardRevision) {
+      graphicRevision.current = boardRevision;
+      for (const cached of Object.values(graphicCache.current)) cached?.urls.forEach(URL.revokeObjectURL);
+      graphicCache.current = {};
+    }
+    const cached = graphicCache.current[board];
+    if (cached) setGraphics(cached.graphics);
     const refresh = async () => {
-      const request = ++revision;
       try {
-        if (board !== 'geometry' && board !== 'rules') { setGraphics({}); return; }
         const records = await loadPresentationGraphics(board);
-        if (!active || request !== revision) return;
+        if (!active) return;
         const next: Partial<Record<PrototypeTypologyId, DisplayGraphic>> = {}; const nextUrls: string[] = [];
-        for (const record of published?.[board] ?? []) next[record.typology] = { name: record.name, url: record.url };
         for (const record of records) { const url = URL.createObjectURL(record.image); nextUrls.push(url); next[record.typology] = { name: record.name, url }; }
-        setGraphics(next); setError(""); currentUrls.forEach(URL.revokeObjectURL); currentUrls = nextUrls;
-      } catch { if (active && request === revision) setError("Could not load the saved presentation graphics."); }
+        const previous = graphicCache.current[board];
+        graphicCache.current[board] = { graphics: next, urls: nextUrls };
+        setGraphics(next); setError("");
+        previous?.urls.forEach(URL.revokeObjectURL);
+      } catch { if (active) setError("Could not load the saved presentation graphics."); }
     };
-    void refresh(); window.addEventListener("focus", refresh);
+    if (!cached) void refresh();
     const channel = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("composition-presentation") : null;
     if (channel) channel.onmessage = () => { void refresh(); };
-    return () => { active = false; window.removeEventListener("focus", refresh); channel?.close(); currentUrls.forEach(URL.revokeObjectURL); };
-  }, [board, boardRevision, published]);
+    return () => { active = false; channel?.close(); };
+  }, [board, boardRevision]);
   useEffect(() => {
-    let active = true; let url = '';
-    setPdfUrl('');
-    if (isPdfBoard) void loadPresentationPdf(board).then(file => {
+    let active = true;
+    if (seenRevision.current !== boardRevision) {
+      seenRevision.current = boardRevision;
+      for (const item of Object.values(readyRef.current)) URL.revokeObjectURL(item.url);
+      readyRef.current = {};
+      checkedRef.current = {};
+      setReadyBoards({});
+      setCheckedBoards({});
+    }
+    const order = [...pdfBoards.map(item => item.id), 'geometry', 'rules', 'video'];
+    const index = order.indexOf(board);
+    const wanted = [order[index - 1], order[index], order[index + 1]].filter((id): id is string => Boolean(id) && id !== 'geometry' && id !== 'rules' && id !== 'video');
+    const missing = wanted.filter(id => !readyRef.current[id] && !checkedRef.current[id]);
+    if (!missing.length) return () => { active = false; };
+    void loadPresentationPdfs(missing).then(async files => {
+      const ordered = [...missing].sort((a, b) => Number(b === board) - Number(a === board));
+      for (const id of ordered) {
+        if (!active) return;
+        const file = files.get(id);
+        if (!file) continue;
+        const slide = await lightenBoardFile(file);
+        if (!active) return;
+        if (slide !== file) await savePresentationPdf(slide, id);
+        const entry = rememberBoard(slide);
+        setReadyBoards(current => {
+          if (current[id]) { URL.revokeObjectURL(entry.url); return current; }
+          return { ...current, [id]: entry };
+        });
+      }
       if (!active) return;
-      if (file) url = URL.createObjectURL(file);
-      const publishedUrl = published?.pdfs.find(item => item.id === board)?.url || '';
-      setBoardImage(file ? file.type.startsWith('image/') : /\.(png|webp|jpe?g)$/i.test(publishedUrl));
-      setPdfUrl(url || publishedUrl);
-    }).catch(() => setPdfError('Could not load the PDF board.'));
-    else setPdfUrl('');
-    return () => { active = false; if (url) URL.revokeObjectURL(url); };
-  }, [board, boardRevision, published, isPdfBoard]);
+      setCheckedBoards(current => ({ ...current, ...Object.fromEntries(missing.map(id => [id, true as const])) }));
+      for (const id of missing) checkedRef.current[id] = true;
+    }).catch(() => { if (active) setPdfError('Could not convert this PDF into a WebP slide.'); });
+    return () => { active = false; };
+  }, [board, pdfBoards, boardRevision]);
+  useEffect(() => () => { for (const item of Object.values(readyRef.current)) URL.revokeObjectURL(item.url); }, []);
   const addPdf = async (file?: File) => {
     if (!file) return;
-    if (!['application/pdf', 'image/png', 'image/webp', 'image/jpeg'].includes(file.type)) { setPdfError('Choose a PDF, PNG, WebP, or JPEG file.'); return; }
-    try { setPdfError(''); await savePresentationPdf(file, board); setBoardImage(file.type.startsWith('image/')); setPdfUrl(current => { if (current) URL.revokeObjectURL(current); return URL.createObjectURL(file); }); }
+    const named = file.name.toLowerCase();
+    if (!['application/pdf', 'image/webp', 'image/jpeg'].includes(file.type) && !/\.(pdf|webp|jpe?g)$/.test(named)) { setPdfError('Choose a PDF, WebP, or JPEG slide.'); return; }
+    try {
+      setPdfError('');
+      const slide = await lightenBoardFile(file, file.name);
+      await savePresentationPdf(slide, board);
+      const next = rememberBoard(slide);
+      setReadyBoards(current => {
+        if (current[board]) URL.revokeObjectURL(current[board].url);
+        return { ...current, [board]: next };
+      });
+      setCheckedBoards(current => ({ ...current, [board]: true }));
+    }
     catch { setPdfError('Could not add this PDF to the board.'); }
   };
   const boardOrder = [...pdfBoards.map(item => item.id), 'geometry', 'rules', 'video'];
@@ -111,6 +153,12 @@ export default function CompositionPresentationPage() {
     const next = pdfBoards.filter(item => item.id !== board);
     try {
       await deletePdfBoard(board, next);
+      setReadyBoards(current => {
+        if (current[board]) URL.revokeObjectURL(current[board].url);
+        const rest = { ...current };
+        delete rest[board];
+        return rest;
+      });
       setPdfBoards(next);
       setBoard(next[Math.min(boardIndex, next.length - 1)]?.id ?? 'geometry');
       setPdfError('');
@@ -144,13 +192,13 @@ export default function CompositionPresentationPage() {
     finally { setSyncing(false); }
   };
   return (
-    <main data-board-page="presentation" className="relative min-h-screen bg-black px-4 py-4 md:px-5">
+    <main data-board-page="presentation" className={`relative flex flex-col bg-black px-4 py-4 md:px-5 ${presentationMode ? 'h-full min-h-0' : 'min-h-screen'}`}>
       {!presentationMode && <div className="flex flex-wrap items-center gap-4">
         <h1 className="text-xl font-semibold" style={{ color: "#d6ad4f" }}>Presentation</h1>
 
       </div>}
       {!presentationMode && <><div className="mt-3 overflow-x-auto pb-1"><AppNav /></div>
-      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs" style={{display: typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname) ? undefined : 'none'}}>
+      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
         <button type="button" disabled={syncing} onClick={() => void syncBoards('save')} className="rounded border px-3 py-1 disabled:opacity-40" style={{borderColor:'var(--line)'}}>Save boards to GitHub</button>
         <button type="button" disabled={syncing} onClick={() => void syncBoards('load')} className="rounded border px-3 py-1 disabled:opacity-40" style={{borderColor:'var(--line)'}}>Restore boards from GitHub</button>
         <span role="status" aria-live="polite">{syncing ? 'Connecting to GitHub…' : syncMessage}</span>
@@ -180,11 +228,14 @@ export default function CompositionPresentationPage() {
         {isPdfBoard && <label className="flex items-center gap-2">Title <input aria-label="PDF board title" value={currentTitle} onChange={event => updateBoards(pdfBoards.map(item => item.id===board ? {...item,title:event.target.value} : item))} className="rounded border bg-black px-2 py-1 text-white" style={{borderColor:'var(--line)'}} /></label>}
         {isPdfBoard && <button type="button" onClick={() => void removeCurrentBoard()} className="rounded border px-3 py-1" style={{borderColor:'var(--line)'}}>Delete board</button>}
       </div>}
-      <div className={`presentation-board-viewport mt-2 max-h-[75vh] overflow-auto ${isPdfBoard ? 'pdf-board-viewport' : ''} ${board === 'geometry' || board === 'rules' ? 'graphic-board-viewport' : ''}`} aria-label="Presentation board viewport">
-      {board === 'video' ? <div className="flex w-full items-center justify-center bg-black" style={{aspectRatio:'33 / 12.5',width:zoom+'%',minWidth:(11*zoom)+'px'}}><video className="h-full max-w-full" controls preload="metadata" playsInline aria-label="Vertical Void Lobby walkthrough"><source src={walkthroughUrl} type="video/mp4" />Your browser does not support video playback.</video></div> : isPdfBoard ? <div onDragEnter={event => {event.preventDefault();setDraggingPdf(true);}} onDragOver={event => event.preventDefault()} onDragLeave={event => {if(!event.currentTarget.contains(event.relatedTarget as Node|null))setDraggingPdf(false);}} onDrop={event => {event.preventDefault();setDraggingPdf(false);void addPdf(event.dataTransfer.files[0]);}} className="presentation-pdf-board relative flex items-center justify-center overflow-hidden border border-dashed" style={{aspectRatio:'7407 / 2160',width:zoom+'%',minWidth:(11*zoom)+'px',borderColor:draggingPdf?'#d6ad4f':'#b9bec6',background:'#050709'}}>
-        {pdfUrl ? <>{boardImage ? <img alt="Presentation board" src={pdfUrl} className="absolute inset-0 h-full w-full object-contain" /> : <iframe title="PDF presentation board" src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&${presentationMode ? 'zoom=100' : 'view=Fit'}`} className="absolute inset-0 h-full w-full border-0" />}<div aria-hidden="true" className="absolute inset-0 z-10" /></> : <label className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-2 text-center text-xs text-white"><span>Drop a PDF, PNG, WebP, or JPEG here</span><span className="text-[#d6ad4f]">or choose a file</span><input type="file" accept="application/pdf,image/png,image/webp,image/jpeg,.pdf,.png,.webp,.jpg,.jpeg" className="sr-only" onChange={event => void addPdf(event.target.files?.[0])}/></label>}
-        {pdfError && <p role="alert" className="absolute bottom-2 left-2 bg-black/80 p-2 text-xs text-red-300">{pdfError}</p>}
-      </div> : <div className={`space-y-2 ${presentationMode ? 'mx-auto' : ''}`} style={{width: zoom + "%", minWidth: (11 * zoom) + "px"}}>
+      <div className={`presentation-board-viewport relative mt-2 flex min-h-0 w-full flex-1 ${isPdfBoard || board === 'video' ? 'pdf-board-viewport overflow-hidden' : 'overflow-auto'} ${board === 'geometry' || board === 'rules' ? 'graphic-board-viewport' : ''}`} style={presentationMode ? undefined : {height:'calc(100dvh - 17rem)'}} aria-label="Presentation board viewport">
+      <div onDragEnter={event => {if(!isPdfBoard)return;event.preventDefault();setDraggingPdf(true);}} onDragOver={event => {if(isPdfBoard)event.preventDefault();}} onDragLeave={event => {if(!isPdfBoard)return;if(!event.currentTarget.contains(event.relatedTarget as Node|null))setDraggingPdf(false);}} onDrop={event => {if(!isPdfBoard)return;event.preventDefault();setDraggingPdf(false);void addPdf(event.dataTransfer.files[0]);}} className="presentation-pdf-board relative min-h-0 w-full flex-1 overflow-hidden border border-dashed" style={isPdfBoard ? {borderColor:draggingPdf?'#d6ad4f':'#b9bec6',background:'#050709'} : {position:'absolute',inset:0,visibility:'hidden',pointerEvents:'none'}} aria-hidden={!isPdfBoard}>
+        {(() => { const index = boardOrder.indexOf(board); return [boardOrder[index - 1], board, boardOrder[index + 1]].filter((id): id is string => Boolean(id) && Boolean(readyBoards[id])).map(id => { const item = readyBoards[id]; const active = id === board; return <img key={item.url} alt={active ? 'Presentation board' : ''} src={item.url} decoding={active ? 'sync' : 'async'} className="absolute inset-0 h-full w-full" style={{visibility: active ? 'visible' : 'hidden', objectFit:'contain', transform:`scale(${Math.max(zoom, 1) / 100})`}} />; }); })()}
+        {isPdfBoard && (readyBoards[board] ? <div aria-hidden="true" className="absolute inset-0 z-10" /> : checkedBoards[board] ? <label className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-2 text-center text-xs text-white"><span>Drop a PDF, WebP, or JPEG here</span><span className="text-[#d6ad4f]">PDFs are saved and shown as WebP</span><input type="file" accept="application/pdf,image/webp,image/jpeg,.pdf,.webp,.jpg,.jpeg" className="sr-only" onChange={event => void addPdf(event.target.files?.[0])}/></label> : <p className="text-xs text-white">Loading slide…</p>)}
+        {isPdfBoard && pdfError && <p role="alert" className="absolute bottom-2 left-2 bg-black/80 p-2 text-xs text-red-300">{pdfError}</p>}
+      </div>
+      {(board === 'video' || boardOrder[boardIndex - 1] === 'video' || boardOrder[boardIndex + 1] === 'video') && <div className={board === 'video' ? 'relative min-h-0 w-full flex-1 overflow-hidden bg-black' : 'absolute h-px w-px overflow-hidden'} aria-hidden={board !== 'video'}><video className="absolute inset-0 h-full w-full" style={{objectFit:'contain'}} controls preload="auto" playsInline aria-label="Vertical Void Lobby walkthrough"><source src={walkthroughUrl} type="video/mp4" />Your browser does not support video playback.</video></div>}
+      {board !== 'video' && !isPdfBoard ? <div className={`space-y-2 ${presentationMode ? 'mx-auto' : ''}`} style={{width: zoom + "%", minWidth: (11 * zoom) + "px"}}>
         {rows.map((row) => <section key={row.category} aria-label={`${row.title} typologies`}>
           <h2 className="mb-1 text-xs font-semibold uppercase tracking-wide" style={{ color: "#d6ad4f" }}>{row.title}</h2>
           <div className="grid grid-cols-5 gap-2 md:gap-3">
@@ -196,8 +247,7 @@ export default function CompositionPresentationPage() {
             })}
           </div>
         </section>)}
-      </div>
-      }
+      </div> : null}
       </div>
       {error && <p role="alert" className="mt-2 text-xs text-red-300">{error}</p>}
       {toggleReady && !presentationMode && createPortal(

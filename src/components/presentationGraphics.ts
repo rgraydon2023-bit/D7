@@ -3,8 +3,10 @@ import type { PrototypeTypologyId } from "./amphitheaterPrototype";
 export type PresentationGraphic = { typology: PrototypeTypologyId; name: string; image: Blob };
 export type PresentationBoard = 'blank' | 'geometry' | 'rules';
 const storeName = (board: PresentationBoard) => board === 'geometry' ? 'geometry' : 'graphics';
+let databasePromise: Promise<IDBDatabase> | null = null;
 function openStore(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
+  if (databasePromise) return databasePromise;
+  databasePromise = new Promise((resolve, reject) => {
     const request = indexedDB.open("composition-presentation", 4);
     request.onupgradeneeded = (event) => {
       const db = request.result;
@@ -21,9 +23,15 @@ function openStore(): Promise<IDBDatabase> {
       if (event.oldVersion < 3) db.createObjectStore("geometry", { keyPath: "typology" });
       if (event.oldVersion < 4) db.createObjectStore("pdfBoard");
     };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error ?? new Error("Could not open presentation storage."));
+    request.onsuccess = () => {
+      const db = request.result;
+      db.onversionchange = () => { db.close(); databasePromise = null; };
+      db.onclose = () => { if (databasePromise) databasePromise = null; };
+      resolve(db);
+    };
+    request.onerror = () => { databasePromise = null; reject(request.error ?? new Error("Could not open presentation storage.")); };
   });
+  return databasePromise;
 }
 export async function savePresentationGraphic(typology: PrototypeTypologyId, name: string, image: Blob, board: PresentationBoard = 'rules') {
   const db = await openStore();
@@ -35,7 +43,7 @@ export async function savePresentationGraphic(typology: PrototypeTypologyId, nam
       transaction.onabort = transaction.onerror = () => reject(transaction.error ?? new Error("Could not save graphic."));
     });
     if (typeof BroadcastChannel !== "undefined") { const channel = new BroadcastChannel("composition-presentation"); channel.postMessage("updated"); channel.close(); }
-  } finally { db.close(); }
+  } finally { /* Keep the database open so the next slide does not pay to reconnect. */ }
 }
 export async function loadPresentationGraphics(board: PresentationBoard = 'rules'): Promise<PresentationGraphic[]> {
   const db = await openStore();
@@ -45,7 +53,7 @@ export async function loadPresentationGraphics(board: PresentationBoard = 'rules
       request.onsuccess = () => resolve(request.result as PresentationGraphic[]);
       request.onerror = () => reject(request.error ?? new Error("Could not load graphics."));
     });
-  } finally { db.close(); }
+  } finally { /* Keep the database open so the next slide does not pay to reconnect. */ }
 }
 export async function savePresentationPdf(file: Blob, id = 'current') {
   const db = await openStore();
@@ -56,7 +64,7 @@ export async function savePresentationPdf(file: Blob, id = 'current') {
       transaction.oncomplete = () => resolve();
       transaction.onabort = transaction.onerror = () => reject(transaction.error ?? new Error('Could not save the PDF to the blank board.'));
     });
-  } finally { db.close(); }
+  } finally { /* Keep the database open so the next slide does not pay to reconnect. */ }
 }
 export async function loadPresentationPdf(id = 'current'): Promise<Blob | null> {
   const db = await openStore();
@@ -66,7 +74,29 @@ export async function loadPresentationPdf(id = 'current'): Promise<Blob | null> 
       request.onsuccess = () => resolve((request.result as Blob | undefined) ?? null);
       request.onerror = () => reject(request.error ?? new Error('Could not load the PDF board.'));
     });
-  } finally { db.close(); }
+  } finally { /* Keep the database open so the next slide does not pay to reconnect. */ }
+}
+/** Read several boards in one transaction so neighboring slides can be prepared together. */
+export async function loadPresentationPdfs(ids: string[]): Promise<Map<string, Blob>> {
+  const unique = [...new Set(ids)];
+  const db = await openStore();
+  return new Promise((resolve, reject) => {
+    if (!unique.length) { resolve(new Map()); return; }
+    const tx = db.transaction('pdfBoard', 'readonly');
+    const store = tx.objectStore('pdfBoard');
+    const result = new Map<string, Blob>();
+    let pending = unique.length;
+    for (const id of unique) {
+      const request = store.get(id);
+      request.onsuccess = () => {
+        const file = request.result;
+        if (file instanceof Blob) result.set(id, file);
+        if (--pending === 0) resolve(result);
+      };
+      request.onerror = () => reject(request.error ?? new Error('Could not load the PDF board.'));
+    }
+    tx.onabort = () => reject(tx.error ?? new Error('Could not load the PDF board.'));
+  });
 }
 export type PdfBoard = { id: string; title: string };
 type EncodedBlob = { type: string; data: string };
@@ -140,29 +170,17 @@ export async function importPresentationBackup(backup: PresentationBackup): Prom
       tx.oncomplete = () => resolve();
       tx.onabort = tx.onerror = () => reject(tx.error ?? new Error('Could not restore presentation boards.'));
     });
-  } finally { db.close(); }
+  } finally { /* Keep the database open so the next slide does not pay to reconnect. */ }
 }
-export type PublishedPresentation = { boards: PdfBoard[]; pdfs: { id: string; url: string }[]; geometry: { typology: PrototypeTypologyId; name: string; url: string }[]; rules: { typology: PrototypeTypologyId; name: string; url: string }[] };
-export async function loadPublishedPresentation(signal: AbortSignal): Promise<PublishedPresentation | null> {
-  const response = await fetch("/presentation-assets/index.json", { signal });
-  if (response.status === 404) return null;
-  if (!response.ok) throw new Error("Could not load the published presentation.");
-  return response.json();
-}
-export async function loadPdfBoards(publishedBoards?: PdfBoard[]): Promise<PdfBoard[]> {
+export async function loadPdfBoards(): Promise<PdfBoard[]> {
   const db = await openStore();
   try {
     return await new Promise((resolve, reject) => {
       const request = db.transaction('pdfBoard', 'readonly').objectStore('pdfBoard').get('boards');
-      request.onsuccess = () => {
-        const localBoards = request.result as PdfBoard[] | undefined;
-        if (!localBoards) { resolve(publishedBoards ?? [{id:'current', title:'Blank Board'}]); return; }
-        const ids = new Set(localBoards.map(board => board.id));
-        resolve([...localBoards, ...(publishedBoards ?? []).filter(board => !ids.has(board.id))]);
-      };
+      request.onsuccess = () => resolve(request.result ?? [{id:'current', title:'Blank Board'}]);
       request.onerror = () => reject(request.error);
     });
-  } finally { db.close(); }
+  } finally { /* Keep the database open so the next slide does not pay to reconnect. */ }
 }
 export async function savePdfBoards(boards: PdfBoard[]) {
   const db = await openStore();
@@ -173,7 +191,7 @@ export async function savePdfBoards(boards: PdfBoard[]) {
       tx.oncomplete = () => resolve();
       tx.onabort = tx.onerror = () => reject(tx.error);
     });
-  } finally { db.close(); }
+  } finally { /* Keep the database open so the next slide does not pay to reconnect. */ }
 }
 /** Delete a PDF and its tab together so a failed write cannot leave them inconsistent. */
 export async function deletePdfBoard(id: string, boards: PdfBoard[]) {
@@ -187,7 +205,7 @@ export async function deletePdfBoard(id: string, boards: PdfBoard[]) {
       tx.oncomplete = () => resolve();
       tx.onabort = tx.onerror = () => reject(tx.error ?? new Error('Could not delete the PDF board.'));
     });
-  } finally { db.close(); }
+  } finally { /* Keep the database open so the next slide does not pay to reconnect. */ }
 }
 export async function deletePresentationPdf() {
   const db = await openStore();
@@ -198,5 +216,5 @@ export async function deletePresentationPdf() {
       transaction.oncomplete = () => resolve();
       transaction.onabort = transaction.onerror = () => reject(transaction.error ?? new Error('Could not clear the PDF board.'));
     });
-  } finally { db.close(); }
+  } finally { /* Keep the database open so the next slide does not pay to reconnect. */ }
 }

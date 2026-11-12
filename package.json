@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/patch-next-eisdir.js && node scripts/prepare-presentation-assets.mjs && next build",
+    "build": "node scripts/patch-next-eisdir.js && next build",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "node scripts/patch-next-eisdir.js"
@@ -15,6 +15,7 @@
     "@types/three": "^0.186.0",
     "manifold-3d": "^3.5.3",
     "next": "15.5.27",
+    "pdfjs-dist": "^4.10.38",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "rhino3dm": "^8.35.0",
