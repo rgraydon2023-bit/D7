@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { loadPresentationGraphics, loadPresentationPdfs, savePresentationPdf, loadPdfBoards, savePdfBoards, deletePdfBoard, exportPresentationBackup, importPresentationBackup, loadPublishedPresentation, type PublishedPresentation, type PdfBoard } from "@/components/presentationGraphics";
+import { loadPresentationGraphics, loadPresentationPdfs, savePresentationGraphic, savePresentationPdf, loadPdfBoards, savePdfBoards, deletePdfBoard, exportPresentationBackup, importPresentationBackup, loadPublishedPresentation, type PublishedPresentation, type PdfBoard } from "@/components/presentationGraphics";
 import { lightenBoardFile } from "@/components/boardRaster";
 import type { PrototypeCategory, PrototypeTypologyId } from "@/components/amphitheaterPrototype";
 import AppNav from "@/components/AppNav";
@@ -47,6 +47,8 @@ export default function CompositionPresentationPage() {
   const [pdfBoards, setPdfBoards] = useState<PdfBoard[]>([{id:'current', title:'Blank Board'}]);
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState('');
+  const [localApp, setLocalApp] = useState(false);
+  useEffect(() => { setLocalApp(/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(window.location.hostname)); }, []);
   const [boardRevision, setBoardRevision] = useState(0);
   const [draggedBoard, setDraggedBoard] = useState<string | null>(null);
   const isPdfBoard = board !== 'geometry' && board !== 'rules' && board !== 'video';
@@ -92,7 +94,11 @@ export default function CompositionPresentationPage() {
         if (!active) return;
         const next: Partial<Record<PrototypeTypologyId, DisplayGraphic>> = {}; const nextUrls: string[] = [];
         for (const record of published?.[board] ?? []) next[record.typology] = { name: record.name, url: record.url };
-        for (const record of records) { const url = URL.createObjectURL(record.image); nextUrls.push(url); next[record.typology] = { name: record.name, url }; }
+        for (const record of records) {
+          const image = record.image.type === 'image/webp' ? record.image : await lightenBoardFile(record.image);
+          if (image !== record.image) await savePresentationGraphic(record.typology, record.name, image, board);
+          const url = URL.createObjectURL(image); nextUrls.push(url); next[record.typology] = { name: record.name, url };
+        }
         const previous = graphicCache.current[board];
         graphicCache.current[board] = { graphics: next, urls: nextUrls };
         setGraphics(next); setError("");
@@ -225,11 +231,11 @@ export default function CompositionPresentationPage() {
 
       </div>}
       {!presentationMode && <><div className="mt-3 overflow-x-auto pb-1"><AppNav /></div>
-      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+      {localApp && <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
         <button type="button" disabled={syncing} onClick={() => void syncBoards('save')} className="rounded border px-3 py-1 disabled:opacity-40" style={{borderColor:'var(--line)'}}>Save boards to GitHub</button>
         <button type="button" disabled={syncing} onClick={() => void syncBoards('load')} className="rounded border px-3 py-1 disabled:opacity-40" style={{borderColor:'var(--line)'}}>Restore boards from GitHub</button>
         <span role="status" aria-live="polite">{syncing ? 'Connecting to GitHub…' : syncMessage}</span>
-      </div></>}
+      </div>}</>}
       <div className={presentationMode && isPdfBoard ? "absolute left-1/2 top-10 z-30 w-max max-w-[95%] -translate-x-1/2 rounded bg-black/90 px-3 pb-3" : ""}><div className={`mt-4 flex flex-wrap items-center gap-3 text-xs ${presentationMode ? 'justify-center' : ''}`} aria-label="Board navigation">
         {!presentationMode && <><button type="button" aria-label="Previous board" disabled={boardIndex === 0} onClick={() => setBoard(boardOrder[boardIndex - 1])} className="rounded border px-3 py-1 disabled:opacity-40" style={{borderColor: "var(--line)"}}>←</button>
         <span aria-live="polite" className="min-w-32 text-center font-semibold" style={{color:"#d6ad4f"}}>{isPdfBoard ? currentTitle : board === 'video' ? 'Demo' : board === 'rules' ? 'Graphic Rules Board' : 'Geometry Board'}</span>

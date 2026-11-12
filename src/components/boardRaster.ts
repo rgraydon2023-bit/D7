@@ -9,9 +9,27 @@ async function canvasBlob(canvas: HTMLCanvasElement, type: string, quality: numb
   return new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, quality));
 }
 
-/** Replace a presentation PDF with one WebP image. Existing images are returned unchanged. */
+async function imageToWebp(file: Blob): Promise<Blob> {
+  if (file.type === "image/webp") return file;
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, maxWidth / bitmap.width, Math.sqrt(pixelBudget / Math.max(1, bitmap.width * bitmap.height)));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.floor(bitmap.width * scale));
+  canvas.height = Math.max(1, Math.floor(bitmap.height * scale));
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Could not prepare the slide image.");
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  const image = await canvasBlob(canvas, "image/webp", 0.8);
+  canvas.width = 0;
+  canvas.height = 0;
+  if (!image) throw new Error("Could not compress this slide.");
+  return image;
+}
+
+/** Replace a presentation PDF or PNG with one WebP image. WebP files are returned unchanged. */
 export async function lightenBoardFile(file: Blob, name = ""): Promise<Blob> {
-  if (!isPdf(file, name)) return file;
+  if (!isPdf(file, name)) return imageToWebp(file);
   const pdfjs = await import("pdfjs-dist");
   pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
   const pdf = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
