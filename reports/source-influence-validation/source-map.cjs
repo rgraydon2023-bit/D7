@@ -1,0 +1,6 @@
+const fs=require('fs'),path=require('path'),i=require('./inputs.json');
+const pos=(x,y,z)=>[400+(x-y)*(16/7.84)*.707*21,490+((x+y)*.37-(z+1.68)*.86)*(16/7.84)*21];
+let body='';
+for(const q of i.fixture.source){const a=pos(q.x,q.y,q.z),on=i.chosen.includes(q.sourceIndex);body+=`<circle cx="${a[0]}" cy="${a[1]}" r="${on?5:2}" fill="${on?'#ffe186':'#526770'}"/>`;if(on){const b=pos(q.x+.35,q.y+.15,q.z+.2);body+=`<path d="M${a.join(',')} L${b.join(',')}" stroke="#f18c7b" stroke-width="2"/><circle cx="${b[0]}" cy="${b[1]}" r="3" fill="#f18c7b"/><text x="${a[0]+6}" y="${a[1]-5}" fill="white" font-size="11">${q.sourceIndex}</text>`;}}
+fs.writeFileSync(path.join(__dirname,'changed-source.svg'),`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="650"><rect width="800" height="650" fill="#0b161b"/><text x="20" y="30" fill="white" font-size="19">Controlled source cluster — placement IDs</text><text x="20" y="55" fill="#ddd" font-size="13">Gold: original; salmon: moved (+0.35,+0.15,+0.20), rz +30 degrees</text>${body}</svg>`);
+const file=path.join(__dirname,'SOURCE_INFLUENCE_MAP.html');let h=fs.readFileSync(file,'utf8');if(!h.includes('changed-source.svg'))h=h.replace('<h1>SOURCE INFLUENCE MAP</h1>','<h1>SOURCE INFLUENCE MAP</h1><img style="max-width:800px" src="changed-source.svg" alt="Selected interior cluster and displacement">');fs.writeFileSync(file,h);

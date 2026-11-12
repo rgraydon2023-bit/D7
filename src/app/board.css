@@ -1,0 +1,87 @@
+/* Temporary layout only. Removing the query parameter restores all normal styles. */
+.board-normal, .board-composition-content { display: contents; }
+html.board-preview-active, html.board-preview-active body { width: 100%; height: 100%; overflow: hidden; }
+.board-preview { position: fixed; inset: 0; overflow: hidden; background: var(--app-background); }
+html.board-capture-active, html.board-capture-active body { width: 7407px; height: 2160px; }
+.board-capture-active .board-preview { position: absolute; width: 7407px; height: 2160px; }
+[data-board-capture] [data-board-edit-control] { display: none; }
+.board-canvas {
+  --board-width: 7407px; --board-height: 2160px;
+  --board-title-size: 64px; --board-heading-size: 38px;
+  --board-label-size: 26px; --board-body-size: 28px;
+  --board-control-height: 58px; --board-gap: 24px; --board-padding: 40px;
+  position: absolute; width: var(--board-width); height: var(--board-height);
+  overflow: hidden; background: var(--app-background); font-size: var(--board-body-size);
+  isolation: isolate;
+}
+.board-canvas [data-board-page] {
+  width: 100%; max-width: none; height: 100%; min-height: 0;
+  padding: var(--board-padding); gap: var(--board-gap); overflow: hidden;
+}
+.board-canvas [data-board-page] > header { flex: 0 0 auto; flex-wrap: nowrap; gap: 40px; min-height: 100px; }
+.board-canvas header > div:first-child { flex-wrap: nowrap; gap: 48px; }
+.board-canvas .app-nav { flex-wrap: nowrap; flex-shrink: 0; gap: 16px; }
+.board-canvas .app-nav a { white-space: nowrap; padding: 16px 28px; font-size: 30px !important; }
+.board-canvas h1 { font-size: var(--board-title-size) !important; line-height: 1.15; }
+.board-canvas :is(h2,h3) { font-size: var(--board-heading-size) !important; line-height: 1.2; }
+.board-canvas :is(p,span,label,button,input,select,textarea,td,th,[class*="text-"]):not([data-board-geometry] *):not(h1,h2,h3) {
+  font-size: var(--board-label-size) !important;
+}
+.board-canvas :is(button,select,input:not([type="checkbox"]):not([type="range"]):not([type="file"])) {
+  min-height: var(--board-control-height);
+}
+.board-canvas :is(input[type="checkbox"],input[type="radio"]) { width: 26px; height: 26px; }
+.board-canvas input[type="range"] { min-width: 120px; }
+.board-canvas :is(aside,section) { min-width: 0; }
+.board-canvas :is(.gap-1,.gap-1\.5,.gap-2,.gap-3) { gap: 16px; }
+.board-canvas :is(.p-3,.px-3) { padding-left: 24px; padding-right: 24px; }
+.board-canvas [data-board-page="lattice"] > .grid { grid-template-columns: 1000px minmax(0,1fr) 1100px; }
+.board-canvas [data-board-page="lattice"] aside { padding: 28px; overscroll-behavior: contain; }
+.board-canvas [data-board-page="lattice"] main { min-height: 0; }
+.board-canvas [data-board-page="slide"] { display: grid; grid-template-columns: 1150px minmax(0,1fr); grid-template-rows: auto minmax(0,1fr); }
+.board-canvas [data-board-page="slide"] > header,
+.board-canvas [data-board-page="slide"] > :is(p,div) { grid-column: 1 / -1; }
+.board-canvas [data-board-page="slide"] > section:first-of-type { grid-column: 1; grid-row: 2; overflow: auto; }
+.board-canvas [data-board-page="slide"] > section:nth-of-type(2) { grid-column: 2; grid-row: 2; aspect-ratio: auto !important; min-height: 0 !important; height: 100%; }
+.board-canvas [data-board-page="slide"] > section:nth-of-type(n+3) { grid-column: 1 / -1; max-height: 900px; overflow: auto; }
+.board-canvas [data-board-page="slide"]:has(> section:nth-of-type(3)) { overflow: auto; }
+.board-canvas [data-board-page="composition"] .board-composition-content { display: grid; grid-template-columns: minmax(0,1fr) 2000px; gap: 24px; flex: 1; min-height: 0; }
+.board-canvas .board-composition-content > .grid { grid-template-columns: 950px minmax(0,1fr) 950px; min-height: 0; }
+.board-canvas .board-composition-content > .grid > *,
+.board-canvas #prototype-demonstration { overflow: auto; min-height: 0; max-height: 100%; overscroll-behavior: contain; }
+.board-canvas .board-composition-content .h-60 { height: 600px; }
+.board-canvas .board-composition-content .grid-cols-\[66px_minmax\(70px\,1fr\)_30px\] { grid-template-columns: 230px minmax(0,1fr) 80px; }
+.board-canvas [data-board-page="crops"] > section:last-child { min-height: 0; flex: 1; overflow: auto; }
+.board-canvas [data-board-page="crops"] .grid-cols-8 { grid-template-rows: repeat(2,minmax(0,1fr)); flex: 1; min-height: 0; }
+.board-canvas [data-board-page="crops"] article .aspect-square { aspect-ratio: auto; min-height: 0; flex: 1; }
+.board-canvas [data-board-page="shapes"] > .grid { flex: 1; min-height: 0; grid-template-rows: repeat(2,minmax(0,1fr)); }
+.board-canvas [data-board-page="shapes"] article { aspect-ratio: auto !important; }
+.board-canvas [data-board-page="voids"] > section { flex: 1; min-height: 0 !important; height: auto !important; }
+.board-canvas [data-board-page="evaluations"] { display: flex; flex-direction: column; }
+.board-canvas [data-board-page="presentation"] { display: flex; flex-direction: column; gap: 0; }
+.board-canvas [data-board-page="presentation"] > p { max-width: none; }
+.board-canvas [data-board-page="presentation"] .presentation-board-viewport {
+  flex: 1 1 auto; min-height: 0; max-height: none; width: 90%;
+}
+.board-canvas [data-board-page="presentation"] .pdf-board-viewport { width: 100%; }
+.board-canvas [data-board-page="presentation"] .graphic-board-viewport { margin-left: auto; margin-right: auto; }
+.board-canvas [data-board-page="presentation"] .presentation-pdf-board { height: auto; }
+.board-canvas [data-board-page="evaluations"] .evaluations-layout {
+  flex: 1; min-height: 0;
+  grid-template-columns: 900px minmax(0,1fr) 1000px;
+}
+.board-canvas [data-board-page="evaluations"] .evaluations-layout > * { min-height: 0; overflow: auto; }
+.board-canvas [data-board-page="evaluations"] canvas { min-height: 1200px !important; height: 100% !important; }
+.board-canvas [data-board-page="evaluations"] .descriptor-rank { font-size: 64px !important; line-height: 0.95; }
+.board-canvas [data-board-page="evaluations"] .descriptor-rank-of,
+.board-canvas [data-board-page="evaluations"] .descriptor-rank-label { font-size: 22px !important; }
+.board-canvas .board-composition-content .lg\:grid-cols-3 { grid-template-columns: repeat(3,minmax(0,1fr)); }
+/* Board columns follow the logical board, independent of browser breakpoints. */
+.board-canvas :is(.sm\:grid-cols-2,.md\:grid-cols-2,.lg\:grid-cols-2) { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.board-canvas :is(.sm\:grid-cols-3,.md\:grid-cols-3,.lg\:grid-cols-3) { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.board-canvas :is(.sm\:grid-cols-4,.md\:grid-cols-4,.xl\:grid-cols-4,.xl\:grid-cols-6,.xl\:grid-cols-7) { grid-template-columns: repeat(4,minmax(0,1fr)); }
+.board-canvas :is(.md\:grid-cols-5,.xl\:grid-cols-10) { grid-template-columns: repeat(5,minmax(0,1fr)); }
+.board-canvas .sm\:col-span-3 { grid-column: span 3 / span 3; }
+.board-canvas :is(.md\:col-span-2,.lg\:col-span-2) { grid-column: span 2 / span 2; }
+.board-canvas .md\:grid { display: grid; }
+.board-canvas .md\:grid-cols-\[220px_1fr\] { grid-template-columns: 600px minmax(0,1fr); }

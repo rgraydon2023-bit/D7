@@ -1,4 +1,5 @@
 "use client";
+import { FeetScaleNote } from "./FeetScaleNote";
 
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
@@ -12,7 +13,7 @@ const CropAxoView = dynamic(() => import("./CropAxoView"), {
   loading: () => (
     <div
       className="flex h-full items-center justify-center text-[10px]"
-      style={{ background: "#050505", color: "var(--muted)" }}
+      style={{ background: "var(--input-background)", color: "var(--muted)" }}
     >
       …
     </div>
@@ -60,8 +61,8 @@ export default function ShapesPage() {
   }, [visible, spacing, fontSize, exporting]);
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col gap-3 px-4 py-4 md:px-5">
-      <header className="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-2 py-1" style={{ background: "var(--page-bg, #0b0f14)" }}>
+    <div data-board-page="shapes" className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col gap-3 px-4 py-4 md:px-5">
+      <header className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-baseline gap-2.5">
             <h1
@@ -85,7 +86,7 @@ export default function ShapesPage() {
             onClick={onExport}
             disabled={visible.length === 0 || exporting}
             className="rounded px-2.5 py-1 text-[11px] font-medium text-black hover:opacity-90 disabled:opacity-40"
-            style={{ background: "var(--accent)" }}
+            style={{ background: "var(--accent-primary)" }}
           >
             {exporting ? "Exporting…" : "Export all OBJ"}
           </button>
@@ -98,7 +99,7 @@ export default function ShapesPage() {
             Regenerate source
           </button>
         </div>
-      </header>
+      </header><FeetScaleNote/>
 
       <p className="text-[11px]" style={{ color: "var(--muted)" }}>
         Top crops extruded to 3D letter solids. Press{" "}
@@ -132,7 +133,7 @@ export default function ShapesPage() {
                 borderColor: ev.passes
                   ? "rgba(61, 214, 219, 0.35)"
                   : "var(--line)",
-                background: "#050505",
+                background: "var(--input-background)",
                 aspectRatio: "1 / 1.05",
               }}
               title={sourceLabel(ev)}

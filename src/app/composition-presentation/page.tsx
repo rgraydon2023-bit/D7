@@ -1,0 +1,209 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { loadPresentationGraphics, loadPresentationPdf, savePresentationPdf, loadPdfBoards, savePdfBoards, deletePdfBoard, exportPresentationBackup, importPresentationBackup, loadPublishedPresentation, type PublishedPresentation, type PdfBoard } from "@/components/presentationGraphics";
+import type { PrototypeCategory, PrototypeTypologyId } from "@/components/amphitheaterPrototype";
+import AppNav from "@/components/AppNav";
+import { PRESENTATION_BOARD_STORAGE_KEY, useBoardMode } from "@/components/BoardMode";
+
+const rows: { category: PrototypeCategory; title: string; typologies: { id: PrototypeTypologyId; name: string }[] }[] = [
+  { category: "lobby", title: "Lobby", typologies: [
+    { id: "vertical-void-lobby", name: "Vertical Void Lobby" }, { id: "compressed-sequential-lobby", name: "Compressed Sequential Lobby" }, { id: "continuous-hall-lobby", name: "Continuous Hall Lobby" }, { id: "topographic-ground-field-lobby", name: "Topographic / Ground-Field Lobby" }, { id: "linear-gallery-lobby", name: "Linear Gallery Lobby" },
+  ] },
+  { category: "gathering", title: "Gathering", typologies: [
+    { id: "stepped-amphitheater", name: "Stepped Amphitheater" }, { id: "void-field-gathering", name: "Void-Field Gathering" }, { id: "inserted-horizontal-plate", name: "Inserted Horizontal Plate" }, { id: "contained-room-within-volume", name: "Contained Room-Within-Volume" }, { id: "linear-edge-gallery", name: "Linear Edge Gallery" },
+  ] },
+  { category: "office", title: "Office", typologies: [
+    { id: "open-hall-workspace", name: "Open Hall Workspace" }, { id: "cascaded-terraced-plates", name: "Cascaded / Terraced Plates" }, { id: "flat-deep-plan-plate", name: "Flat Deep-Plan Plate" }, { id: "void-edge-workspace", name: "Void-Edge Workspace" }, { id: "folded-undulating-work-surface", name: "Folded / Undulating Work Surface" },
+  ] },
+];
+type DisplayGraphic = { name: string; url: string };
+const walkthroughUrl = "/tutorials/vertical-void-walkthrough.mp4";
+
+export default function CompositionPresentationPage() {
+  const presentationMode = useBoardMode();
+  const [toggleReady, setToggleReady] = useState(false);
+  useEffect(() => { setToggleReady(true); }, []);
+  const setPresentationMode = (next: boolean) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('presentationBoard', next ? '7407x2160' : 'off');
+    try { sessionStorage.setItem(PRESENTATION_BOARD_STORAGE_KEY, String(next)); } catch { /* Mode is still stored in the URL. */ }
+    window.history.replaceState(window.history.state, '', url);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
+  const [graphics, setGraphics] = useState<Partial<Record<PrototypeTypologyId, DisplayGraphic>>>({});
+  const [error, setError] = useState("");
+  const [zoom, setZoom] = useState(100);
+  const [board, setBoard] = useState('current');
+  const [pdfBoards, setPdfBoards] = useState<PdfBoard[]>([{id:'current', title:'Blank Board'}]);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState('');
+  const [boardRevision, setBoardRevision] = useState(0);
+  const [draggedBoard, setDraggedBoard] = useState<string | null>(null);
+  const isPdfBoard = board !== 'geometry' && board !== 'rules' && board !== 'video';
+  const [published, setPublished] = useState<PublishedPresentation | null>(null);
+  useEffect(() => {
+    const request = new AbortController();
+    async function initialize() {
+      let snapshot: PublishedPresentation | null = null;
+      try { snapshot = await loadPublishedPresentation(request.signal); }
+      catch { if (!request.signal.aborted) setError('Could not load the published presentation.'); }
+      if (request.signal.aborted) return;
+      const boards = await loadPdfBoards(snapshot?.boards.length ? snapshot.boards : undefined);
+      if (request.signal.aborted) return;
+      setPublished(snapshot); setPdfBoards(boards);
+      setBoard(current => boards.some(item => item.id === current) ? current : boards[0]?.id ?? 'geometry');
+    }
+    void initialize().catch(() => { if (!request.signal.aborted) setError('Could not load board titles.'); });
+    return () => request.abort();
+  }, []);
+  const [pdfUrl, setPdfUrl] = useState('');
+  const [boardImage, setBoardImage] = useState(false);
+  const [pdfError, setPdfError] = useState('');
+  const [draggingPdf, setDraggingPdf] = useState(false);
+  useEffect(() => {
+    let active = true; let currentUrls: string[] = []; let revision = 0;
+    setGraphics({});
+    const refresh = async () => {
+      const request = ++revision;
+      try {
+        if (board !== 'geometry' && board !== 'rules') { setGraphics({}); return; }
+        const records = await loadPresentationGraphics(board);
+        if (!active || request !== revision) return;
+        const next: Partial<Record<PrototypeTypologyId, DisplayGraphic>> = {}; const nextUrls: string[] = [];
+        for (const record of published?.[board] ?? []) next[record.typology] = { name: record.name, url: record.url };
+        for (const record of records) { const url = URL.createObjectURL(record.image); nextUrls.push(url); next[record.typology] = { name: record.name, url }; }
+        setGraphics(next); setError(""); currentUrls.forEach(URL.revokeObjectURL); currentUrls = nextUrls;
+      } catch { if (active && request === revision) setError("Could not load the saved presentation graphics."); }
+    };
+    void refresh(); window.addEventListener("focus", refresh);
+    const channel = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("composition-presentation") : null;
+    if (channel) channel.onmessage = () => { void refresh(); };
+    return () => { active = false; window.removeEventListener("focus", refresh); channel?.close(); currentUrls.forEach(URL.revokeObjectURL); };
+  }, [board, boardRevision, published]);
+  useEffect(() => {
+    let active = true; let url = '';
+    setPdfUrl('');
+    if (isPdfBoard) void loadPresentationPdf(board).then(file => {
+      if (!active) return;
+      if (file) url = URL.createObjectURL(file);
+      const publishedUrl = published?.pdfs.find(item => item.id === board)?.url || '';
+      setBoardImage(file ? file.type.startsWith('image/') : /\.(png|webp|jpe?g)$/i.test(publishedUrl));
+      setPdfUrl(url || publishedUrl);
+    }).catch(() => setPdfError('Could not load the PDF board.'));
+    else setPdfUrl('');
+    return () => { active = false; if (url) URL.revokeObjectURL(url); };
+  }, [board, boardRevision, published, isPdfBoard]);
+  const addPdf = async (file?: File) => {
+    if (!file) return;
+    if (!['application/pdf', 'image/png', 'image/webp', 'image/jpeg'].includes(file.type)) { setPdfError('Choose a PDF, PNG, WebP, or JPEG file.'); return; }
+    try { setPdfError(''); await savePresentationPdf(file, board); setBoardImage(file.type.startsWith('image/')); setPdfUrl(current => { if (current) URL.revokeObjectURL(current); return URL.createObjectURL(file); }); }
+    catch { setPdfError('Could not add this PDF to the board.'); }
+  };
+  const boardOrder = [...pdfBoards.map(item => item.id), 'geometry', 'rules', 'video'];
+  const updateBoards = (next: PdfBoard[]) => { setPdfBoards(next); void savePdfBoards(next).catch(() => setError('Could not save board order or title.')); };
+  const currentTitle = pdfBoards.find(item => item.id === board)?.title ?? 'PDF Board';
+  const boardIndex = boardOrder.indexOf(board);
+  const removeCurrentBoard = async () => {
+    if (!isPdfBoard || !pdfBoards.some(item => item.id === board)) return;
+    if (!window.confirm(`Delete "${currentTitle}" and its PDF from this browser?`)) return;
+    const next = pdfBoards.filter(item => item.id !== board);
+    try {
+      await deletePdfBoard(board, next);
+      setPdfBoards(next);
+      setBoard(next[Math.min(boardIndex, next.length - 1)]?.id ?? 'geometry');
+      setPdfError('');
+      setError('');
+    } catch { setError('Could not delete the PDF board.'); }
+  };
+  const syncBoards = async (action: 'save' | 'load') => {
+    if (action === 'load' && !window.confirm('Replace the boards in this browser with the saved GitHub boards?')) return;
+    setSyncing(true);
+    setSyncMessage('');
+    try {
+      if (action === 'save') await savePdfBoards(pdfBoards);
+      const response = await fetch('/api/presentation-github', action === 'save' ? {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(await exportPresentationBackup()),
+      } : { method: 'GET', cache: 'no-store' });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'GitHub request failed.');
+      if (action === 'load') {
+        await importPresentationBackup(result);
+        setPdfBoards(result.boards);
+        setBoard(result.boards[0]?.id ?? 'geometry');
+        setBoardRevision(value => value + 1);
+        if (typeof BroadcastChannel !== 'undefined') {
+          const channel = new BroadcastChannel('composition-presentation');
+          channel.postMessage('updated');
+          channel.close();
+        }
+      }
+      setSyncMessage(action === 'save' ? 'Boards saved to GitHub.' : 'Boards restored from GitHub.');
+    } catch (error) { setSyncMessage(error instanceof Error ? error.message : 'Could not sync boards.'); }
+    finally { setSyncing(false); }
+  };
+  return (
+    <main data-board-page="presentation" className="relative min-h-screen bg-black px-4 py-4 md:px-5">
+      {!presentationMode && <div className="flex flex-wrap items-center gap-4">
+        <h1 className="text-xl font-semibold" style={{ color: "#d6ad4f" }}>Presentation</h1>
+
+      </div>}
+      {!presentationMode && <><div className="mt-3 overflow-x-auto pb-1"><AppNav /></div>
+      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs" style={{display: typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname) ? undefined : 'none'}}>
+        <button type="button" disabled={syncing} onClick={() => void syncBoards('save')} className="rounded border px-3 py-1 disabled:opacity-40" style={{borderColor:'var(--line)'}}>Save boards to GitHub</button>
+        <button type="button" disabled={syncing} onClick={() => void syncBoards('load')} className="rounded border px-3 py-1 disabled:opacity-40" style={{borderColor:'var(--line)'}}>Restore boards from GitHub</button>
+        <span role="status" aria-live="polite">{syncing ? 'Connecting to GitHub…' : syncMessage}</span>
+      </div></>}
+      <div className={presentationMode && isPdfBoard ? "absolute left-1/2 top-10 z-30 w-max max-w-[95%] -translate-x-1/2 rounded bg-black/90 px-3 pb-3" : ""}><div className={`mt-4 flex flex-wrap items-center gap-3 text-xs ${presentationMode ? 'justify-center' : ''}`} aria-label="Board navigation">
+        {!presentationMode && <><button type="button" aria-label="Previous board" disabled={boardIndex === 0} onClick={() => setBoard(boardOrder[boardIndex - 1])} className="rounded border px-3 py-1 disabled:opacity-40" style={{borderColor: "var(--line)"}}>←</button>
+        <span aria-live="polite" className="min-w-32 text-center font-semibold" style={{color:"#d6ad4f"}}>{isPdfBoard ? currentTitle : board === 'video' ? 'Demo' : board === 'rules' ? 'Graphic Rules Board' : 'Geometry Board'}</span>
+        <button type="button" aria-label="Next board" disabled={boardIndex === boardOrder.length - 1} onClick={() => setBoard(boardOrder[boardIndex + 1])} className="rounded border px-3 py-1 disabled:opacity-40" style={{borderColor: "var(--line)"}}>→</button></>}
+      <div className="flex flex-wrap items-center gap-2 text-xs" aria-label="Board tabs">
+        {pdfBoards.map(item => <button key={item.id} type="button" draggable onDragStart={event => {setDraggedBoard(item.id);event.dataTransfer.effectAllowed='move';}} onDragEnd={() => setDraggedBoard(null)} onDragOver={event => {if(draggedBoard)event.preventDefault();}} onDrop={event => {event.preventDefault();if(!draggedBoard || draggedBoard===item.id)return;const next=[...pdfBoards];const from=next.findIndex(value=>value.id===draggedBoard),to=next.findIndex(value=>value.id===item.id);if(from<0||to<0)return;const [moved]=next.splice(from,1);next.splice(to,0,moved);updateBoards(next);setDraggedBoard(null);}} onClick={() => setBoard(item.id)} aria-pressed={board===item.id} title="Drag to reorder PDF boards" className="rounded border px-3 py-1" style={{borderColor:board===item.id?'#d6ad4f':'var(--line)'}}>{item.title || 'Untitled Board'}</button>)}
+        <button type="button" aria-pressed={board==='geometry'} onClick={() => setBoard('geometry')} className="rounded border px-3 py-1" style={{borderColor:board==='geometry'?'#d6ad4f':'var(--line)'}}>Geometry Board</button>
+        <button type="button" aria-pressed={board==='rules'} onClick={() => setBoard('rules')} className="rounded border px-3 py-1" style={{borderColor:board==='rules'?'#d6ad4f':'var(--line)'}}>Graphic Rules Board</button>
+        <button type="button" aria-pressed={board==='video'} onClick={() => setBoard('video')} className="rounded border px-3 py-1" style={{borderColor:board==='video'?'#d6ad4f':'var(--line)'}}>Demo</button>
+      </div>
+      </div>
+      <div className={`mt-3 flex items-center gap-2 text-xs ${presentationMode ? 'justify-center' : ''}`} aria-label="Board zoom controls">
+        {presentationMode && <><button type="button" aria-label="Previous board" disabled={boardIndex === 0} onClick={() => setBoard(boardOrder[boardIndex - 1])} className="rounded border px-3 py-1 disabled:opacity-40" style={{borderColor:"var(--line)"}}>←</button>
+        <span aria-live="polite" className="min-w-32 text-center font-semibold" style={{color:"#d6ad4f"}}>{isPdfBoard ? currentTitle : board === 'video' ? 'Demo' : board === 'rules' ? 'Graphic Rules Board' : 'Geometry Board'}</span>
+        <button type="button" aria-label="Next board" disabled={boardIndex === boardOrder.length - 1} onClick={() => setBoard(boardOrder[boardIndex + 1])} className="rounded border px-3 py-1 disabled:opacity-40" style={{borderColor:"var(--line)"}}>→</button></>}
+        <label className="flex items-center gap-1">Zoom <select aria-label="Board zoom percentage" value={zoom} onChange={event => setZoom(Number(event.target.value))} className="rounded border bg-black px-2 py-1 text-white" style={{borderColor:'var(--line)'}}>{[0,25,50,75,100,200,300,400,500,600,700,800,900,1000].map(value => <option key={value} value={value}>{value}%</option>)}</select></label>
+        {board === 'video' && <a href={walkthroughUrl} download className="rounded border px-3 py-1" style={{borderColor:'var(--line)',color:'#d6ad4f'}}>Download video</a>}
+        {presentationMode && <button data-board-edit-control type="button" onClick={() => setPresentationMode(false)} className="rounded border px-3 py-1" style={{borderColor:'var(--line)',color:'#d6ad4f'}}>Exit presentation mode</button>}
+      </div></div>
+      {!presentationMode && <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
+        <label className="flex items-center gap-2">Board <select aria-label="Select board to edit" value={board} onChange={event => setBoard(event.target.value)} className="rounded border bg-black px-2 py-1 text-white" style={{borderColor:'var(--line)'}}>{pdfBoards.map(item => <option key={item.id} value={item.id}>{item.title || 'Untitled Board'}</option>)}<option value="geometry">Geometry Board</option><option value="rules">Graphic Rules Board</option><option value="video">Demo</option></select></label>
+        <button type="button" onClick={() => {const item={id:'pdf-'+crypto.randomUUID(),title:'PDF Board '+(pdfBoards.length+1)};updateBoards([...pdfBoards,item]);setBoard(item.id);}} className="rounded border px-3 py-1" style={{borderColor:'var(--line)'}}>Add Board</button>
+        {isPdfBoard && <label className="flex items-center gap-2">Title <input aria-label="PDF board title" value={currentTitle} onChange={event => updateBoards(pdfBoards.map(item => item.id===board ? {...item,title:event.target.value} : item))} className="rounded border bg-black px-2 py-1 text-white" style={{borderColor:'var(--line)'}} /></label>}
+        {isPdfBoard && <button type="button" onClick={() => void removeCurrentBoard()} className="rounded border px-3 py-1" style={{borderColor:'var(--line)'}}>Delete board</button>}
+      </div>}
+      <div className={`presentation-board-viewport mt-2 max-h-[75vh] overflow-auto ${isPdfBoard ? 'pdf-board-viewport' : ''} ${board === 'geometry' || board === 'rules' ? 'graphic-board-viewport' : ''}`} aria-label="Presentation board viewport">
+      {board === 'video' ? <div className="flex w-full items-center justify-center bg-black" style={{aspectRatio:'33 / 12.5',width:zoom+'%',minWidth:(11*zoom)+'px'}}><video className="h-full max-w-full" controls preload="metadata" playsInline aria-label="Vertical Void Lobby walkthrough"><source src={walkthroughUrl} type="video/mp4" />Your browser does not support video playback.</video></div> : isPdfBoard ? <div onDragEnter={event => {event.preventDefault();setDraggingPdf(true);}} onDragOver={event => event.preventDefault()} onDragLeave={event => {if(!event.currentTarget.contains(event.relatedTarget as Node|null))setDraggingPdf(false);}} onDrop={event => {event.preventDefault();setDraggingPdf(false);void addPdf(event.dataTransfer.files[0]);}} className="presentation-pdf-board relative flex items-center justify-center overflow-hidden border border-dashed" style={{aspectRatio:'7407 / 2160',width:zoom+'%',minWidth:(11*zoom)+'px',borderColor:draggingPdf?'#d6ad4f':'#b9bec6',background:'#050709'}}>
+        {pdfUrl ? <>{boardImage ? <img alt="Presentation board" src={pdfUrl} className="absolute inset-0 h-full w-full object-contain" /> : <iframe title="PDF presentation board" src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&${presentationMode ? 'zoom=100' : 'view=Fit'}`} className="absolute inset-0 h-full w-full border-0" />}<div aria-hidden="true" className="absolute inset-0 z-10" /></> : <label className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-2 text-center text-xs text-white"><span>Drop a PDF, PNG, WebP, or JPEG here</span><span className="text-[#d6ad4f]">or choose a file</span><input type="file" accept="application/pdf,image/png,image/webp,image/jpeg,.pdf,.png,.webp,.jpg,.jpeg" className="sr-only" onChange={event => void addPdf(event.target.files?.[0])}/></label>}
+        {pdfError && <p role="alert" className="absolute bottom-2 left-2 bg-black/80 p-2 text-xs text-red-300">{pdfError}</p>}
+      </div> : <div className={`space-y-2 ${presentationMode ? 'mx-auto' : ''}`} style={{width: zoom + "%", minWidth: (11 * zoom) + "px"}}>
+        {rows.map((row) => <section key={row.category} aria-label={`${row.title} typologies`}>
+          <h2 className="mb-1 text-xs font-semibold uppercase tracking-wide" style={{ color: "#d6ad4f" }}>{row.title}</h2>
+          <div className="grid grid-cols-5 gap-2 md:gap-3">
+            {row.typologies.map((item) => {
+              const graphic = graphics[item.id];
+              return <article key={item.id} aria-label={`${row.title}: ${item.name}`} className="relative min-w-0 overflow-hidden border border-[#b9bec6]" style={{ aspectRatio: "33 / 12.5" }}>
+                {graphic ? <div role="img" aria-label={`${graphic.name} ${board === 'rules' ? 'graphic rules' : 'geometry views'}`} className="absolute inset-0 bg-center bg-no-repeat" style={{ backgroundImage: `url("${graphic.url}")`, backgroundSize: "100% 100%" }} /> : <div className="p-2"><h3 className="truncate text-[10px] font-semibold sm:text-xs" style={{ color: "#d6ad4f" }}>{item.name}</h3><p className="mt-1 text-[9px] text-white sm:text-[10px]">{board === 'rules' ? 'Download Graphic Rules to Board' : 'Download Geometry Board'} for this typology to fill this panel.</p></div>}
+              </article>;
+            })}
+          </div>
+        </section>)}
+      </div>
+      }
+      </div>
+      {error && <p role="alert" className="mt-2 text-xs text-red-300">{error}</p>}
+      {toggleReady && !presentationMode && createPortal(
+        <button data-board-edit-control type="button" aria-pressed={false} aria-label="Presentation Mode" title="Presentation Mode" className="fixed bottom-3 right-3 z-50 rounded border bg-black/90 px-2 py-1 text-[11px]" style={{borderColor:'var(--line)',color:'#d6ad4f'}} onClick={() => setPresentationMode(true)}>Presentation Mode</button>
+      , document.body)}
+    </main>
+  );
+}
+

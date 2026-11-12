@@ -1,0 +1,72 @@
+{
+  "typology": "vertical-void-lobby",
+  "mode": "combined",
+  "ms": 6369,
+  "diagnostic": {
+    "componentsAvailable": 224,
+    "componentsUsed": 224,
+    "relationshipsAvailable": 254,
+    "relationshipsUsed": 254,
+    "detailSamples": 0,
+    "source": [
+      16.718569928649977,
+      12.275016274622523,
+      7.724310297156299
+    ],
+    "organization": "Full-domain atrium / source-distributed levels / perimeter ascent",
+    "raw": [
+      16.731609926176247,
+      12.121813523669264,
+      9.35
+    ],
+    "final": [
+      16.530770272016525,
+      11.97376124560833,
+      9.506342443776774
+    ]
+  },
+  "raw": {
+    "occupiedRegions": 2,
+    "discretePlates": 2,
+    "continuousSurfaces": 0,
+    "principalVoids": 1,
+    "typologySpecificElements": [
+      "primary-space-arrival",
+      "void-overlook-#"
+    ],
+    "terraceActive": false
+  },
+  "components": 1,
+  "presentationComponents": 1,
+  "validation": {
+    "gatheringSpace": {
+      "passed": true,
+      "area": 172.99160244157312
+    },
+    "steppedPlatforms": {
+      "passed": true,
+      "levels": 2
+    },
+    "circulation": {
+      "passed": true,
+      "coverage": 100
+    },
+    "usableHorizontalSurfaces": {
+      "passed": true,
+      "area": 794.502222023404
+    },
+    "preservedOpenSpaces": {
+      "passed": true,
+      "area": 72.07501206575182
+    },
+    "typologyCriterion": {
+      "label": "Vertically continuous void",
+      "passed": true,
+      "value": 9.551711125160796,
+      "unit": "ft"
+    },
+    "score": 100,
+    "valid": true,
+    "failures": []
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "tolerances": {
+    "maxDistance": 20,
+    "maxLateralOffset": 12,
+    "maxAngularDeviation": 115,
+    "maxElevation": 8,
+    "maxDirectElevation": 0.5,
+    "maxDirectSlope": 0.125,
+    "minUsableWidth": 2,
+    "minConfidence": 0.55,
+    "directDistance": 4,
+    "directLateralOffset": 2,
+    "directAngle": 35,
+    "minCompatibilityScore": 4
+  },
+  "fourFormAcceptance": {
+    "candidateCount": 24,
+    "acceptedCount": 3,
+    "rejectedCount": 21,
+    "rejectionCounts": {
+      "DISTANCE": 21
+    },
+    "componentsBefore": 4,
+    "componentsAfter": 1,
+    "classes": [
+      "ADAPTIVE",
+      "ADAPTIVE",
+      "ADAPTIVE"
+    ]
+  },
+  "wideLanding": {
+    "candidates": 6,
+    "accepted": 3,
+    "rejectionCounts": {
+      "ANGLE": 2,
+      "DISTANCE": 1
+    },
+    "componentsBefore": 4,
+    "componentsAfter": 1,
+    "openings": [
+      {
+        "offset": 0,
+        "startWidth": 5,
+        "endWidth": 4,
+        "class": "DIRECT"
+      },
+      {
+        "offset": 7.5,
+        "startWidth": 5,
+        "endWidth": 4,
+        "class": "ADAPTIVE"
+      },
+      {
+        "offset": -7.5,
+        "startWidth": 5,
+        "endWidth": 4,
+        "class": "ADAPTIVE"
+      }
+    ]
+  },
+  "collisionTests": {
+    "detourAccepted": true,
+    "blockedRejected": true,
+    "generatedOverlapRejected": true
+  },
+  "runs": [
+    {
+      "count": 2,
+      "status": "PASS",
+      "components": 1,
+      "diagnostics": {
+        "candidateCount": 16,
+        "acceptedCount": 1,
+        "rejectedCount": 15,
+        "rejectionCounts": {
+          "ANGLE": 8,
+          "DISTANCE": 7
+        },
+        "componentsBefore": 2,
+        "componentsAfter": 1
+      },
+      "selected": [
+        {
+          "id": "mesh-3-79xw5y::0",
+          "iz": 0,
+          "variant": 0
+        },
+        {
+          "id": "mesh-4-shnleu::1",
+          "iz": 0,
+          "variant": 1
+        }
+      ],
+      "connectors": 1
+    },
+    {
+      "count": 3,
+      "status": "PASS",
+      "components": 1,
+      "diagnostics": {
+        "candidateCount": 48,
+        "acceptedCount": 2,
+        "rejectedCount": 46,
+        "rejectionCounts": {
+          "ANGLE": 16,
+          "DISTANCE": 30
+        },
+        "componentsBefore": 3,
+        "componentsAfter": 1
+      },
+      "selected": [
+        {
+          "id": "mesh-5-yq0wt5::0",
+          "iz": 0,
+          "variant": 0
+        },
+        {
+          "id": "mesh-6-ei3l8m::1",
+          "iz": 0,
+          "variant": 1
+        },
+        {
+          "id": "mesh-7-n9cvmp::2",
+          "iz": 0,
+          "variant": 0
+        }
+      ],
+      "connectors": 2
+    },
+    {
+      "count": 4,
+      "status": "PASS",
+      "components": 1,
+      "diagnostics": {
+        "candidateCount": 96,
+        "acceptedCount": 3,
+        "rejectedCount": 93,
+        "rejectionCounts": {
+          "ANGLE": 24,
+          "DISTANCE": 69
+        },
+        "componentsBefore": 4,
+        "componentsAfter": 1
+      },
+      "selected": [
+        {
+          "id": "mesh-8-zw7z4h::0",
+          "iz": 0,
+          "variant": 0
+        },
+        {
+          "id": "mesh-9-08r2nx::1",
+          "iz": 0,
+          "variant": 1
+        },
+        {
+          "id": "mesh-10-307bqx::2",
+          "iz": 0,
+          "variant": 1
+        },
+        {
+          "id": "mesh-11-doujpa::3",
+          "iz": 0,
+          "variant": 0
+        }
+      ],
+      "connectors": 3
+    }
+  ]
+}

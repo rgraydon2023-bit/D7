@@ -1,0 +1,81 @@
+{
+  "setup": {
+    "mode": "combined",
+    "seed": 2041,
+    "sourceObjects": 12,
+    "scale": 0.72,
+    "descriptorProfile": "shared matrix profile"
+  },
+  "passed": 1,
+  "failed": [],
+  "rows": [
+    {
+      "category": "gathering",
+      "typology": "stepped-amphitheater",
+      "name": "Stepped Amphitheater",
+      "primary": [
+        "TERRACE",
+        "CONVERGE"
+      ],
+      "secondary": [
+        "SEQUENCE",
+        "OVERLOOK",
+        "BRIDGE"
+      ],
+      "terrace": true,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 13,
+      "plates": 21,
+      "continuousSurfaces": 0,
+      "circulationPaths": 7,
+      "criterion": "Terraced focus + connected levels",
+      "criterionValue": 10,
+      "criterionUnit": "levels",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 5800,
+        "triangles": 11764,
+        "components": 1,
+        "horizontalArea": 645.77,
+        "verticalExtent": 15.14,
+        "componentBounds": [
+          {
+            "triangles": 12247,
+            "horizontalArea": 632.261122605436,
+            "min": [
+              -7.259905606508255,
+              1.7019492499541193,
+              -6.836199462413788
+            ],
+            "max": [
+              9.750000163912773,
+              16.841,
+              9.750000163912773
+            ]
+          }
+        ]
+      },
+      "interlocking": [
+        {
+          "count": 2,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 4,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 8,
+          "valid": true,
+          "failures": []
+        }
+      ]
+    }
+  ]
+}

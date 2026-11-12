@@ -1,4 +1,5 @@
 "use client";
+import { FeetScaleNote } from "./FeetScaleNote";
 
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
@@ -12,7 +13,7 @@ const VoidsAxoGrid = dynamic(() => import("./VoidsAxoGrid"), {
   loading: () => (
     <div
       className="flex h-full items-center justify-center text-[10px]"
-      style={{ background: "#050505", color: "var(--muted)" }}
+      style={{ background: "var(--input-background)", color: "var(--muted)" }}
     >
       …
     </div>
@@ -60,8 +61,8 @@ export default function VoidsPage() {
   }, [visible, spacing, fontSize, exporting]);
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col gap-3 px-4 py-4 md:px-5">
-      <header className="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-2 py-1" style={{ background: "var(--page-bg, #0b0f14)" }}>
+    <div data-board-page="voids" className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col gap-3 px-4 py-4 md:px-5">
+      <header className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-baseline gap-2.5">
             <h1
@@ -85,7 +86,7 @@ export default function VoidsPage() {
             onClick={onExport}
             disabled={visible.length === 0 || exporting}
             className="rounded px-2.5 py-1 text-[11px] font-medium text-black hover:opacity-90 disabled:opacity-40"
-            style={{ background: "var(--accent)" }}
+            style={{ background: "var(--accent-primary)" }}
           >
             {exporting ? "Exporting…" : "Export all OBJ"}
           </button>
@@ -98,10 +99,10 @@ export default function VoidsPage() {
             Regenerate source
           </button>
         </div>
-      </header>
+      </header><FeetScaleNote/>
 
       <p className="text-[11px]" style={{ color: "var(--muted)" }}>
-        Plate with V / S / L footprints cut out (void), axonometric 8×2 grid.
+        Plate with V / U / L footprints cut out (void), axonometric 8×2 grid.
         Drag to orbit · scroll to zoom.
       </p>
 
@@ -127,7 +128,7 @@ export default function VoidsPage() {
             className="overflow-hidden rounded-xl border"
             style={{
               borderColor: "var(--line)",
-              background: "#050505",
+              background: "var(--input-background)",
               height: "min(56vh, 560px)",
               minHeight: 420,
             }}

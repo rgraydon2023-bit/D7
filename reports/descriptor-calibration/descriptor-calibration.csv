@@ -1,0 +1,16 @@
+slotId,filename,category,vertices,cellFeet,Open Volume,Convergent,Sculptural,Visually Connected,Surreal,Monumental,Hierarchical,Sequential,Circulation Activated,Centralized,Vertically Integrated,Luminous
+G1,"Gathering, Linear.obj",Gathering,20865,2,38,73,46,26,33,38,12,55,93,62,73,52
+G2,"Gathering, Plate.obj",Gathering,4044,2,51,47,56,30,26,31,6,62,41,68,93,53
+G3,"Gathering, Room within Volume.obj",Gathering,15009,2,55,0,55,38,30,31,22,75,28,43,45,76
+G4,"Gathering, Stepped.obj",Gathering,12576,2,60,40,64,30,26,29,11,83,37,78,98,68
+G5,"Gathering, Void Field.obj",Gathering,3611,2,61,57,61,30,27,28,30,62,69,90,85,68
+O1,"void workspace.obj",Office,3972,2,62,47,64,38,36,27,28,63,50,80,45,75
+O2,"undulating workspace.obj",Office,8802,2,55,45,50,25,32,32,4,62,50,93,98,55
+O3,"open hall workspace.obj",Office,4727,2,64,0,61,29,34,28,10,68,12,65,67,75
+O4,"flat deep-plate workspace.obj",Office,25374,2,58,38,52,36,32,32,6,58,39,38,100,66
+O5,"cascaded workspace.obj",Office,7311,2,40,54,47,23,26,35,13,63,70,75,45,58
+L1,"Lobby, Vertical Void.obj",Lobby,14282,2,53,44,48,23,20,34,11,68,32,69,100,39
+L2,"Lobby, Ground Field.obj",Lobby,7017,2,47,48,46,23,23,32,9,68,49,87,100,64
+L3,"Lobby, Linear.obj",Lobby,6220,2,52,65,48,22,28,31,6,55,79,65,100,49
+L4,"Lobby, Sequential.obj",Lobby,7496,2,50,75,50,22,29,32,6,57,90,82,100,47
+L5,"Lobby, Cont Hall.obj",Lobby,2076,2,67,32,66,42,35,27,37,50,58,90,0,83

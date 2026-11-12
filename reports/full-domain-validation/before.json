@@ -1,0 +1,77 @@
+[
+  {
+    "typology": "contained-room-within-volume",
+    "raw": {
+      "occupiedRegions": 1,
+      "discretePlates": 2,
+      "continuousSurfaces": 0,
+      "principalVoids": 1,
+      "typologySpecificElements": [
+        "contained-enclosure",
+        "contained-room",
+        "primary-space"
+      ],
+      "terraceActive": false
+    },
+    "rawXYZ": [
+      4.9441424297738354,
+      4.49610556315159,
+      2.5
+    ],
+    "finalXYZ": [
+      5.81622040271759,
+      7.594724837690592,
+      2.7795133255882822
+    ],
+    "components": 1
+  },
+  {
+    "typology": "flat-deep-plan-plate",
+    "raw": {
+      "occupiedRegions": 1,
+      "discretePlates": 1,
+      "continuousSurfaces": 0,
+      "principalVoids": 0,
+      "typologySpecificElements": [
+        "primary-space"
+      ],
+      "terraceActive": false
+    },
+    "rawXYZ": [
+      7.596907367771302,
+      7.717076475516933,
+      0.5232000000000001
+    ],
+    "finalXYZ": [
+      7.761117823421955,
+      7.477566115558147,
+      0.5150720402598381
+    ],
+    "components": 1
+  },
+  {
+    "typology": "vertical-void-lobby",
+    "raw": {
+      "occupiedRegions": 4,
+      "discretePlates": 4,
+      "continuousSurfaces": 0,
+      "principalVoids": 1,
+      "typologySpecificElements": [
+        "primary-space",
+        "void-overlook-#"
+      ],
+      "terraceActive": false
+    },
+    "rawXYZ": [
+      7.616331210920247,
+      6.519689626237659,
+      3.7262500000000003
+    ],
+    "finalXYZ": [
+      7.3328303173184395,
+      6.2337682992219925,
+      4.309091740298454
+    ],
+    "components": 1
+  }
+]

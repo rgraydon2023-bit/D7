@@ -124,7 +124,7 @@ function cacheKey(ev: CropEvaluation, spacing: number, fontSize: number): string
 }
 
 /**
- * Plate with V / S / L silhouettes as ExtrudeGeometry holes (boolean void).
+ * Plate with V / U / L silhouettes as ExtrudeGeometry holes (boolean void).
  * Avoids CSG; shrinks holes slightly when letters would overlap so triangulation succeeds.
  */
 export function buildVoidGeometry(

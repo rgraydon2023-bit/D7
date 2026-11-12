@@ -1,0 +1,4848 @@
+{
+  "chosen": [
+    66,
+    67,
+    68,
+    74,
+    75,
+    76,
+    114,
+    115,
+    116,
+    122,
+    123,
+    124
+  ],
+  "removedVoid": "void-component-0",
+  "rows": [
+    {
+      "typology": "contained-room-within-volume",
+      "mode": "letters",
+      "diagnostic": {
+        "componentsAvailable": 192,
+        "componentsUsed": 192,
+        "relationshipsAvailable": 191,
+        "relationshipsUsed": 191,
+        "detailSamples": 0,
+        "source": [
+          16.718569928649977,
+          12.275016274622523,
+          7.724310297156299
+        ],
+        "organization": "Full-domain enclosure / nested room / interstitial floor",
+        "raw": [
+          16.723127971289895,
+          12.12191540994451,
+          12.8
+        ],
+        "final": [
+          16.52138713002205,
+          11.999001666903496,
+          12.749008038274468
+        ]
+      },
+      "raw": {
+        "occupiedRegions": 2,
+        "discretePlates": 2,
+        "continuousSurfaces": 0,
+        "principalVoids": 1,
+        "typologySpecificElements": [
+          "contained-enclosure-#",
+          "contained-room",
+          "contained-room-roof",
+          "outer-containing-canopy",
+          "outer-containing-shell-#",
+          "primary-space-interstitial"
+        ],
+        "terraceActive": false
+      },
+      "components": 1,
+      "perturbation": {
+        "elements": [
+          {
+            "id": "letters-primary-space-interstitial",
+            "rmsXY": 0.00327369587477364,
+            "maxXY": 0.005034593513009763,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-room",
+            "rmsXY": 0.01398518481913368,
+            "maxXY": 0.014730146019904414,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-8",
+            "rmsXY": 0.013951231525431805,
+            "maxXY": 0.014082818747858767,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-9",
+            "rmsXY": 0.0137149693704913,
+            "maxXY": 0.013841362016365976,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-10",
+            "rmsXY": 0.013526811627643087,
+            "maxXY": 0.013634699797455888,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-11",
+            "rmsXY": 0.013439769013424075,
+            "maxXY": 0.013500788200562235,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-12",
+            "rmsXY": 0.013469501753557954,
+            "maxXY": 0.013554751369363068,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-13",
+            "rmsXY": 0.013577986659296317,
+            "maxXY": 0.013674098370148475,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-14",
+            "rmsXY": 0.013691996262570177,
+            "maxXY": 0.01376176699047439,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-15",
+            "rmsXY": 0.013745871293990061,
+            "maxXY": 0.013771984984695005,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-16",
+            "rmsXY": 0.013714436017041497,
+            "maxXY": 0.013771984984695005,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-17",
+            "rmsXY": 0.01361712848656303,
+            "maxXY": 0.013704586120221414,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-18",
+            "rmsXY": 0.013500955862533342,
+            "maxXY": 0.013595229043942858,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-19",
+            "rmsXY": 0.013417031991212587,
+            "maxXY": 0.013493823093338441,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-20",
+            "rmsXY": 0.01340022487647939,
+            "maxXY": 0.013463388924561032,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-21",
+            "rmsXY": 0.013456505071711079,
+            "maxXY": 0.013545082301483305,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-22",
+            "rmsXY": 0.013548469339820172,
+            "maxXY": 0.013630152328325746,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-23",
+            "rmsXY": 0.013639734855395621,
+            "maxXY": 0.013710573183462417,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-24",
+            "rmsXY": 0.013717953716579261,
+            "maxXY": 0.013771943425715144,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-25",
+            "rmsXY": 0.013775261631939865,
+            "maxXY": 0.013814351667139445,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-26",
+            "rmsXY": 0.013821238065028047,
+            "maxXY": 0.01385514080878465,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-27",
+            "rmsXY": 0.013878333984461599,
+            "maxXY": 0.013917798755138468,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-28",
+            "rmsXY": 0.013968428202970501,
+            "maxXY": 0.014029037319477869,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-29",
+            "rmsXY": 0.014100014194294406,
+            "maxXY": 0.014194974462220854,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-30",
+            "rmsXY": 0.01426227613700007,
+            "maxXY": 0.014383204388719064,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-31",
+            "rmsXY": 0.014428077178422379,
+            "maxXY": 0.014557135663618138,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-32",
+            "rmsXY": 0.014563774994023919,
+            "maxXY": 0.014679862518100474,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-33",
+            "rmsXY": 0.014642844352313113,
+            "maxXY": 0.014730146019904414,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-34",
+            "rmsXY": 0.014657486711452682,
+            "maxXY": 0.014730146019904414,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-35",
+            "rmsXY": 0.014585715802666618,
+            "maxXY": 0.014712050358166064,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-36",
+            "rmsXY": 0.014427880191808736,
+            "maxXY": 0.014573258965543328,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-37",
+            "rmsXY": 0.014262441721988406,
+            "maxXY": 0.014366969643132443,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-38",
+            "rmsXY": 0.014155444828719553,
+            "maxXY": 0.014212121167597255,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-39",
+            "rmsXY": 0.014116091383256278,
+            "maxXY": 0.01413349985780533,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-40",
+            "rmsXY": 0.014127042406027695,
+            "maxXY": 0.014157515410058759,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-41",
+            "rmsXY": 0.014149720929722338,
+            "maxXY": 0.01417604020088118,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-42",
+            "rmsXY": 0.014136530137598531,
+            "maxXY": 0.01417604020088118,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-43",
+            "rmsXY": 0.014048376502945641,
+            "maxXY": 0.014128985452016851,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-44",
+            "rmsXY": 0.013875386598277811,
+            "maxXY": 0.013983528111128194,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-45",
+            "rmsXY": 0.013651012527981971,
+            "maxXY": 0.013786059626548625,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-46",
+            "rmsXY": 0.013442767990276924,
+            "maxXY": 0.013572259719811935,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-47",
+            "rmsXY": 0.013317086322087784,
+            "maxXY": 0.013409113141825767,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-48",
+            "rmsXY": 0.013302757312467906,
+            "maxXY": 0.013383848538740825,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-49",
+            "rmsXY": 0.013380626890539642,
+            "maxXY": 0.013486826644714744,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-50",
+            "rmsXY": 0.013501701489880317,
+            "maxXY": 0.013603192959615155,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-51",
+            "rmsXY": 0.013615908627130073,
+            "maxXY": 0.013693546525373157,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-52",
+            "rmsXY": 0.013694690296367608,
+            "maxXY": 0.013745461483222884,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-53",
+            "rmsXY": 0.013741161006702432,
+            "maxXY": 0.013777043779589182,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-54",
+            "rmsXY": 0.01377701308532629,
+            "maxXY": 0.013809925353948411,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-55",
+            "rmsXY": 0.013829705447344194,
+            "maxXY": 0.013872475781064465,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-56",
+            "rmsXY": 0.013926249041649954,
+            "maxXY": 0.013991090450111213,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-57",
+            "rmsXY": 0.014069278567966859,
+            "maxXY": 0.014167730238861389,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-58",
+            "rmsXY": 0.014231732630554824,
+            "maxXY": 0.014345559747010494,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-59",
+            "rmsXY": 0.01437555546097747,
+            "maxXY": 0.014481650830720463,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-60",
+            "rmsXY": 0.014469441031561659,
+            "maxXY": 0.014550411534521995,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-61",
+            "rmsXY": 0.014502900036223258,
+            "maxXY": 0.01455441449865741,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-62",
+            "rmsXY": 0.014490300315088654,
+            "maxXY": 0.01455441449865741,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-63",
+            "rmsXY": 0.014508466724034117,
+            "maxXY": 0.014593839261880253,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-room-roof",
+            "rmsXY": 0.01398518481913368,
+            "maxXY": 0.014730146019904414,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-outer-containing-shell-0",
+            "rmsXY": 0.001289991540731298,
+            "maxXY": 0.0018506745336250563,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-outer-containing-shell-1",
+            "rmsXY": 0.0045706448366996475,
+            "maxXY": 0.005034593513009763,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-outer-containing-shell-2",
+            "rmsXY": 0.0014945670083758356,
+            "maxXY": 0.002344126490355666,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-outer-containing-canopy",
+            "rmsXY": 0.0031184908896877304,
+            "maxXY": 0.005034593513009763,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.003982393628170211,
+        "finalHashChanged": true,
+        "extent": [
+          16.521573588252068,
+          11.99953156709671,
+          12.749094780918293
+        ],
+        "components": 1
+      },
+      "removal": {
+        "elements": [
+          {
+            "id": "letters-primary-space-interstitial",
+            "rmsXY": 0.009645348655325922,
+            "maxXY": 0.013678336183265362,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-room",
+            "rmsXY": 0.014713797437052274,
+            "maxXY": 0.01647806737508079,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-8",
+            "removed": true
+          },
+          {
+            "id": "letters-contained-enclosure-9",
+            "rmsXY": 0.01281413856235787,
+            "maxXY": 0.013114907341328683,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-10",
+            "rmsXY": 0.012579114155292314,
+            "maxXY": 0.012832293805667916,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-11",
+            "rmsXY": 0.01251868338745493,
+            "maxXY": 0.012723893241041444,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-12",
+            "rmsXY": 0.012634022607742892,
+            "maxXY": 0.012900229034142011,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-13",
+            "rmsXY": 0.012874570365331595,
+            "maxXY": 0.01315754009198976,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-14",
+            "rmsXY": 0.013169102774316021,
+            "maxXY": 0.013432317127780976,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-15",
+            "rmsXY": 0.013463883417993691,
+            "maxXY": 0.013690583670550116,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-16",
+            "rmsXY": 0.013739549296028586,
+            "maxXY": 0.01393067637927202,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-17",
+            "rmsXY": 0.014005939210774719,
+            "maxXY": 0.014171857901477994,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-18",
+            "rmsXY": 0.01428843769953941,
+            "maxXY": 0.014440962199701183,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-19",
+            "rmsXY": 0.014613912376207175,
+            "maxXY": 0.014818230048642394,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-20",
+            "rmsXY": 0.014998446486287535,
+            "maxXY": 0.015272851625950204,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-21",
+            "rmsXY": 0.015436035726218931,
+            "maxXY": 0.01577416295598391,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-22",
+            "rmsXY": 0.015751253650654693,
+            "maxXY": 0.015962243089661314,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-23",
+            "rmsXY": 0.015893929439498924,
+            "maxXY": 0.016081509480060954,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-24",
+            "rmsXY": 0.015983958403787732,
+            "maxXY": 0.01615481234365868,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-25",
+            "rmsXY": 0.016025084084126735,
+            "maxXY": 0.01616787509546923,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-26",
+            "rmsXY": 0.016013262700138697,
+            "maxXY": 0.01616787509546923,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-27",
+            "rmsXY": 0.015959628997491666,
+            "maxXY": 0.016126309692928886,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-28",
+            "rmsXY": 0.01588343117976753,
+            "maxXY": 0.016049161251263606,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-29",
+            "rmsXY": 0.015801910061384903,
+            "maxXY": 0.01595974995570272,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-30",
+            "rmsXY": 0.01572209240232263,
+            "maxXY": 0.01587248303787148,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-31",
+            "rmsXY": 0.01563831166074654,
+            "maxXY": 0.015788040548653806,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-32",
+            "rmsXY": 0.015535420228973145,
+            "maxXY": 0.01569287624436745,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-33",
+            "rmsXY": 0.015399066212828692,
+            "maxXY": 0.015566933080873284,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-34",
+            "rmsXY": 0.01522565885394344,
+            "maxXY": 0.015398562666118627,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-35",
+            "rmsXY": 0.014938063588520428,
+            "maxXY": 0.01519144674445355,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-36",
+            "rmsXY": 0.014525315152047318,
+            "maxXY": 0.014770400420853879,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-37",
+            "rmsXY": 0.014112182048140538,
+            "maxXY": 0.014318880996876813,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-38",
+            "rmsXY": 0.013765817986876904,
+            "maxXY": 0.013970847237326533,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-39",
+            "rmsXY": 0.013498339438286315,
+            "maxXY": 0.013694074780358284,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-40",
+            "rmsXY": 0.013299586341142467,
+            "maxXY": 0.013489202880944462,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-41",
+            "rmsXY": 0.013142387766085587,
+            "maxXY": 0.013336776977737995,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-42",
+            "rmsXY": 0.01299663045028702,
+            "maxXY": 0.013206762410488116,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-43",
+            "rmsXY": 0.012849018040075075,
+            "maxXY": 0.013074519673316144,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-44",
+            "rmsXY": 0.012720576090821955,
+            "maxXY": 0.012940631208030058,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-45",
+            "rmsXY": 0.012666183745745666,
+            "maxXY": 0.012842612820570833,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-46",
+            "rmsXY": 0.012746970492525949,
+            "maxXY": 0.012986593676902986,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-47",
+            "rmsXY": 0.012992469217730217,
+            "maxXY": 0.013282107244687853,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-48",
+            "rmsXY": 0.013383852404472757,
+            "maxXY": 0.013690778118865996,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-49",
+            "rmsXY": 0.013867343936875855,
+            "maxXY": 0.014154550453329117,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-50",
+            "rmsXY": 0.014380273809706624,
+            "maxXY": 0.01465032396418782,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-51",
+            "rmsXY": 0.014872996804309885,
+            "maxXY": 0.015168360723518784,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-52",
+            "rmsXY": 0.015321171302117879,
+            "maxXY": 0.015631664368527736,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-53",
+            "rmsXY": 0.015726829336685982,
+            "maxXY": 0.016055410264901454,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-54",
+            "rmsXY": 0.015966572491030732,
+            "maxXY": 0.016154990577966842,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-55",
+            "rmsXY": 0.01603692902721356,
+            "maxXY": 0.016203737196902594,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-56",
+            "rmsXY": 0.01609776481417602,
+            "maxXY": 0.01628263620770706,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-57",
+            "rmsXY": 0.01617901561668447,
+            "maxXY": 0.01637681964323786,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-58",
+            "rmsXY": 0.016258891045936613,
+            "maxXY": 0.016453998512440577,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-59",
+            "rmsXY": 0.01630598862120317,
+            "maxXY": 0.01647806737508079,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-60",
+            "rmsXY": 0.01629326217515605,
+            "maxXY": 0.01647806737508079,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-61",
+            "rmsXY": 0.016209647131328934,
+            "maxXY": 0.016425995054076825,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-62",
+            "rmsXY": 0.016064803478090466,
+            "maxXY": 0.016296532581754057,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-enclosure-63",
+            "rmsXY": 0.015921745077651723,
+            "maxXY": 0.016112004562381533,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-contained-room-roof",
+            "rmsXY": 0.014713797437052274,
+            "maxXY": 0.01647806737508079,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-outer-containing-shell-0",
+            "rmsXY": 0.838827650397754,
+            "maxXY": 0.9183594715319975,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-outer-containing-shell-1",
+            "rmsXY": 0.7993752183724839,
+            "maxXY": 0.8767311005918144,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-outer-containing-shell-2",
+            "rmsXY": 0.8159062024348669,
+            "maxXY": 0.885492133040617,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-outer-containing-canopy",
+            "rmsXY": 0.009052700692481482,
+            "maxXY": 0.013678336183265362,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.111748417721519,
+        "finalHashChanged": true,
+        "extent": [
+          16.52126730978489,
+          11.993960246443748,
+          12.749854512383305
+        ],
+        "components": 1
+      },
+      "voidRemoval": null
+    },
+    {
+      "typology": "contained-room-within-volume",
+      "mode": "voids",
+      "diagnostic": {
+        "componentsAvailable": 32,
+        "componentsUsed": 32,
+        "relationshipsAvailable": 31,
+        "relationshipsUsed": 31,
+        "detailSamples": 0,
+        "source": [
+          12,
+          8.268556453872122,
+          7.086685062538778
+        ],
+        "organization": "Full-domain enclosure / nested room / interstitial floor",
+        "raw": [
+          11.84746136256381,
+          8.038142984383402,
+          12.8
+        ],
+        "final": [
+          11.484789595007896,
+          7.774754263460636,
+          12.747771927709584
+        ]
+      },
+      "raw": {
+        "occupiedRegions": 2,
+        "discretePlates": 2,
+        "continuousSurfaces": 0,
+        "principalVoids": 1,
+        "typologySpecificElements": [
+          "contained-enclosure-#",
+          "contained-room",
+          "contained-room-roof",
+          "outer-containing-canopy",
+          "outer-containing-shell-#",
+          "primary-space-interstitial"
+        ],
+        "terraceActive": false
+      },
+      "components": 1,
+      "perturbation": {
+        "elements": [
+          {
+            "id": "voids-primary-space-interstitial",
+            "rmsXY": 0.22384409167118274,
+            "maxXY": 0.5816787595774918,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-room",
+            "rmsXY": 0.19509878271475373,
+            "maxXY": 0.3189053608028735,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-0",
+            "rmsXY": 0.15097485063728164,
+            "maxXY": 0.15821773991981272,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-1",
+            "rmsXY": 0.16960383110413016,
+            "maxXY": 0.1825823470319512,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-2",
+            "rmsXY": 0.19754675728904666,
+            "maxXY": 0.21461155346641153,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-3",
+            "rmsXY": 0.22723728673664487,
+            "maxXY": 0.24799519733581382,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-4",
+            "rmsXY": 0.25768697169610993,
+            "maxXY": 0.2816547267308219,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-5",
+            "rmsXY": 0.2880757112557013,
+            "maxXY": 0.31483970443942444,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-6",
+            "rmsXY": 0.3046741721958822,
+            "maxXY": 0.3189053608028735,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-7",
+            "rmsXY": 0.29868542974226,
+            "maxXY": 0.3189053608028735,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-17",
+            "removed": true
+          },
+          {
+            "id": "voids-contained-enclosure-18",
+            "removed": true
+          },
+          {
+            "id": "voids-contained-enclosure-19",
+            "removed": true
+          },
+          {
+            "id": "voids-contained-enclosure-20",
+            "removed": true
+          },
+          {
+            "id": "voids-contained-enclosure-21",
+            "rmsXY": 0.1667227109053213,
+            "maxXY": 0.16944941258146348,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-22",
+            "rmsXY": 0.16414874229824183,
+            "maxXY": 0.16694830821907355,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-23",
+            "rmsXY": 0.1619015998653492,
+            "maxXY": 0.16478867099692227,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-24",
+            "rmsXY": 0.15983044624430015,
+            "maxXY": 0.16288807681569895,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-25",
+            "rmsXY": 0.15774943899640767,
+            "maxXY": 0.1610479217477044,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-26",
+            "rmsXY": 0.15560214546784823,
+            "maxXY": 0.1591251016307919,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-27",
+            "rmsXY": 0.15351947924196974,
+            "maxXY": 0.15715992143505203,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-28",
+            "rmsXY": 0.15173923569037642,
+            "maxXY": 0.15535154634347625,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-29",
+            "rmsXY": 0.15045826833687698,
+            "maxXY": 0.1539338980688575,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-30",
+            "rmsXY": 0.14969615243975495,
+            "maxXY": 0.15303049178272535,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-31",
+            "rmsXY": 0.14744307387438962,
+            "maxXY": 0.15255296462419682,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-32",
+            "rmsXY": 0.1446058849287052,
+            "maxXY": 0.14890793111662756,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-33",
+            "rmsXY": 0.14484596459780832,
+            "maxXY": 0.14934358405560738,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-34",
+            "rmsXY": 0.14669346952731188,
+            "maxXY": 0.1507745870104343,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-35",
+            "rmsXY": 0.1481008048417262,
+            "maxXY": 0.15189990126720332,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-36",
+            "rmsXY": 0.14936538468376587,
+            "maxXY": 0.15306817868769457,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-37",
+            "rmsXY": 0.1508689784343223,
+            "maxXY": 0.15462504813717895,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-38",
+            "rmsXY": 0.15291294058172533,
+            "maxXY": 0.15677270089759038,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-39",
+            "rmsXY": 0.15559427471934714,
+            "maxXY": 0.1594869530350755,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-40",
+            "rmsXY": 0.1587583058554082,
+            "maxXY": 0.16251493213066068,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-41",
+            "rmsXY": 0.1620353321007741,
+            "maxXY": 0.1654420561897432,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-42",
+            "rmsXY": 0.164945599982025,
+            "maxXY": 0.16781226816291958,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-43",
+            "rmsXY": 0.16707142284235152,
+            "maxXY": 0.16931860215534347,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-44",
+            "rmsXY": 0.16824006044115508,
+            "maxXY": 0.1699481073696614,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-45",
+            "rmsXY": 0.168586561621603,
+            "maxXY": 0.16995564731392387,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-46",
+            "rmsXY": 0.16849010442209442,
+            "maxXY": 0.16995564731392387,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-47",
+            "rmsXY": 0.16962917184181928,
+            "maxXY": 0.17199186674164607,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-48",
+            "rmsXY": 0.17263738398647177,
+            "maxXY": 0.1752268602082119,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-49",
+            "rmsXY": 0.17763836789226423,
+            "maxXY": 0.18101304097570484,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-50",
+            "rmsXY": 0.18455642685441148,
+            "maxXY": 0.18886074792872617,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-51",
+            "rmsXY": 0.19250313335877367,
+            "maxXY": 0.19836298312401465,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-52",
+            "rmsXY": 0.20156566632579698,
+            "maxXY": 0.20919079731302515,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-53",
+            "rmsXY": 0.21188274116972106,
+            "maxXY": 0.22154181286535052,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-54",
+            "rmsXY": 0.2235236235703287,
+            "maxXY": 0.23531766322676753,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-55",
+            "rmsXY": 0.2362827875337133,
+            "maxXY": 0.25011093014641994,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-56",
+            "rmsXY": 0.24962637249650596,
+            "maxXY": 0.2651168767028389,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-57",
+            "rmsXY": 0.252983500402014,
+            "maxXY": 0.2651168767028389,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-58",
+            "rmsXY": 0.23863122994310332,
+            "maxXY": 0.25780145225920376,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-59",
+            "rmsXY": 0.21647225374789705,
+            "maxXY": 0.23271588468590473,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-60",
+            "rmsXY": 0.1952973629504465,
+            "maxXY": 0.2085086145993587,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-61",
+            "rmsXY": 0.17535679098381324,
+            "maxXY": 0.18553904098587687,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-62",
+            "rmsXY": 0.1570758376446754,
+            "maxXY": 0.16684660639070506,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-63",
+            "rmsXY": 0.1471725533354618,
+            "maxXY": 0.15143451149748108,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-room-roof",
+            "rmsXY": 0.19509878271475373,
+            "maxXY": 0.3189053608028735,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-outer-containing-shell-0",
+            "rmsXY": 1.5248723028739248,
+            "maxXY": 1.8958423187027655,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-outer-containing-shell-1",
+            "rmsXY": 1.6680306843459571,
+            "maxXY": 1.8356234043853783,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-outer-containing-shell-2",
+            "rmsXY": 1.624548885838357,
+            "maxXY": 1.7928310148815603,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-outer-containing-canopy",
+            "rmsXY": 0.1946004875675318,
+            "maxXY": 0.5816787595774918,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.47276507276507274,
+        "finalHashChanged": true,
+        "extent": [
+          11.52999322116375,
+          8.246000207960606,
+          12.745392910312422
+        ],
+        "components": 1
+      },
+      "removal": {
+        "elements": [
+          {
+            "id": "voids-primary-space-interstitial",
+            "rmsXY": 1.4637405095220644,
+            "maxXY": 1.8351092198549424,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-room",
+            "rmsXY": 0.6040783622286541,
+            "maxXY": 0.8682992146143473,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-0",
+            "rmsXY": 0.6732934261939213,
+            "maxXY": 0.7134941658274333,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-1",
+            "rmsXY": 0.6545138286211188,
+            "maxXY": 0.70960534720872,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-2",
+            "rmsXY": 0.6194808262429414,
+            "maxXY": 0.6726057539414112,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-3",
+            "rmsXY": 0.583042808228707,
+            "maxXY": 0.6337681066086873,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-4",
+            "rmsXY": 0.5459428900272927,
+            "maxXY": 0.5936751535097721,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-5",
+            "rmsXY": 0.5090336234194469,
+            "maxXY": 0.5534259973595123,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-6",
+            "rmsXY": 0.4728048002539558,
+            "maxXY": 0.5138797547165923,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-7",
+            "removed": true
+          },
+          {
+            "id": "voids-contained-enclosure-17",
+            "rmsXY": 0.11347659201802167,
+            "maxXY": 0.1313814575341682,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-18",
+            "rmsXY": 0.11327194868822617,
+            "maxXY": 0.13497294997275086,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-19",
+            "rmsXY": 0.11516665367460968,
+            "maxXY": 0.1411035134752682,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-20",
+            "rmsXY": 0.1194107848544499,
+            "maxXY": 0.14895299675736104,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-21",
+            "rmsXY": 0.1253105954410929,
+            "maxXY": 0.15726891336977325,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-22",
+            "rmsXY": 0.13194336379184698,
+            "maxXY": 0.16540958674571088,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-23",
+            "rmsXY": 0.13894185918165233,
+            "maxXY": 0.17367660564326212,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-24",
+            "rmsXY": 0.14646131045156516,
+            "maxXY": 0.1826250188547551,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-25",
+            "rmsXY": 0.1547027487009307,
+            "maxXY": 0.1924980219250895,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-26",
+            "rmsXY": 0.1635176243852993,
+            "maxXY": 0.2028240663818996,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-27",
+            "rmsXY": 0.1722897017930974,
+            "maxXY": 0.2126061822497624,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-28",
+            "rmsXY": 0.187841113165359,
+            "maxXY": 0.23039897918608898,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-29",
+            "rmsXY": 0.23985284766984907,
+            "maxXY": 0.28870089806254684,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-30",
+            "rmsXY": 0.3754100351333784,
+            "maxXY": 0.4713261981902294,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-31",
+            "rmsXY": 0.5372030261091776,
+            "maxXY": 0.6357128252747812,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-32",
+            "rmsXY": 0.6246973860430015,
+            "maxXY": 0.6682966330108977,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-33",
+            "rmsXY": 0.6439025635236282,
+            "maxXY": 0.6768857895419951,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-34",
+            "rmsXY": 0.6521700493826312,
+            "maxXY": 0.6863230704159682,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-35",
+            "rmsXY": 0.660900751215428,
+            "maxXY": 0.6959339752989641,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-36",
+            "rmsXY": 0.6692530014754147,
+            "maxXY": 0.7045438146305616,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-37",
+            "rmsXY": 0.6761900232197274,
+            "maxXY": 0.7110551481401721,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-38",
+            "rmsXY": 0.6809928624164988,
+            "maxXY": 0.714998234141482,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-39",
+            "rmsXY": 0.6836905318383033,
+            "maxXY": 0.7169271511784948,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-40",
+            "rmsXY": 0.6851767734136469,
+            "maxXY": 0.7182715285609164,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-41",
+            "rmsXY": 0.6869241149997227,
+            "maxXY": 0.7208314729068189,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-42",
+            "rmsXY": 0.6902736896310206,
+            "maxXY": 0.7257251350982481,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-43",
+            "rmsXY": 0.6958975350195202,
+            "maxXY": 0.7332564598147179,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-44",
+            "rmsXY": 0.7010059035882297,
+            "maxXY": 0.7348221311230668,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-45",
+            "rmsXY": 0.7075747207733869,
+            "maxXY": 0.7431887849567805,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-46",
+            "rmsXY": 0.7295305586756893,
+            "maxXY": 0.7790250238774052,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-47",
+            "rmsXY": 0.7660348835447859,
+            "maxXY": 0.821531716291929,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-48",
+            "rmsXY": 0.789079219700899,
+            "maxXY": 0.8296959556112716,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-49",
+            "rmsXY": 0.7965727794615646,
+            "maxXY": 0.8378160667877532,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-50",
+            "rmsXY": 0.8040106890174864,
+            "maxXY": 0.8458567794048975,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-51",
+            "rmsXY": 0.8116595900530152,
+            "maxXY": 0.8544598717312579,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-52",
+            "rmsXY": 0.8199500867836883,
+            "maxXY": 0.8639189081675196,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-53",
+            "rmsXY": 0.8262900121978527,
+            "maxXY": 0.8682992146143473,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-54",
+            "rmsXY": 0.8241364697757695,
+            "maxXY": 0.8682992146143473,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-55",
+            "rmsXY": 0.8157128421056508,
+            "maxXY": 0.8592057476121354,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-56",
+            "rmsXY": 0.8071696932090183,
+            "maxXY": 0.849990612262335,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-57",
+            "rmsXY": 0.7987918841754573,
+            "maxXY": 0.8407412870690707,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-58",
+            "rmsXY": 0.7912363346580937,
+            "maxXY": 0.8319929173736984,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-59",
+            "rmsXY": 0.7776200094405461,
+            "maxXY": 0.8246427726975645,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-60",
+            "rmsXY": 0.7415108723193523,
+            "maxXY": 0.8029175491970374,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-61",
+            "rmsXY": 0.6992711684762841,
+            "maxXY": 0.7472980669343109,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-62",
+            "rmsXY": 0.6800761283886114,
+            "maxXY": 0.7160400550376572,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-63",
+            "rmsXY": 0.6759309886714183,
+            "maxXY": 0.7134941658274333,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-room-roof",
+            "rmsXY": 0.6040783622286541,
+            "maxXY": 0.8682992146143473,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-outer-containing-shell-0",
+            "rmsXY": 0.7964543975893716,
+            "maxXY": 0.9262983200277799,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-outer-containing-shell-1",
+            "rmsXY": 1.0531289967026176,
+            "maxXY": 1.1431627220883247,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-outer-containing-shell-2",
+            "rmsXY": 1.2437978442780362,
+            "maxXY": 1.3470625437425134,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-outer-containing-canopy",
+            "rmsXY": 1.244107155399225,
+            "maxXY": 1.8351092198549424,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.46370967741935487,
+        "finalHashChanged": true,
+        "extent": [
+          11.668093413114548,
+          7.951291441917419,
+          12.749607866661524
+        ],
+        "components": 1
+      },
+      "voidRemoval": {
+        "elements": [
+          {
+            "id": "voids-primary-space-interstitial",
+            "rmsXY": 0.01017844935080453,
+            "maxXY": 0.015911736115107947,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-room",
+            "rmsXY": 0.007640624096846843,
+            "maxXY": 0.009845296951623403,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-0",
+            "rmsXY": 0.00925952106501143,
+            "maxXY": 0.009710682728901797,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-1",
+            "rmsXY": 0.00878023786098163,
+            "maxXY": 0.009193531808033993,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-2",
+            "rmsXY": 0.008301885183758276,
+            "maxXY": 0.008667307609778895,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-3",
+            "rmsXY": 0.007832880842386564,
+            "maxXY": 0.008150827107810262,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-4",
+            "rmsXY": 0.007371690892309798,
+            "maxXY": 0.007643871153750672,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-5",
+            "rmsXY": 0.00691556086294657,
+            "maxXY": 0.007142676206583729,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-6",
+            "rmsXY": 0.006465366817493906,
+            "maxXY": 0.006724708214372614,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-7",
+            "removed": true
+          },
+          {
+            "id": "voids-contained-enclosure-17",
+            "rmsXY": 0.006965695881821376,
+            "maxXY": 0.00710401368146787,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-18",
+            "rmsXY": 0.007220754913599897,
+            "maxXY": 0.007376563384413889,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-19",
+            "rmsXY": 0.007473335989096784,
+            "maxXY": 0.007644044569721356,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-20",
+            "rmsXY": 0.007720568740572576,
+            "maxXY": 0.007904432256828622,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-21",
+            "rmsXY": 0.007958740814122614,
+            "maxXY": 0.00815313757208886,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-22",
+            "rmsXY": 0.008181355392066192,
+            "maxXY": 0.008381759366921905,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-23",
+            "rmsXY": 0.008379960551040556,
+            "maxXY": 0.008580867461053873,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-24",
+            "rmsXY": 0.008547173167434035,
+            "maxXY": 0.008743832419864778,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-25",
+            "rmsXY": 0.008680446356408649,
+            "maxXY": 0.008871394983961021,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-26",
+            "rmsXY": 0.008784334573105061,
+            "maxXY": 0.008972289898486299,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-27",
+            "rmsXY": 0.008869234348579502,
+            "maxXY": 0.009060019636004038,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-28",
+            "rmsXY": 0.008947361799096812,
+            "maxXY": 0.009147344512434468,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-29",
+            "rmsXY": 0.009028407924437801,
+            "maxXY": 0.009242309569320728,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-30",
+            "rmsXY": 0.009116264233672582,
+            "maxXY": 0.009345088499668754,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-31",
+            "rmsXY": 0.009101677744256449,
+            "maxXY": 0.009345088499668754,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-32",
+            "rmsXY": 0.008815309011626641,
+            "maxXY": 0.009217242244071763,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-33",
+            "rmsXY": 0.008346124633400795,
+            "maxXY": 0.00871990595145102,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-34",
+            "rmsXY": 0.007858104020489278,
+            "maxXY": 0.00819463083087999,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-35",
+            "rmsXY": 0.007360999774940484,
+            "maxXY": 0.00765402621719611,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-36",
+            "rmsXY": 0.006866989902598688,
+            "maxXY": 0.00710725527931499,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-37",
+            "rmsXY": 0.006394556616037876,
+            "maxXY": 0.0066651438740676396,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-38",
+            "rmsXY": 0.005966654630180704,
+            "maxXY": 0.006254409576166779,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-39",
+            "rmsXY": 0.005608709465724405,
+            "maxXY": 0.005896612667887394,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-40",
+            "rmsXY": 0.005345626185420616,
+            "maxXY": 0.005614528467513736,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-41",
+            "rmsXY": 0.005196999064895003,
+            "maxXY": 0.0054278958533046555,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-42",
+            "rmsXY": 0.005172008786952431,
+            "maxXY": 0.005379086969776222,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-43",
+            "rmsXY": 0.005267876341340248,
+            "maxXY": 0.005511741173306603,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-44",
+            "rmsXY": 0.005473069517131917,
+            "maxXY": 0.005735279418047553,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-45",
+            "rmsXY": 0.005771831597214156,
+            "maxXY": 0.0060362619362215025,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-46",
+            "rmsXY": 0.00614684513253493,
+            "maxXY": 0.00639993486128458,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-47",
+            "rmsXY": 0.006576433919754732,
+            "maxXY": 0.006804848973324584,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-48",
+            "rmsXY": 0.0069514036183254005,
+            "maxXY": 0.007119390240789649,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-49",
+            "rmsXY": 0.007248929789201587,
+            "maxXY": 0.007432667844615471,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-50",
+            "rmsXY": 0.007543242789490064,
+            "maxXY": 0.007751489175247627,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-51",
+            "rmsXY": 0.007835125494236712,
+            "maxXY": 0.008058680277774273,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-52",
+            "rmsXY": 0.008109795040237032,
+            "maxXY": 0.008339996123851038,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-53",
+            "rmsXY": 0.008356563902874372,
+            "maxXY": 0.008587205993041377,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-54",
+            "rmsXY": 0.008571414620511395,
+            "maxXY": 0.008800544064065243,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-55",
+            "rmsXY": 0.008757598004689887,
+            "maxXY": 0.008987457753764588,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-56",
+            "rmsXY": 0.008922181513162045,
+            "maxXY": 0.009156222433877769,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-57",
+            "rmsXY": 0.009071067112112577,
+            "maxXY": 0.009311393298554505,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-58",
+            "rmsXY": 0.009206273107222468,
+            "maxXY": 0.009452500316850996,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-59",
+            "rmsXY": 0.009326341430559885,
+            "maxXY": 0.009576371088079875,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-60",
+            "rmsXY": 0.00942900473222199,
+            "maxXY": 0.009680758665344399,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-61",
+            "rmsXY": 0.00951454952398612,
+            "maxXY": 0.00976813952181922,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-62",
+            "rmsXY": 0.009587345106379774,
+            "maxXY": 0.009845296951623403,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-enclosure-63",
+            "rmsXY": 0.009558089311099843,
+            "maxXY": 0.009845296951623403,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-contained-room-roof",
+            "rmsXY": 0.007640624096846843,
+            "maxXY": 0.009845296951623403,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-outer-containing-shell-0",
+            "rmsXY": 0.4297083287163891,
+            "maxXY": 0.47083723018631574,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-outer-containing-shell-1",
+            "rmsXY": 0.42584861659737633,
+            "maxXY": 0.46157769904767526,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-outer-containing-shell-2",
+            "rmsXY": 0.42722222681792976,
+            "maxXY": 0.4656832911177055,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-outer-containing-canopy",
+            "rmsXY": 0.009465085657442633,
+            "maxXY": 0.015911736115107947,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.11075949367088611,
+        "finalHashChanged": true,
+        "extent": [
+          11.483075588941574,
+          7.77373643219471,
+          12.750055938475668
+        ],
+        "components": 1
+      }
+    },
+    {
+      "typology": "contained-room-within-volume",
+      "mode": "combined",
+      "diagnostic": {
+        "componentsAvailable": 224,
+        "componentsUsed": 224,
+        "relationshipsAvailable": 254,
+        "relationshipsUsed": 254,
+        "detailSamples": 0,
+        "source": [
+          16.718569928649977,
+          12.275016274622523,
+          7.724310297156299
+        ],
+        "organization": "Full-domain enclosure / nested room / interstitial floor",
+        "raw": [
+          16.731609926176247,
+          12.121813523669264,
+          12.8
+        ],
+        "final": [
+          16.530770272016525,
+          11.996568098664284,
+          12.74894434319301
+        ]
+      },
+      "raw": {
+        "occupiedRegions": 2,
+        "discretePlates": 2,
+        "continuousSurfaces": 0,
+        "principalVoids": 1,
+        "typologySpecificElements": [
+          "contained-enclosure-#",
+          "contained-room",
+          "contained-room-roof",
+          "outer-containing-canopy",
+          "outer-containing-shell-#",
+          "primary-space-interstitial"
+        ],
+        "terraceActive": false
+      },
+      "components": 1,
+      "perturbation": {
+        "elements": [
+          {
+            "id": "combined-primary-space-interstitial",
+            "rmsXY": 0.028758762707520733,
+            "maxXY": 0.047441587979036054,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-room",
+            "rmsXY": 0.1294251845546074,
+            "maxXY": 0.13688986688736693,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-9",
+            "rmsXY": 0.1279342360669082,
+            "maxXY": 0.12865411418782452,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-10",
+            "rmsXY": 0.1265986606803755,
+            "maxXY": 0.12743681652004785,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-11",
+            "rmsXY": 0.125305443324482,
+            "maxXY": 0.1262331925037545,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-12",
+            "rmsXY": 0.12413756055723231,
+            "maxXY": 0.12509408652513734,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-13",
+            "rmsXY": 0.1232168826918064,
+            "maxXY": 0.1241190499769247,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-14",
+            "rmsXY": 0.12265836302326819,
+            "maxXY": 0.12342860894995025,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-15",
+            "rmsXY": 0.12251741644035437,
+            "maxXY": 0.12317374288122403,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-16",
+            "rmsXY": 0.1227701669557542,
+            "maxXY": 0.12356610837737506,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-17",
+            "rmsXY": 0.12333371445473494,
+            "maxXY": 0.12419300748413938,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-18",
+            "rmsXY": 0.12410264378935612,
+            "maxXY": 0.12495736558506457,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-19",
+            "rmsXY": 0.12498009837623722,
+            "maxXY": 0.12578104505004212,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-20",
+            "rmsXY": 0.1258969329104311,
+            "maxXY": 0.12661687832573104,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-21",
+            "rmsXY": 0.12685112718812847,
+            "maxXY": 0.12750812198385453,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-22",
+            "rmsXY": 0.12778334245308812,
+            "maxXY": 0.12830593955011238,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-23",
+            "rmsXY": 0.1286459062836588,
+            "maxXY": 0.12907276079422572,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-24",
+            "rmsXY": 0.12952286539333543,
+            "maxXY": 0.13005473840595388,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-25",
+            "rmsXY": 0.13045326829248663,
+            "maxXY": 0.13109337597788534,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-26",
+            "rmsXY": 0.13140551758279825,
+            "maxXY": 0.13213200555493013,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-27",
+            "rmsXY": 0.13233044976072114,
+            "maxXY": 0.13311042703120027,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-28",
+            "rmsXY": 0.13317683545153608,
+            "maxXY": 0.13397750262096994,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-29",
+            "rmsXY": 0.13390614457327416,
+            "maxXY": 0.1347007269108645,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-30",
+            "rmsXY": 0.13450249294886307,
+            "maxXY": 0.1352783471966573,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-31",
+            "rmsXY": 0.13497544219154814,
+            "maxXY": 0.13573341225210792,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-32",
+            "rmsXY": 0.13535129976436647,
+            "maxXY": 0.13610070345579967,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-33",
+            "rmsXY": 0.13566298012590375,
+            "maxXY": 0.13641760056336447,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-34",
+            "rmsXY": 0.1359353030546786,
+            "maxXY": 0.13670106582077518,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-35",
+            "rmsXY": 0.13578214143475997,
+            "maxXY": 0.13670106582077518,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-36",
+            "rmsXY": 0.1348721781699753,
+            "maxXY": 0.13608881004638387,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-37",
+            "rmsXY": 0.13357181621829653,
+            "maxXY": 0.1347140531636621,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-38",
+            "rmsXY": 0.1321791330087638,
+            "maxXY": 0.13324806854928242,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-39",
+            "rmsXY": 0.1306919362139621,
+            "maxXY": 0.13167070974489184,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-40",
+            "rmsXY": 0.12914262248235364,
+            "maxXY": 0.1299971634056886,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-41",
+            "rmsXY": 0.12759901837995496,
+            "maxXY": 0.12842977336998124,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-42",
+            "rmsXY": 0.12615716477612746,
+            "maxXY": 0.12705299577586385,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-43",
+            "rmsXY": 0.12492303096111604,
+            "maxXY": 0.1258178699132718,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-44",
+            "rmsXY": 0.12398191074179313,
+            "maxXY": 0.12481893026190377,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-45",
+            "rmsXY": 0.12336816720484287,
+            "maxXY": 0.12411533189488244,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-46",
+            "rmsXY": 0.12305977297316194,
+            "maxXY": 0.12370918167688781,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-47",
+            "rmsXY": 0.12300466162015002,
+            "maxXY": 0.12360951095326234,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-48",
+            "rmsXY": 0.12315535574563831,
+            "maxXY": 0.12383008776373941,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-49",
+            "rmsXY": 0.1234861143686729,
+            "maxXY": 0.12420723823100334,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-50",
+            "rmsXY": 0.1239884984268334,
+            "maxXY": 0.12473834165484494,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-51",
+            "rmsXY": 0.12465758610229899,
+            "maxXY": 0.12541745513555788,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-52",
+            "rmsXY": 0.12547984060072254,
+            "maxXY": 0.12622629948916678,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-53",
+            "rmsXY": 0.12643846327825264,
+            "maxXY": 0.1271528305406619,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-54",
+            "rmsXY": 0.12742803700994307,
+            "maxXY": 0.12801960211310173,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-55",
+            "rmsXY": 0.12834454371172904,
+            "maxXY": 0.12881530368976332,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-56",
+            "rmsXY": 0.12922600990573566,
+            "maxXY": 0.12971692252007877,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-57",
+            "rmsXY": 0.13011171998695165,
+            "maxXY": 0.13068364518750125,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-58",
+            "rmsXY": 0.1309970176939538,
+            "maxXY": 0.13164903146542345,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-59",
+            "rmsXY": 0.1318793722320729,
+            "maxXY": 0.13260827584648707,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-60",
+            "rmsXY": 0.13274880812545034,
+            "maxXY": 0.1335448981659083,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-61",
+            "rmsXY": 0.1335815165627713,
+            "maxXY": 0.13442414466978914,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-62",
+            "rmsXY": 0.134341695724011,
+            "maxXY": 0.1352033695526207,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-63",
+            "rmsXY": 0.13495166615325402,
+            "maxXY": 0.13575629451796586,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-room-roof",
+            "rmsXY": 0.1294251845546074,
+            "maxXY": 0.13688986688736693,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-outer-containing-shell-0",
+            "rmsXY": 0.012646949233076347,
+            "maxXY": 0.019634525613903154,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-outer-containing-shell-1",
+            "rmsXY": 0.042649338199036976,
+            "maxXY": 0.04697061860368874,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-outer-containing-shell-2",
+            "rmsXY": 0.00645690326274475,
+            "maxXY": 0.011499375867518162,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-outer-containing-canopy",
+            "rmsXY": 0.026535301915089723,
+            "maxXY": 0.047441587979036054,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.039901780233271955,
+        "finalHashChanged": true,
+        "extent": [
+          16.514073610305786,
+          12.010032176971436,
+          12.749683960421772
+        ],
+        "components": 1
+      },
+      "removal": {
+        "elements": [
+          {
+            "id": "combined-primary-space-interstitial",
+            "rmsXY": 0.03359291513510709,
+            "maxXY": 0.045851716516101065,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-room",
+            "rmsXY": 0.15006384464606093,
+            "maxXY": 0.15621752840513609,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-9",
+            "removed": true
+          },
+          {
+            "id": "combined-contained-enclosure-10",
+            "rmsXY": 0.1441314212830182,
+            "maxXY": 0.14512957270916357,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-11",
+            "rmsXY": 0.14320956801012347,
+            "maxXY": 0.14418610310866817,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-12",
+            "rmsXY": 0.1425793032246236,
+            "maxXY": 0.14346201461832325,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-13",
+            "rmsXY": 0.14233283661806656,
+            "maxXY": 0.14304649828508803,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-14",
+            "rmsXY": 0.14252632207484942,
+            "maxXY": 0.14339618603510815,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-15",
+            "rmsXY": 0.1431500255165915,
+            "maxXY": 0.14414405675928482,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-16",
+            "rmsXY": 0.14413282960474486,
+            "maxXY": 0.14517375312039252,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-17",
+            "rmsXY": 0.14537164524515897,
+            "maxXY": 0.1463857412698453,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-18",
+            "rmsXY": 0.14676185174817888,
+            "maxXY": 0.14769048203153315,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-19",
+            "rmsXY": 0.14821719411954581,
+            "maxXY": 0.14902129739753858,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-20",
+            "rmsXY": 0.14968002806053396,
+            "maxXY": 0.15047245263478903,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-21",
+            "rmsXY": 0.15113778817034615,
+            "maxXY": 0.15206851406507663,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-22",
+            "rmsXY": 0.15223553366851947,
+            "maxXY": 0.152873096465196,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-23",
+            "rmsXY": 0.15289687805385738,
+            "maxXY": 0.15350825133954596,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-24",
+            "rmsXY": 0.15348374739756443,
+            "maxXY": 0.15414912498294245,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-25",
+            "rmsXY": 0.1540655655995704,
+            "maxXY": 0.15477341997216562,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-26",
+            "rmsXY": 0.1546127088145866,
+            "maxXY": 0.1553392312287922,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-27",
+            "rmsXY": 0.15508152841972697,
+            "maxXY": 0.15579359999316011,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-28",
+            "rmsXY": 0.15542838191250166,
+            "maxXY": 0.1560945266568444,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-29",
+            "rmsXY": 0.15562271683147064,
+            "maxXY": 0.15621752840513609,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-30",
+            "rmsXY": 0.15565644461705663,
+            "maxXY": 0.15621752840513609,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-31",
+            "rmsXY": 0.15554736344875206,
+            "maxXY": 0.15616953611354997,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-32",
+            "rmsXY": 0.15533021755230075,
+            "maxXY": 0.15598247177690863,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-33",
+            "rmsXY": 0.15504748904741428,
+            "maxXY": 0.155700110029625,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-34",
+            "rmsXY": 0.1547345316274599,
+            "maxXY": 0.15537112111122164,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-35",
+            "rmsXY": 0.15402341523712854,
+            "maxXY": 0.15502360250838082,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-36",
+            "rmsXY": 0.15271045814465437,
+            "maxXY": 0.1538215262954391,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-37",
+            "rmsXY": 0.15116588792454677,
+            "maxXY": 0.15215423485386773,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-38",
+            "rmsXY": 0.14958338560730838,
+            "maxXY": 0.15044405274801953,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-39",
+            "rmsXY": 0.1479817640714015,
+            "maxXY": 0.14886856162545725,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-40",
+            "rmsXY": 0.14641508316793392,
+            "maxXY": 0.14741709785947468,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-41",
+            "rmsXY": 0.14497243472197935,
+            "maxXY": 0.1460306707852603,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-42",
+            "rmsXY": 0.14376747851573735,
+            "maxXY": 0.14480540973457748,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-43",
+            "rmsXY": 0.14291249307168644,
+            "maxXY": 0.14385078346281913,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-44",
+            "rmsXY": 0.14248210073552964,
+            "maxXY": 0.14325977099056614,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-45",
+            "rmsXY": 0.14248487200701193,
+            "maxXY": 0.14326542038189544,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-46",
+            "rmsXY": 0.1428661610189187,
+            "maxXY": 0.14376320316722305,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-47",
+            "rmsXY": 0.14354144918604414,
+            "maxXY": 0.14448689195215697,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-48",
+            "rmsXY": 0.14443340153466855,
+            "maxXY": 0.14537681306595743,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-49",
+            "rmsXY": 0.145490148788314,
+            "maxXY": 0.14639910604178022,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-50",
+            "rmsXY": 0.1466831365495785,
+            "maxXY": 0.14753618821835435,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-51",
+            "rmsXY": 0.14799539497313932,
+            "maxXY": 0.14877507729718345,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-52",
+            "rmsXY": 0.14940955922955287,
+            "maxXY": 0.15017799370277926,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-53",
+            "rmsXY": 0.1509040337906825,
+            "maxXY": 0.15185014794704685,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-54",
+            "rmsXY": 0.15209556006674038,
+            "maxXY": 0.1527841370498676,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-55",
+            "rmsXY": 0.15283994174263985,
+            "maxXY": 0.15347212786008313,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-56",
+            "rmsXY": 0.15344538351959774,
+            "maxXY": 0.15410127005606616,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-57",
+            "rmsXY": 0.1539880985945382,
+            "maxXY": 0.15465222240093568,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-58",
+            "rmsXY": 0.1544555695770664,
+            "maxXY": 0.15511741427865622,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-59",
+            "rmsXY": 0.15484202010855896,
+            "maxXY": 0.1554923374893484,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-60",
+            "rmsXY": 0.15514314552241149,
+            "maxXY": 0.15577262325855634,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-61",
+            "rmsXY": 0.155351052162131,
+            "maxXY": 0.15594577869744514,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-62",
+            "rmsXY": 0.15545383691478984,
+            "maxXY": 0.15599842005232298,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-63",
+            "rmsXY": 0.15540839827015807,
+            "maxXY": 0.15599842005232298,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-room-roof",
+            "rmsXY": 0.15006384464606093,
+            "maxXY": 0.15621752840513609,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-outer-containing-shell-0",
+            "rmsXY": 0.8204037921305913,
+            "maxXY": 0.8966779052748248,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-outer-containing-shell-1",
+            "rmsXY": 0.8132522313162301,
+            "maxXY": 0.9179920593071962,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-outer-containing-shell-2",
+            "rmsXY": 0.8446737146409827,
+            "maxXY": 0.9366054614645208,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-outer-containing-canopy",
+            "rmsXY": 0.031151299157616278,
+            "maxXY": 0.045851716516101065,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.16928079571537868,
+        "finalHashChanged": true,
+        "extent": [
+          16.522360429167747,
+          12.013955488801003,
+          12.74888441953085
+        ],
+        "components": 1
+      },
+      "voidRemoval": {
+        "elements": [
+          {
+            "id": "combined-primary-space-interstitial",
+            "rmsXY": 0.004622039081787374,
+            "maxXY": 0.006313308243644853,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-room",
+            "rmsXY": 0.0038805042590681314,
+            "maxXY": 0.004795919484230705,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-9",
+            "rmsXY": 0.0038140587535818163,
+            "maxXY": 0.003909677707564276,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-10",
+            "rmsXY": 0.003958045247421166,
+            "maxXY": 0.00406546694871259,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-11",
+            "rmsXY": 0.0041002750022945495,
+            "maxXY": 0.004215356413701893,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-12",
+            "rmsXY": 0.004232734084766494,
+            "maxXY": 0.004350484019143486,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-13",
+            "rmsXY": 0.004348438551181983,
+            "maxXY": 0.004464959473693657,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-14",
+            "rmsXY": 0.00444346665996705,
+            "maxXY": 0.004556391285712678,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-15",
+            "rmsXY": 0.0045173332931532995,
+            "maxXY": 0.004626113243076429,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-16",
+            "rmsXY": 0.0045724587043786714,
+            "maxXY": 0.004677867787569177,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-17",
+            "rmsXY": 0.0046127756950006624,
+            "maxXY": 0.004716191877249449,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-18",
+            "rmsXY": 0.004642432236368585,
+            "maxXY": 0.004745295413658588,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-19",
+            "rmsXY": 0.004665019265768867,
+            "maxXY": 0.00476855180780716,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-20",
+            "rmsXY": 0.004683285763399639,
+            "maxXY": 0.004788400627627292,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-21",
+            "rmsXY": 0.00468450860523895,
+            "maxXY": 0.004788400627627292,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-22",
+            "rmsXY": 0.004555892215160145,
+            "maxXY": 0.004774624021161928,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-23",
+            "rmsXY": 0.004303383702174399,
+            "maxXY": 0.004507335672367033,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-24",
+            "rmsXY": 0.004044198048309717,
+            "maxXY": 0.004225404687924125,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-25",
+            "rmsXY": 0.003787138648487524,
+            "maxXY": 0.003942779912457227,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-26",
+            "rmsXY": 0.003537982465745086,
+            "maxXY": 0.003664084679969737,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-27",
+            "rmsXY": 0.003305225508963905,
+            "maxXY": 0.0034315253288591504,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-28",
+            "rmsXY": 0.0030999588162523226,
+            "maxXY": 0.0032325475606274005,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-29",
+            "rmsXY": 0.002934798217308712,
+            "maxXY": 0.0030648772539072855,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-30",
+            "rmsXY": 0.0028217062131938265,
+            "maxXY": 0.002939418515157559,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-31",
+            "rmsXY": 0.002769129958117446,
+            "maxXY": 0.00286492508686979,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-32",
+            "rmsXY": 0.0027796258602846074,
+            "maxXY": 0.002880869337109822,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-33",
+            "rmsXY": 0.002849340846093805,
+            "maxXY": 0.00296458413386831,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-34",
+            "rmsXY": 0.0029696861346402968,
+            "maxXY": 0.0030884980835157636,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-35",
+            "rmsXY": 0.0031221548664876696,
+            "maxXY": 0.003231508289374629,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-36",
+            "rmsXY": 0.0032459373758531463,
+            "maxXY": 0.003310941313849061,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-37",
+            "rmsXY": 0.0033390596872258497,
+            "maxXY": 0.003401438890500646,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-38",
+            "rmsXY": 0.0034443092022851452,
+            "maxXY": 0.0035037099630280794,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-39",
+            "rmsXY": 0.003561653993282907,
+            "maxXY": 0.0036282597419347844,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-40",
+            "rmsXY": 0.0036901825519166077,
+            "maxXY": 0.0037722655355407553,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-41",
+            "rmsXY": 0.003827617098770403,
+            "maxXY": 0.003923759764263568,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-42",
+            "rmsXY": 0.0039695606672144525,
+            "maxXY": 0.004077159570979641,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-43",
+            "rmsXY": 0.004109734134291727,
+            "maxXY": 0.004224860812099906,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-44",
+            "rmsXY": 0.004240896049073078,
+            "maxXY": 0.004359229928295416,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-45",
+            "rmsXY": 0.004356500540745119,
+            "maxXY": 0.00447410341315522,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-46",
+            "rmsXY": 0.004452490627263074,
+            "maxXY": 0.0045670613474981725,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-47",
+            "rmsXY": 0.0045280207169820785,
+            "maxXY": 0.004638711624406024,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-48",
+            "rmsXY": 0.004584950612795512,
+            "maxXY": 0.004692327940755452,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-49",
+            "rmsXY": 0.004626692620430778,
+            "maxXY": 0.004731801415983223,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-50",
+            "rmsXY": 0.004656929318343592,
+            "maxXY": 0.004760973111977286,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-51",
+            "rmsXY": 0.004678578686135235,
+            "maxXY": 0.004782111617471879,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-52",
+            "rmsXY": 0.00469308842166314,
+            "maxXY": 0.004795919484230705,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-53",
+            "rmsXY": 0.004694463135902535,
+            "maxXY": 0.004795919484230705,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-54",
+            "rmsXY": 0.0045711266546245785,
+            "maxXY": 0.004788531813933127,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-55",
+            "rmsXY": 0.00432093460465522,
+            "maxXY": 0.004526558111493334,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-56",
+            "rmsXY": 0.004061477049348831,
+            "maxXY": 0.0042443001684985635,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-57",
+            "rmsXY": 0.0038042067300610187,
+            "maxXY": 0.003961503546446251,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-58",
+            "rmsXY": 0.0035546786678833683,
+            "maxXY": 0.003682663152787348,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-59",
+            "rmsXY": 0.0033210118204357276,
+            "maxXY": 0.003446305067244543,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-60",
+            "rmsXY": 0.003113904187536262,
+            "maxXY": 0.0032460778805418183,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-61",
+            "rmsXY": 0.002945749103410103,
+            "maxXY": 0.003076192335174474,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-62",
+            "rmsXY": 0.0028286103677868466,
+            "maxXY": 0.002947516616236954,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-enclosure-63",
+            "rmsXY": 0.00277149910065986,
+            "maxXY": 0.0028690710938900697,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-contained-room-roof",
+            "rmsXY": 0.0038805042590681314,
+            "maxXY": 0.004795919484230705,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-outer-containing-shell-0",
+            "rmsXY": 0.0058290103056919396,
+            "maxXY": 0.006277022056848556,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-outer-containing-shell-1",
+            "rmsXY": 0.00378492875647061,
+            "maxXY": 0.004692927982601966,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-outer-containing-shell-2",
+            "rmsXY": 0.00583705910821183,
+            "maxXY": 0.006277161689041208,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-outer-containing-canopy",
+            "rmsXY": 0.004229683810584105,
+            "maxXY": 0.006313308243644853,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.0004173622704507496,
+        "finalHashChanged": true,
+        "extent": [
+          16.527023166418076,
+          11.99542884528637,
+          12.749181104515532
+        ],
+        "components": 1
+      }
+    },
+    {
+      "typology": "flat-deep-plan-plate",
+      "mode": "letters",
+      "diagnostic": {
+        "componentsAvailable": 192,
+        "componentsUsed": 192,
+        "relationshipsAvailable": 191,
+        "relationshipsUsed": 191,
+        "detailSamples": 0,
+        "source": [
+          16.718569928649977,
+          12.275016274622523,
+          7.724310297156299
+        ],
+        "organization": "Full-domain continuous workplace / one occupied datum",
+        "raw": [
+          16.723127971289895,
+          12.12191540994451,
+          0.7999999999999998
+        ],
+        "final": [
+          16.52138713002205,
+          12.404376596212387,
+          1.2016816962047887
+        ]
+      },
+      "raw": {
+        "occupiedRegions": 1,
+        "discretePlates": 1,
+        "continuousSurfaces": 0,
+        "principalVoids": 1,
+        "typologySpecificElements": [
+          "primary-space-deep-field"
+        ],
+        "terraceActive": false
+      },
+      "components": 1,
+      "perturbation": {
+        "elements": [
+          {
+            "id": "letters-primary-space-deep-field",
+            "rmsXY": 0.005647421476196956,
+            "maxXY": 0.007902546715028384,
+            "dZ": 0.02020830905669513,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.0039525691699604515,
+        "finalHashChanged": true,
+        "extent": [
+          16.521573588252068,
+          12.403915256261826,
+          1.2016817671287034
+        ],
+        "components": 1
+      },
+      "removal": {
+        "elements": [
+          {
+            "id": "letters-primary-space-deep-field",
+            "rmsXY": 0.009639288838531001,
+            "maxXY": 0.013678336183265362,
+            "dZ": -0.001774423552927118,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.005636978579481422,
+        "finalHashChanged": true,
+        "extent": [
+          16.52126730978489,
+          12.40334178507328,
+          1.2016817944997253
+        ],
+        "components": 1
+      },
+      "voidRemoval": null
+    },
+    {
+      "typology": "flat-deep-plan-plate",
+      "mode": "voids",
+      "diagnostic": {
+        "componentsAvailable": 32,
+        "componentsUsed": 32,
+        "relationshipsAvailable": 31,
+        "relationshipsUsed": 31,
+        "detailSamples": 0,
+        "source": [
+          12,
+          8.268556453872122,
+          7.086685062538778
+        ],
+        "organization": "Full-domain continuous workplace / one occupied datum",
+        "raw": [
+          11.84746136256381,
+          8.038142984383402,
+          0.8000000000000003
+        ],
+        "final": [
+          12.193642273545265,
+          8.978839680552483,
+          1.2016817043553703
+        ]
+      },
+      "raw": {
+        "occupiedRegions": 1,
+        "discretePlates": 1,
+        "continuousSurfaces": 0,
+        "principalVoids": 1,
+        "typologySpecificElements": [
+          "primary-space-deep-field"
+        ],
+        "terraceActive": false
+      },
+      "components": 1,
+      "perturbation": {
+        "elements": [
+          {
+            "id": "voids-primary-space-deep-field",
+            "rmsXY": 0.18166586957659472,
+            "maxXY": 0.5816787595774918,
+            "dZ": -0.2502671666080385,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.5369955156950672,
+        "finalHashChanged": true,
+        "extent": [
+          12.198722779750824,
+          8.978937715291977,
+          1.2016816705393651
+        ],
+        "components": 1
+      },
+      "removal": {
+        "elements": [
+          {
+            "id": "voids-primary-space-deep-field",
+            "rmsXY": 1.0804507993856358,
+            "maxXY": 1.8351092198549424,
+            "dZ": 0.0010230027402684527,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.25479452054794516,
+        "finalHashChanged": true,
+        "extent": [
+          11.988743901252747,
+          7.9738349467515945,
+          1.2016817691834092
+        ],
+        "components": 1
+      },
+      "voidRemoval": {
+        "elements": [
+          {
+            "id": "voids-primary-space-deep-field",
+            "rmsXY": 0.008473581292291631,
+            "maxXY": 0.015911736115107947,
+            "dZ": 0.0037983893129438506,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0,
+        "finalHashChanged": true,
+        "extent": [
+          12.192645266652107,
+          8.978108264505863,
+          1.201681682567659
+        ],
+        "components": 1
+      }
+    },
+    {
+      "typology": "flat-deep-plan-plate",
+      "mode": "combined",
+      "diagnostic": {
+        "componentsAvailable": 224,
+        "componentsUsed": 224,
+        "relationshipsAvailable": 254,
+        "relationshipsUsed": 254,
+        "detailSamples": 0,
+        "source": [
+          16.718569928649977,
+          12.275016274622523,
+          7.724310297156299
+        ],
+        "organization": "Full-domain continuous workplace / one occupied datum",
+        "raw": [
+          16.731609926176247,
+          12.121813523669264,
+          0.8000000000000003
+        ],
+        "final": [
+          16.530770272016525,
+          12.405459463596344,
+          1.2016816833243542
+        ]
+      },
+      "raw": {
+        "occupiedRegions": 1,
+        "discretePlates": 1,
+        "continuousSurfaces": 0,
+        "principalVoids": 1,
+        "typologySpecificElements": [
+          "primary-space-deep-field"
+        ],
+        "terraceActive": false
+      },
+      "components": 1,
+      "perturbation": {
+        "elements": [
+          {
+            "id": "combined-primary-space-deep-field",
+            "rmsXY": 0.045692215596028575,
+            "maxXY": 0.15534550902775301,
+            "dZ": -0.08454593387356324,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.027435610302351643,
+        "finalHashChanged": true,
+        "extent": [
+          16.514073610305786,
+          12.40547227859497,
+          1.201681704276429
+        ],
+        "components": 1
+      },
+      "removal": {
+        "elements": [
+          {
+            "id": "combined-primary-space-deep-field",
+            "rmsXY": 0.31450283669653184,
+            "maxXY": 0.5636216578843064,
+            "dZ": 0.01075770665137421,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.019629837352776236,
+        "finalHashChanged": true,
+        "extent": [
+          16.522360429167747,
+          12.408721521496773,
+          1.2016816689946683
+        ],
+        "components": 1
+      },
+      "voidRemoval": {
+        "elements": [
+          {
+            "id": "combined-primary-space-deep-field",
+            "rmsXY": 0.003802102607283124,
+            "maxXY": 0.006313308243644853,
+            "dZ": 0.0007149165563613558,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.00395480225988698,
+        "finalHashChanged": true,
+        "extent": [
+          16.527023166418076,
+          12.404585480690002,
+          1.2016816453529753
+        ],
+        "components": 1
+      }
+    },
+    {
+      "typology": "vertical-void-lobby",
+      "mode": "letters",
+      "diagnostic": {
+        "componentsAvailable": 192,
+        "componentsUsed": 192,
+        "relationshipsAvailable": 191,
+        "relationshipsUsed": 191,
+        "detailSamples": 0,
+        "source": [
+          16.718569928649977,
+          12.275016274622523,
+          7.724310297156299
+        ],
+        "organization": "Full-domain atrium / source-distributed levels / perimeter ascent",
+        "raw": [
+          16.723127971289895,
+          12.12191540994451,
+          9.35
+        ],
+        "final": [
+          16.52138713002205,
+          11.969095304608345,
+          9.510123272634967
+        ]
+      },
+      "raw": {
+        "occupiedRegions": 2,
+        "discretePlates": 2,
+        "continuousSurfaces": 0,
+        "principalVoids": 1,
+        "typologySpecificElements": [
+          "primary-space-arrival",
+          "void-overlook-#"
+        ],
+        "terraceActive": false
+      },
+      "components": 1,
+      "perturbation": {
+        "elements": [
+          {
+            "id": "letters-primary-space-arrival",
+            "rmsXY": 0.004732866179463935,
+            "maxXY": 0.007490457343756378,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-void-overlook-1",
+            "rmsXY": 0.004732866179463935,
+            "maxXY": 0.007490457343756378,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.0022326966013396232,
+        "finalHashChanged": true,
+        "extent": [
+          16.521573588252068,
+          11.969624564051628,
+          9.510020498347671
+        ],
+        "components": 1
+      },
+      "removal": {
+        "elements": [
+          {
+            "id": "letters-primary-space-arrival",
+            "rmsXY": 0.0074384306687657175,
+            "maxXY": 0.013678336183265362,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "letters-void-overlook-1",
+            "rmsXY": 0.0074384306687657175,
+            "maxXY": 0.013678336183265362,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.1102750999294616,
+        "finalHashChanged": true,
+        "extent": [
+          16.52126730978489,
+          11.971105337142944,
+          9.506170731659845
+        ],
+        "components": 1
+      },
+      "voidRemoval": null
+    },
+    {
+      "typology": "vertical-void-lobby",
+      "mode": "voids",
+      "diagnostic": {
+        "componentsAvailable": 32,
+        "componentsUsed": 32,
+        "relationshipsAvailable": 31,
+        "relationshipsUsed": 31,
+        "detailSamples": 0,
+        "source": [
+          12,
+          8.268556453872122,
+          7.086685062538778
+        ],
+        "organization": "Full-domain atrium / source-distributed levels / perimeter ascent",
+        "raw": [
+          11.84746136256381,
+          8.038142984383402,
+          9.35
+        ],
+        "final": [
+          11.484789595007896,
+          8.42921944707632,
+          9.51505645263355
+        ]
+      },
+      "raw": {
+        "occupiedRegions": 2,
+        "discretePlates": 2,
+        "continuousSurfaces": 0,
+        "principalVoids": 1,
+        "typologySpecificElements": [
+          "primary-space-arrival",
+          "void-overlook-#"
+        ],
+        "terraceActive": false
+      },
+      "components": 1,
+      "perturbation": {
+        "elements": [
+          {
+            "id": "voids-primary-space-arrival",
+            "rmsXY": 0.17097845695133274,
+            "maxXY": 0.5816787595774918,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-void-overlook-1",
+            "rmsXY": 0.17097845695133274,
+            "maxXY": 0.5816787595774918,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.44650205761316875,
+        "finalHashChanged": true,
+        "extent": [
+          11.496481999754906,
+          8.364729888737202,
+          9.515057753192693
+        ],
+        "components": 1
+      },
+      "removal": {
+        "elements": [
+          {
+            "id": "voids-primary-space-arrival",
+            "rmsXY": 1.12943411216108,
+            "maxXY": 1.8351092198549424,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-void-overlook-1",
+            "rmsXY": 1.12943411216108,
+            "maxXY": 1.8351092198549424,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.39864158829676066,
+        "finalHashChanged": true,
+        "extent": [
+          11.649925589561462,
+          7.967356964945793,
+          9.504127854166107
+        ],
+        "components": 1
+      },
+      "voidRemoval": {
+        "elements": [
+          {
+            "id": "voids-primary-space-arrival",
+            "rmsXY": 0.008227709999549382,
+            "maxXY": 0.015911736115107947,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "voids-void-overlook-1",
+            "rmsXY": 0.008227709999549382,
+            "maxXY": 0.015911736115107947,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.15389408099688473,
+        "finalHashChanged": true,
+        "extent": [
+          11.483075588941574,
+          8.198068268597126,
+          9.51457557089092
+        ],
+        "components": 1
+      }
+    },
+    {
+      "typology": "vertical-void-lobby",
+      "mode": "combined",
+      "diagnostic": {
+        "componentsAvailable": 224,
+        "componentsUsed": 224,
+        "relationshipsAvailable": 254,
+        "relationshipsUsed": 254,
+        "detailSamples": 0,
+        "source": [
+          16.718569928649977,
+          12.275016274622523,
+          7.724310297156299
+        ],
+        "organization": "Full-domain atrium / source-distributed levels / perimeter ascent",
+        "raw": [
+          16.731609926176247,
+          12.121813523669264,
+          9.35
+        ],
+        "final": [
+          16.530770272016525,
+          11.97376124560833,
+          9.506342443776774
+        ]
+      },
+      "raw": {
+        "occupiedRegions": 2,
+        "discretePlates": 2,
+        "continuousSurfaces": 0,
+        "principalVoids": 1,
+        "typologySpecificElements": [
+          "primary-space-arrival",
+          "void-overlook-#"
+        ],
+        "terraceActive": false
+      },
+      "components": 1,
+      "perturbation": {
+        "elements": [
+          {
+            "id": "combined-primary-space-arrival",
+            "rmsXY": 0.11730712673378613,
+            "maxXY": 0.2768169917898233,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-void-overlook-1",
+            "rmsXY": 0.11730712673378613,
+            "maxXY": 0.2768169917898233,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.02522219553206817,
+        "finalHashChanged": true,
+        "extent": [
+          16.514073610305786,
+          11.962482124567032,
+          9.50479671849584
+        ],
+        "components": 1
+      },
+      "removal": {
+        "elements": [
+          {
+            "id": "combined-primary-space-arrival",
+            "rmsXY": 0.6711146757161591,
+            "maxXY": 1.2538144869345886,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-void-overlook-1",
+            "rmsXY": 0.6711146757161591,
+            "maxXY": 1.2538144869345886,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.12748004561003423,
+        "finalHashChanged": true,
+        "extent": [
+          16.522360429167747,
+          11.968655750155449,
+          9.507420150764789
+        ],
+        "components": 1
+      },
+      "voidRemoval": {
+        "elements": [
+          {
+            "id": "combined-primary-space-arrival",
+            "rmsXY": 0.004471279462025235,
+            "maxXY": 0.007188725971543396,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          },
+          {
+            "id": "combined-void-overlook-1",
+            "rmsXY": 0.004471279462025235,
+            "maxXY": 0.007188725971543396,
+            "dZ": 0,
+            "dHeight": 0,
+            "changed": true
+          }
+        ],
+        "rawTopologySame": true,
+        "finalSurfaceBinDifference": 0.004604944255937937,
+        "finalHashChanged": true,
+        "extent": [
+          16.527023166418076,
+          11.972539976239204,
+          9.506233344917952
+        ],
+        "components": 1
+      }
+    }
+  ],
+  "before": {
+    "amphitheaterPrototype.ts": "d3fd50f6f8539f13df2eae6b86817f19c376e061093f75aef49743d9d3a49949",
+    "PrototypeDemonstration.tsx": "d8225327fcfc4e50bde25cb7abc3cee28830fcc64d418e582a7c77b31e8669b7",
+    "CompositionStudio.tsx": "5ccca7af7f509c3246ca260e7a4e6193f08a34f4fd7fa352b5952d51a25f364f"
+  },
+  "after": {
+    "amphitheaterPrototype.ts": "d3fd50f6f8539f13df2eae6b86817f19c376e061093f75aef49743d9d3a49949",
+    "PrototypeDemonstration.tsx": "d8225327fcfc4e50bde25cb7abc3cee28830fcc64d418e582a7c77b31e8669b7",
+    "CompositionStudio.tsx": "5ccca7af7f509c3246ca260e7a4e6193f08a34f4fd7fa352b5952d51a25f364f"
+  }
+}

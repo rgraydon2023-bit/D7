@@ -1,0 +1,22 @@
+[
+  {
+    "Algorithm": "SHA256",
+    "Hash": "F8D5E330A61B5DBCFF77B5ECEB0315D1CC1CAC5D3E61E55A4F1EADFBD9109C8C",
+    "Path": "C:\\Users\\DHale\\Documents\\Codex\\2026-09-21\\i-ne\\work\\vul-shareable-2026-09-24\\src\\components\\amphitheaterPrototype.ts"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "65BF371434B6AD87544ECCAD5272ABC0C088E6812345BACA5267F1A4ADAD5EE9",
+    "Path": "C:\\Users\\DHale\\Documents\\Codex\\2026-09-21\\i-ne\\work\\vul-shareable-2026-09-24\\src\\components\\PrototypeDemonstration.tsx"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "D3FD50F6F8539F13DF2EAE6B86817F19C376E061093F75AEF49743D9D3A49949",
+    "Path": "C:\\Users\\DHale\\Documents\\Codex\\2026-09-21\\i-ne\\work\\vul-shareable-2026-09-24\\checkpoints\\2026-09-28-before-provenance\\amphitheaterPrototype.ts.checkpoint.txt"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "D8225327FCFC4E50BDE25CB7ABC3CEE28830FCC64D418E582A7C77B31E8669B7",
+    "Path": "C:\\Users\\DHale\\Documents\\Codex\\2026-09-21\\i-ne\\work\\vul-shareable-2026-09-24\\checkpoints\\2026-09-28-before-provenance\\PrototypeDemonstration.tsx.checkpoint.txt"
+  }
+]

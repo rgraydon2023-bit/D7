@@ -16,17 +16,17 @@ function shapeL(): THREE.Shape {
 
 function shapeU(): THREE.Shape {
   const s = new THREE.Shape();
-  s.moveTo(-0.44, 0.48);
-  s.lineTo(-0.14, 0.48);
-  s.lineTo(-0.14, -0.16);
-  s.bezierCurveTo(-0.14, -0.35, -0.07, -0.45, 0, -0.45);
-  s.bezierCurveTo(0.07, -0.45, 0.14, -0.35, 0.14, -0.16);
-  s.lineTo(0.14, 0.48);
-  s.lineTo(0.44, 0.48);
-  s.lineTo(0.44, -0.16);
-  s.bezierCurveTo(0.44, -0.52, 0.27, -0.62, 0, -0.62);
-  s.bezierCurveTo(-0.27, -0.62, -0.44, -0.52, -0.44, -0.16);
-  s.lineTo(-0.44, 0.48);
+  s.moveTo(-0.42, 0.45);
+  s.lineTo(-0.42, -0.08);
+  s.bezierCurveTo(-0.42, -0.37, -0.24, -0.48, 0, -0.48);
+  s.bezierCurveTo(0.24, -0.48, 0.42, -0.37, 0.42, -0.08);
+  s.lineTo(0.42, 0.45);
+  s.lineTo(0.14, 0.45);
+  s.lineTo(0.14, -0.07);
+  s.bezierCurveTo(0.14, -0.22, 0.08, -0.28, 0, -0.28);
+  s.bezierCurveTo(-0.08, -0.28, -0.14, -0.22, -0.14, -0.07);
+  s.lineTo(-0.14, 0.45);
+  s.lineTo(-0.42, 0.45);
   s.closePath();
   return s;
 }

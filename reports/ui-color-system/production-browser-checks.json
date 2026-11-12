@@ -1,0 +1,414 @@
+[
+  {
+    "route": "/composition",
+    "background": "rgb(0, 0, 0)",
+    "gradient": "none",
+    "panels": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "rgb(247, 246, 245)"
+      },
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      },
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      },
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      },
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "rgb(247, 246, 245)"
+      },
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      },
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "rgb(247, 246, 245)"
+      },
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      },
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      },
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      }
+    ],
+    "primaryText": "rgb(247, 246, 245)",
+    "ranges": [
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(214, 173, 79)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(214, 173, 79)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(214, 173, 79)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(214, 173, 79)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(214, 173, 79)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(214, 173, 79)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(214, 173, 79)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(214, 173, 79)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(214, 173, 79)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(214, 173, 79)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(214, 173, 79)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(214, 173, 79)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": null
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": "Surface smoothness"
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": "Blending strength"
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": "Connection distance"
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": "Curvature intensity"
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": "Flat platform retention"
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": "Minimum opening"
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": "Vertical Integration"
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": "Interlevel Surface Continuity"
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": "Original Elevation Preservation"
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": "Organic Influence"
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": "Boundary Curvature"
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": "Blend Radius"
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": "Surface Relaxation"
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": "Branching Influence"
+      },
+      {
+        "accent": "rgb(113, 190, 218)",
+        "label": "Source Preservation"
+      }
+    ],
+    "scrollWidth": 1265,
+    "width": 1265
+  },
+  {
+    "route": "/",
+    "background": "rgb(0, 0, 0)",
+    "panels": [
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      },
+      {
+        "background": "rgb(0, 0, 0)",
+        "border": "rgb(7, 60, 82)"
+      }
+    ],
+    "ranges": [
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)"
+    ],
+    "scrollWidth": 1280,
+    "text": "rgb(247, 246, 245)",
+    "width": 1280
+  },
+  {
+    "route": "/crops",
+    "background": "rgb(0, 0, 0)",
+    "panels": [
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "rgb(247, 246, 245)"
+      }
+    ],
+    "ranges": [],
+    "scrollWidth": 1280,
+    "text": "rgb(247, 246, 245)",
+    "width": 1280
+  },
+  {
+    "route": "/shapes",
+    "background": "rgb(0, 0, 0)",
+    "panels": [],
+    "ranges": [],
+    "scrollWidth": 1280,
+    "text": "rgb(247, 246, 245)",
+    "width": 1280
+  },
+  {
+    "route": "/voids",
+    "background": "rgb(0, 0, 0)",
+    "panels": [
+      {
+        "background": "rgb(8, 15, 24)",
+        "border": "rgb(7, 60, 82)"
+      }
+    ],
+    "ranges": [],
+    "scrollWidth": 1280,
+    "text": "rgb(247, 246, 245)",
+    "width": 1280
+  },
+  {
+    "route": "/evaluations",
+    "background": "rgb(0, 0, 0)",
+    "panels": [
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      },
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      }
+    ],
+    "ranges": [],
+    "scrollWidth": 1265,
+    "text": "rgb(247, 246, 245)",
+    "width": 1265
+  },
+  {
+    "route": "/lattice",
+    "background": "rgb(0, 0, 0)",
+    "panels": [
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      },
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      }
+    ],
+    "ranges": [
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)"
+    ],
+    "scrollWidth": 1280,
+    "text": "rgb(247, 246, 245)",
+    "width": 1280
+  },
+  {
+    "route": "/composition?board=7407x2160",
+    "background": "rgb(0, 0, 0)",
+    "panels": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "rgb(247, 246, 245)"
+      },
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      },
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      },
+      {
+        "background": "rgb(16, 29, 43)",
+        "border": "rgb(7, 60, 82)"
+      }
+    ],
+    "ranges": [
+      "rgb(113, 190, 218)",
+      "rgb(214, 173, 79)",
+      "rgb(113, 190, 218)",
+      "rgb(214, 173, 79)",
+      "rgb(113, 190, 218)",
+      "rgb(214, 173, 79)",
+      "rgb(113, 190, 218)",
+      "rgb(214, 173, 79)",
+      "rgb(113, 190, 218)",
+      "rgb(214, 173, 79)",
+      "rgb(113, 190, 218)",
+      "rgb(214, 173, 79)",
+      "rgb(113, 190, 218)",
+      "rgb(214, 173, 79)",
+      "rgb(113, 190, 218)",
+      "rgb(214, 173, 79)",
+      "rgb(113, 190, 218)",
+      "rgb(214, 173, 79)",
+      "rgb(113, 190, 218)",
+      "rgb(214, 173, 79)",
+      "rgb(113, 190, 218)",
+      "rgb(214, 173, 79)",
+      "rgb(113, 190, 218)",
+      "rgb(214, 173, 79)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)",
+      "rgb(113, 190, 218)"
+    ],
+    "scrollWidth": 1280,
+    "text": "rgb(247, 246, 245)",
+    "width": 1280
+  }
+]

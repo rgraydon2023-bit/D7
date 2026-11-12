@@ -1,0 +1,81 @@
+{
+  "setup": {
+    "mode": "combined",
+    "seed": 2041,
+    "sourceObjects": 12,
+    "scale": 0.72,
+    "descriptorProfile": "shared matrix profile"
+  },
+  "passed": 1,
+  "failed": [],
+  "rows": [
+    {
+      "category": "lobby",
+      "typology": "vertical-void-lobby",
+      "name": "Vertical Void Lobby",
+      "primary": [
+        "VOID",
+        "VERTICALIZE"
+      ],
+      "secondary": [
+        "OVERLOOK",
+        "BRIDGE",
+        "SEQUENCE"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 14,
+      "plates": 16,
+      "continuousSurfaces": 0,
+      "circulationPaths": 7,
+      "criterion": "Vertically continuous void",
+      "criterionValue": 13.03,
+      "criterionUnit": "ft",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 5098,
+        "triangles": 10271,
+        "components": 1,
+        "horizontalArea": 600.69,
+        "verticalExtent": 13.03,
+        "componentBounds": [
+          {
+            "triangles": 10802,
+            "horizontalArea": 579.6288024388451,
+            "min": [
+              -5.7629574239254,
+              2.245960122772341,
+              -5.497131422162056
+            ],
+            "max": [
+              9.750000163912773,
+              15.2769,
+              9.750000163912773
+            ]
+          }
+        ]
+      },
+      "interlocking": [
+        {
+          "count": 2,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 4,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 8,
+          "valid": true,
+          "failures": []
+        }
+      ]
+    }
+  ]
+}

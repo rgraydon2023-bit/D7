@@ -1,13 +1,31 @@
 @import "tailwindcss";
+@import "./board.css";
+
+/* Saved board snapshots are data, not Tailwind source. */
+@source not "../../presentation";
 
 :root {
-  --ink: #f2f2f2;
-  --paper: #000000;
-  --accent: #3dd6db;
-  --muted: #9a9a9a;
-  --panel: #111111;
-  --panel-soft: #1a1a1a;
-  --line: #2a2a2a;
+  --app-background: #000000;
+  --panel-background: #101D2B;
+  --input-background: #080F18;
+  --panel-border: #073C52;
+  --text-primary: #F7F6F5;
+  --text-secondary: #B9BEC6;
+  --accent-pale: #9BD5E4;
+  --accent-light: #71BEDA;
+  --accent-intermediate: #43A9CF;
+  --accent-primary: #1293C2;
+  --accent-secondary: #0E6F92;
+  --accent-dark: #095775;
+  --accent-gold: #D6AD4F;
+  /* Existing component names remain aliases of the shared presentation palette. */
+  --ink: var(--text-primary);
+  --paper: var(--app-background);
+  --accent: var(--accent-light);
+  --muted: var(--text-secondary);
+  --panel: var(--panel-background);
+  --panel-soft: var(--input-background);
+  --line: var(--panel-border);
   --danger-bg: #2a1515;
   --danger-text: #f0a0a0;
   --preview-bg: #0a0a0a;
@@ -22,16 +40,13 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background-color: #000000;
+  background-color: var(--app-background);
 }
 
 body {
-  background:
-    radial-gradient(ellipse 70% 45% at 15% 0%, rgba(61, 214, 219, 0.08), transparent 55%),
-    radial-gradient(ellipse 60% 40% at 90% 5%, rgba(255, 255, 255, 0.03), transparent 50%),
-    #000000;
+  background: var(--app-background);
   color: var(--ink);
-  font-family: var(--font-sans, "IBM Plex Sans", "Segoe UI", sans-serif);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
   color-scheme: dark;
 }
 
@@ -41,3 +56,25 @@ select {
   font: inherit;
   color: inherit;
 }
+
+/* Native controls retain their sizing and behavior across normal and Board Mode. */
+input[type="range"], input[type="checkbox"], input[type="radio"] {
+  accent-color: var(--accent-light);
+}
+
+input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+select, textarea {
+  background-color: var(--input-background) !important;
+  border-color: var(--panel-border);
+}
+
+button { background-color: var(--input-background); }
+button[style*="background:var(--accent-primary)"],
+button[style*="background: var(--accent-primary)"] { color: var(--app-background); }
+button:not(:disabled):hover { border-color: var(--accent-intermediate) !important; }
+button:not(:disabled):active { border-color: var(--accent-pale) !important; }
+:is(button, input, select, textarea, a):focus-visible {
+  outline: 2px solid var(--accent-light);
+  outline-offset: 2px;
+}
+input:disabled, select:disabled, textarea:disabled { color: var(--text-secondary); }

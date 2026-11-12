@@ -1,7 +1,8 @@
 "use client";
 
-import { ContactShadows, OrbitControls, OrthographicCamera } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
+import { ContactShadows, OrbitControls } from "@react-three/drei";
+import { BoardOrthographicCamera as OrthographicCamera } from "./BoardOrthographicCamera";
+import { BoardCanvas as Canvas } from "@/components/BoardCanvas";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { CropEvaluation } from "./cropEvaluation";
@@ -22,7 +23,7 @@ function AxoCamera() {
   }, []);
 
   return (
-    <OrthographicCamera
+    <OrthographicCamera boardReferenceSize={180}
       ref={ref}
       makeDefault
       position={[5.2, 4.6, 5.2]}

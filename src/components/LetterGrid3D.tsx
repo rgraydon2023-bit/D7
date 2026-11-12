@@ -1,15 +1,19 @@
 "use client";
 
-import { Center, OrbitControls, OrthographicCamera, Text } from "@react-three/drei";
-import { Canvas, useLoader, useThree } from "@react-three/fiber";
-import { Suspense, useEffect, useLayoutEffect, useMemo } from "react";
+import { Center, OrbitControls, Text } from "@react-three/drei";
+import { BoardOrthographicCamera as OrthographicCamera } from "./BoardOrthographicCamera";
+import { useLoader } from "@react-three/fiber";
+import { BoardCanvas as Canvas } from "@/components/BoardCanvas";
+import { Suspense, useLayoutEffect, useMemo } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import type { Cell, Letter, LetterAsset, LetterAssets } from "./letterTypes";
 import { getLetterVolumeGeometry } from "./letterGeometry3d";
-import { letterVolumeLayout } from "./letterVolumeLayout";
-import type { VolumeExportTarget } from "./exportLetterVolume";
+import DashedOctetBoxes from "./DashedOctetBoxes";
+import { letterDepthSpan, letterVolumeLayout, octetBoxes, UNIT_LETTER_SPAN } from "./letterVolumeLayout";
+import type { VolumeBounds, VolumeExportTarget } from "./exportLetterVolume";
+import type { CompositionPlacement } from "./compositionEngine";
 
 type LetterGrid3DProps = {
   cells: Cell[];
@@ -22,12 +26,14 @@ type LetterGrid3DProps = {
   cols: number;
   rows: number;
   spacing: number;
+  attractorGap?: number;
   letterSize: number;
   assets: LetterAssets;
   useAssets: boolean;
   showGuides: boolean;
   volumeTarget: VolumeExportTarget;
-  clipPositions: { x: number; y: number; z: number };
+  compositionPlacements?: CompositionPlacement[] | null;
+  compositionBounds?: VolumeBounds;
 };
 
 const layerMaterials = [
@@ -255,6 +261,9 @@ function GridCell({
   layerIndex,
   thickness,
   yRotationDeg,
+  xRotationDeg,
+  zRotationDeg,
+  axisScale,
   voidMode,
 }: {
   cell: Cell;
@@ -269,6 +278,9 @@ function GridCell({
   layerIndex: number;
   thickness: number;
   yRotationDeg: number;
+  xRotationDeg: number;
+  zRotationDeg: number;
+  axisScale: [number, number, number];
   voidMode: boolean;
 }) {
   // Diameter ≤ letter size (0.85×).
@@ -292,70 +304,25 @@ function GridCell({
           </mesh>
         }
       >
-        <group rotation={[0, yRotation, 0]}>
+        <group rotation={[THREE.MathUtils.degToRad(xRotationDeg), yRotation, 0]}>
+          <group scale={axisScale}>
           <Center>
             <LetterContent
               letter={cell.letter}
               asset={asset}
               useAssets={useAssets}
               size={worldLetterSize}
-              rotationDeg={cell.rotation}
+              rotationDeg={zRotationDeg}
               solid={solid}
               layerIndex={layerIndex}
               thickness={thickness}
               voidMode={voidMode}
             />
           </Center>
+          </group>
         </group>
       </Suspense>
     </group>
-  );
-}
-
-function GridClipPlanes({ positions, width, height, depth }: {
-  positions: { x: number; y: number; z: number };
-  width: number;
-  height: number;
-  depth: number;
-}) {
-  const { gl } = useThree();
-  const cuts = useMemo(() => ({
-    x: (width * positions.x) / 200,
-    y: (height * positions.y) / 200,
-    z: (depth * positions.z) / 200,
-  }), [width, height, depth, positions]);
-  const clippingPlanes = useMemo(() => [
-    new THREE.Plane(new THREE.Vector3(1, 0, 0), cuts.x),
-    new THREE.Plane(new THREE.Vector3(0, 1, 0), cuts.y),
-    new THREE.Plane(new THREE.Vector3(0, 0, 1), cuts.z),
-  ], [cuts]);
-
-  useEffect(() => {
-    const previous = gl.clippingPlanes;
-    const previousLocal = gl.localClippingEnabled;
-    gl.localClippingEnabled = true;
-    gl.clippingPlanes = clippingPlanes;
-    return () => {
-      gl.clippingPlanes = previous;
-      gl.localClippingEnabled = previousLocal;
-    };
-  }, [gl, clippingPlanes]);
-
-  return (
-    <>
-      <mesh position={[cuts.x, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[depth * 1.08, height * 1.08]} />
-        <meshBasicMaterial color="#f49aa6" transparent opacity={0.16} side={THREE.DoubleSide} depthWrite={false} />
-      </mesh>
-      <mesh position={[0, cuts.y, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[width * 1.08, depth * 1.08]} />
-        <meshBasicMaterial color="#b7ea9c" transparent opacity={0.16} side={THREE.DoubleSide} depthWrite={false} />
-      </mesh>
-      <mesh position={[0, 0, cuts.z]}>
-        <planeGeometry args={[width * 1.08, height * 1.08]} />
-        <meshBasicMaterial color="#9fc7ff" transparent opacity={0.16} side={THREE.DoubleSide} depthWrite={false} />
-      </mesh>
-    </>
   );
 }
 
@@ -371,15 +338,17 @@ function Scene(props: LetterGrid3DProps) {
     cols,
     rows,
     spacing,
+    attractorGap,
     letterSize,
     assets,
     useAssets,
     showGuides,
     volumeTarget,
-    clipPositions,
+    compositionPlacements,
+    compositionBounds: fixedCompositionBounds,
   } = props;
 
-  const { placements, worldLetterSize, width: worldWidth, height: worldHeight, depth: worldDepth } =
+  const regularLayout =
     useMemo(() => letterVolumeLayout({
       cells,
       layerCells: layerMode ? layerCells : [],
@@ -387,11 +356,56 @@ function Scene(props: LetterGrid3DProps) {
       rows,
       spacing,
       zSpacing,
+      attractorGap,
       letterSize,
       thickness: letterThickness,
       yRotationEnabled: layerMode && yRotationEnabled,
       yRotationRange,
-    }), [cells, layerCells, layerMode, cols, rows, spacing, zSpacing, letterSize, letterThickness, yRotationEnabled, yRotationRange]);
+    }), [cells, layerCells, layerMode, cols, rows, spacing, zSpacing, attractorGap, letterSize, letterThickness, yRotationEnabled, yRotationRange]);
+  const placements = useMemo<CompositionPlacement[]>(() => compositionPlacements ?? regularLayout.placements.map((placement, sourceIndex) => ({
+    ...placement,
+    sourceIndex,
+    rx: 0,
+    ry: placement.yRotation,
+    rz: placement.cell.rotation,
+    scale: regularLayout.worldLetterSize,
+    scaleX: 1,
+    scaleY: 1,
+    scaleZ: 1,
+  })), [compositionPlacements, regularLayout]);
+  const compositionBounds = useMemo(() => {
+    if (!compositionPlacements?.length) return null;
+    const extent = (axis: "x" | "y" | "z") => {
+      const min = Math.min(...compositionPlacements.map((placement) => placement[axis] - placement.scale * Math.max(placement.scaleX ?? 1, placement.scaleY ?? 1, placement.scaleZ ?? 1) * 0.55));
+      const max = Math.max(...compositionPlacements.map((placement) => placement[axis] + placement.scale * Math.max(placement.scaleX ?? 1, placement.scaleY ?? 1, placement.scaleZ ?? 1) * 0.55));
+      return max - min;
+    };
+    return { width: extent("x"), height: extent("y"), depth: extent("z") };
+  }, [compositionPlacements]);
+  const groupBoxes = useMemo(() => {
+    const layers = Math.max(1 + layerCells.length, ...placements.map((placement) => placement.layerIndex + 1), 1);
+    return octetBoxes(placements.map((placement) => {
+      const width = placement.scale * (placement.scaleX ?? 1);
+      const height = placement.scale * (placement.scaleY ?? 1);
+      const depth = placement.scale * (placement.scaleZ ?? 1);
+      const framed = placement as CompositionPlacement & { frameX?: number; frameY?: number; frameZ?: number };
+      return {
+        col: placement.col,
+        row: placement.row,
+        layerIndex: placement.layerIndex,
+        x: framed.frameX ?? placement.x,
+        y: framed.frameY ?? placement.y,
+        z: framed.frameZ ?? placement.z,
+        halfX: (width * UNIT_LETTER_SPAN) / 2,
+        halfY: (height * UNIT_LETTER_SPAN) / 2,
+        halfZ: letterDepthSpan(depth, letterThickness, false) / 2,
+      };
+    }), { cols, rows, layers });
+  }, [placements, cols, rows, layerCells.length, letterThickness]);
+  const worldLetterSize = regularLayout.worldLetterSize;
+  const worldWidth = fixedCompositionBounds?.width ?? compositionBounds?.width ?? regularLayout.width;
+  const worldHeight = fixedCompositionBounds?.height ?? compositionBounds?.height ?? regularLayout.height;
+  const worldDepth = fixedCompositionBounds?.depth ?? compositionBounds?.depth ?? regularLayout.depth;
 
   const zoom = Math.min(110, 430 / Math.max(
     worldWidth * (layerMode ? 1.35 : 1),
@@ -433,27 +447,30 @@ function Scene(props: LetterGrid3DProps) {
           </lineSegments>
         </>
       )}
+      <DashedOctetBoxes boxes={groupBoxes} />
       <group>
-        {placements.map(({ cell, x, y, z, layerIndex, yRotation }) => (
+        {placements.map((placement, placementIndex) => (
           <GridCell
-            key={`${layerIndex}-${cell.id}`}
-            cell={cell}
-            x={x}
-            y={y}
-            z={z}
-            asset={assets[cell.letter]}
+            key={`${placement.layerIndex}-${placement.cell.id}-${placementIndex}`}
+            cell={placement.cell}
+            x={placement.x}
+            y={placement.y}
+            z={placement.z}
+            asset={assets[placement.cell.letter]}
             useAssets={useAssets}
-            worldLetterSize={worldLetterSize}
+            worldLetterSize={placement.scale}
             showGuides={showGuides && !layerMode}
             solid={layerMode}
-            layerIndex={layerIndex}
+            layerIndex={placement.layerIndex}
             thickness={letterThickness}
-            yRotationDeg={yRotation}
+            xRotationDeg={placement.rx}
+            yRotationDeg={placement.ry}
+            zRotationDeg={placement.rz}
+            axisScale={[placement.scaleX ?? 1, placement.scaleY ?? 1, placement.scaleZ ?? 1]}
             voidMode={volumeTarget === "void"}
           />
         ))}
       </group>
-      <GridClipPlanes positions={clipPositions} width={worldWidth} height={worldHeight} depth={worldDepth} />
       <OrbitControls enablePan enableZoom enableRotate minZoom={15} maxZoom={260} />
     </>
   );

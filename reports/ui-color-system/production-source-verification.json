@@ -1,0 +1,78 @@
+{
+  "base": "86cec2683493287ef78a43daa90e26a284eeba97",
+  "changed": [
+    "src/app/board.css",
+    "src/app/globals.css",
+    "src/components/AppNav.tsx",
+    "src/components/CompositionStudio.tsx",
+    "src/components/CropEvalGrid.tsx",
+    "src/components/CropsPage.tsx",
+    "src/components/LetterGrid.tsx",
+    "src/components/PrototypeDemonstration.tsx",
+    "src/components/ShapesPage.tsx",
+    "src/components/VoidsPage.tsx",
+    "src/components/evaluations/ArchitecturalEvaluations.tsx",
+    "src/components/lattice/LatticeStudio.tsx"
+  ],
+  "source": [
+    {
+      "file": "src/components/AppNav.tsx",
+      "nonStylingSyntaxUnchanged": true
+    },
+    {
+      "file": "src/components/CompositionStudio.tsx",
+      "nonStylingSyntaxUnchanged": true
+    },
+    {
+      "file": "src/components/CropEvalGrid.tsx",
+      "nonStylingSyntaxUnchanged": true
+    },
+    {
+      "file": "src/components/CropsPage.tsx",
+      "nonStylingSyntaxUnchanged": true
+    },
+    {
+      "file": "src/components/LetterGrid.tsx",
+      "nonStylingSyntaxUnchanged": true
+    },
+    {
+      "file": "src/components/PrototypeDemonstration.tsx",
+      "nonStylingSyntaxUnchanged": true
+    },
+    {
+      "file": "src/components/ShapesPage.tsx",
+      "nonStylingSyntaxUnchanged": true
+    },
+    {
+      "file": "src/components/VoidsPage.tsx",
+      "nonStylingSyntaxUnchanged": true
+    },
+    {
+      "file": "src/components/evaluations/ArchitecturalEvaluations.tsx",
+      "nonStylingSyntaxUnchanged": true
+    },
+    {
+      "file": "src/components/lattice/LatticeStudio.tsx",
+      "nonStylingSyntaxUnchanged": true
+    }
+  ],
+  "preservation": [
+    {
+      "root": "C:\\Users\\DHale\\Documents\\Codex\\Cursor-APP",
+      "filesChecked": 498,
+      "mismatch": [],
+      "statusUnchanged": true,
+      "branchUnchanged": true,
+      "headUnchanged": true
+    },
+    {
+      "root": "C:\\Users\\DHale\\.codex\\worktrees\\ui-global-color-system\\Cursor-APP",
+      "filesChecked": 482,
+      "mismatch": [],
+      "statusUnchanged": true,
+      "branchUnchanged": true,
+      "headUnchanged": true
+    }
+  ],
+  "commitsAboveMain": "0"
+}

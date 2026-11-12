@@ -1,0 +1,92 @@
+{
+  "setup": {
+    "mode": "combined",
+    "seed": 2041,
+    "sourceObjects": 12,
+    "scale": 0.72,
+    "descriptorProfile": "shared matrix profile"
+  },
+  "passed": 1,
+  "failed": [],
+  "rows": [
+    {
+      "category": "lobby",
+      "typology": "vertical-void-lobby",
+      "name": "Vertical Void Lobby",
+      "primary": [
+        "VOID",
+        "VERTICALIZE"
+      ],
+      "secondary": [
+        "OVERLOOK",
+        "BRIDGE",
+        "SEQUENCE"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 4,
+      "principalVoids": 1,
+      "plates": 4,
+      "continuousSurfaces": 0,
+      "circulationPaths": 48,
+      "rawTopology": {
+        "occupiedRegions": 4,
+        "discretePlates": 4,
+        "continuousSurfaces": 0,
+        "principalVoids": 1,
+        "typologySpecificElements": [
+          "primary-space-arrival",
+          "void-overlook-#"
+        ],
+        "terraceActive": false
+      },
+      "criterion": "Vertically continuous void",
+      "criterionValue": 24.57,
+      "criterionUnit": "ft",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 20317,
+        "triangles": 40342,
+        "components": 1,
+        "horizontalArea": 1722.98,
+        "verticalExtent": 24.57,
+        "componentBounds": [
+          {
+            "triangles": 43100,
+            "horizontalArea": 1701.0867636084297,
+            "min": [
+              -7.625862240791321,
+              -1.9224032638778263,
+              -8.246742516756058
+            ],
+            "max": [
+              10.078125,
+              22.643888669114084,
+              10.078125
+            ]
+          }
+        ]
+      },
+      "interlocking": [
+        {
+          "count": 2,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 4,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 8,
+          "valid": true,
+          "failures": []
+        }
+      ]
+    }
+  ]
+}

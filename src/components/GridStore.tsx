@@ -30,6 +30,18 @@ import {
   type GradientDirection,
   type GradientMode,
 } from "./rotationGradient";
+import type { CompositionPlacement } from "./compositionEngine";
+import { readJson, readSlideSignature, SLIDE_SESSION_KEY, writeJson } from "./browserSession";
+
+export type AppliedComposition = {
+  seed: number;
+  alternativeIndex: number;
+  placements: CompositionPlacement[];
+  width: number;
+  height: number;
+  depth: number;
+  sourceCenter?: { x: number; y: number; z: number };
+};
 
 export type RotationOptions = {
   direction: GradientDirection;
@@ -43,10 +55,34 @@ export type Permutation = {
   cells: Cell[];
 };
 
+type SlideSession = {
+  cols: number;
+  rows: number;
+  spacing: number;
+  fontSize: number;
+  gradientDirection: GradientDirection;
+  gradientMode: GradientMode;
+  lessDegrees: number;
+  moreDegrees: number;
+  cells: Cell[];
+  layerCells: Cell[][];
+  layerMode: boolean;
+  zLayers: number;
+  zSpacing: number;
+  attractorGap?: number | null;
+  letterThickness: number;
+  yRotationEnabled: boolean;
+  yRotationRange: number;
+  permutations: Permutation[];
+  showGuides: boolean;
+  cropCriteria: CropCriteria;
+  showFailedCrops: boolean;
+  useAssets: boolean;
+  appliedComposition: AppliedComposition | null;
+};
+
 const PERMUTATION_COUNT = 16;
 const MAX_Z_LAYERS = 8;
-const SLIDER_VALUES_STORAGE_KEY = "vul-letter-grid-slider-values";
-const SAVED_FILES_STORAGE_KEY = "vul-letter-grid-saved-files";
 const EMPTY_ASSETS: LetterAssets = { V: null, U: null, L: null };
 
 export const DEFAULT_ROTATION: RotationOptions = {
@@ -54,37 +90,6 @@ export const DEFAULT_ROTATION: RotationOptions = {
   mode: "random",
   lessDegrees: 0,
   moreDegrees: 90,
-};
-
-type SavedSliderValues = {
-  cols: number;
-  rows: number;
-  spacing: number;
-  fontSize: number;
-  lessDegrees: number;
-  moreDegrees: number;
-  zLayers: number;
-  zSpacing: number;
-  letterThickness: number;
-  yRotationRange: number;
-  gradientDirection: GradientDirection;
-  gradientMode: GradientMode;
-};
-
-type SavedFileSnapshot = SavedSliderValues & {
-  cells: Cell[];
-  layerCells: Cell[][];
-  permutations: Permutation[];
-  layerMode: boolean;
-  yRotationEnabled: boolean;
-  showGuides: boolean;
-};
-
-export type SavedGridFile = {
-  id: string;
-  name: string;
-  savedAt: string;
-  snapshot: SavedFileSnapshot;
 };
 
 export const GRADIENT_OPTIONS: { value: GradientDirection; label: string }[] = [
@@ -189,6 +194,9 @@ type GridStoreValue = {
   setZLayers: (count: number) => void;
   zSpacing: number;
   setZSpacing: (spacing: number) => void;
+  /** Null follows the grid. A number is the 45° center-to-letter gap. */
+  attractorGap: number | null;
+  setAttractorGap: (gap: number | null) => void;
   letterThickness: number;
   setLetterThickness: (percent: number) => void;
   yRotationEnabled: boolean;
@@ -220,11 +228,9 @@ type GridStoreValue = {
   randomizeLetters: () => void;
   applyRotationGradient: () => void;
   resizeGrid: (nextCols: number, nextRows: number) => void;
-  saveSliderValues: () => void;
-  savedFiles: SavedGridFile[];
-  saveFile: (name: string) => void;
-  loadFile: (id: string) => void;
-  deleteFile: (id: string) => void;
+  appliedComposition: AppliedComposition | null;
+  setAppliedComposition: (composition: AppliedComposition | null) => void;
+  slideReady: boolean;
 };
 
 const GridStoreContext = createContext<GridStoreValue | null>(null);
@@ -257,6 +263,7 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
   const [layerMode, setLayerMode] = useState(false);
   const [zLayers, setZLayers] = useState(4);
   const [zSpacing, setZSpacing] = useState(56);
+  const [attractorGap, setAttractorGap] = useState<number | null>(null);
   const [letterThickness, setLetterThickness] = useState(12);
   const [yRotationEnabled, setYRotationEnabled] = useState(false);
   const [yRotationRange, setYRotationRange] = useState(90);
@@ -269,72 +276,78 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
   const [assets, setAssets] = useState<LetterAssets>(EMPTY_ASSETS);
   const [useAssets, setUseAssets] = useState(true);
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const [savedFiles, setSavedFiles] = useState<SavedGridFile[]>([]);
-  const [savedFilesReady, setSavedFilesReady] = useState(false);
+  const [appliedComposition, setAppliedComposition] = useState<AppliedComposition | null>(null);
+  const sourceVersion = useRef({ cells, layerCells, cols, rows, spacing, fontSize, zLayers, zSpacing, attractorGap, letterThickness, yRotationEnabled, yRotationRange });
+  const restoringSlide = useRef(false);
   const fileInputs = useRef<Record<Letter, HTMLInputElement | null>>({
     V: null,
     U: null,
     L: null,
   });
-  // The first render and loading a saved file should retain their stored letter angles.
-  const skipRotationSync = useRef(true);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(SLIDER_VALUES_STORAGE_KEY);
-      if (!raw) return;
-      const saved = JSON.parse(raw) as Partial<SavedSliderValues>;
-      const isFiniteNumber = (value: unknown): value is number => Number.isFinite(value);
-      if (!isFiniteNumber(saved.cols) || !isFiniteNumber(saved.rows)) return;
+    const previous = sourceVersion.current;
+    const changed = previous.cells !== cells
+      || previous.layerCells !== layerCells
+      || previous.cols !== cols
+      || previous.rows !== rows
+      || previous.spacing !== spacing
+      || previous.fontSize !== fontSize
+      || previous.zLayers !== zLayers
+      || previous.zSpacing !== zSpacing
+      || previous.attractorGap !== attractorGap
+      || previous.letterThickness !== letterThickness
+      || previous.yRotationEnabled !== yRotationEnabled
+      || previous.yRotationRange !== yRotationRange;
+    sourceVersion.current = { cells, layerCells, cols, rows, spacing, fontSize, zLayers, zSpacing, attractorGap, letterThickness, yRotationEnabled, yRotationRange };
+    if (changed && !restoringSlide.current) setAppliedComposition(null);
+    restoringSlide.current = false;
+  }, [cells, layerCells, cols, rows, spacing, fontSize, zLayers, zSpacing, attractorGap, letterThickness, yRotationEnabled, yRotationRange]);
 
-      const nextCols = Math.max(2, Math.min(16, Math.round(saved.cols)));
-      const nextRows = Math.max(2, Math.min(12, Math.round(saved.rows)));
-      const direction = saved.gradientDirection ?? DEFAULT_ROTATION.direction;
-      const mode = saved.gradientMode ?? DEFAULT_ROTATION.mode;
-      const options: RotationOptions = {
-        direction,
-        mode,
-        lessDegrees: isFiniteNumber(saved.lessDegrees) ? saved.lessDegrees : DEFAULT_ROTATION.lessDegrees,
-        moreDegrees: isFiniteNumber(saved.moreDegrees) ? saved.moreDegrees : DEFAULT_ROTATION.moreDegrees,
-      };
-
-      setCols(nextCols);
-      setRows(nextRows);
-      if (isFiniteNumber(saved.spacing)) setSpacing(saved.spacing);
-      if (isFiniteNumber(saved.fontSize)) setFontSize(saved.fontSize);
-      setGradientDirection(direction);
-      setGradientMode(mode);
-      setLessDegrees(options.lessDegrees);
-      setMoreDegrees(options.moreDegrees);
-      if (isFiniteNumber(saved.zLayers)) setZLayers(saved.zLayers);
-      if (isFiniteNumber(saved.zSpacing)) setZSpacing(saved.zSpacing);
-      if (isFiniteNumber(saved.letterThickness)) setLetterThickness(saved.letterThickness);
-      if (isFiniteNumber(saved.yRotationRange)) setYRotationRange(saved.yRotationRange);
-      setCells(createGrid(nextCols, nextRows, options));
-      setLayerCells(createDepthGrids(nextCols, nextRows, options));
-      setPermutations(createPermutations(nextCols, nextRows, options));
-    } catch {
-      // Ignore a missing or malformed saved preset and retain the defaults.
+  const [slideReady, setSlideReady] = useState(false);
+  useEffect(() => {
+    const saved = readJson<SlideSession>(SLIDE_SESSION_KEY);
+    if (saved && readSlideSignature(saved)) {
+      restoringSlide.current = true;
+      setCols(saved.cols);
+      setRows(saved.rows);
+      setSpacing(saved.spacing);
+      setFontSize(saved.fontSize);
+      setGradientDirection(saved.gradientDirection);
+      setGradientMode(saved.gradientMode);
+      setLessDegrees(saved.lessDegrees);
+      setMoreDegrees(saved.moreDegrees);
+      setCells(saved.cells);
+      setLayerCells(saved.layerCells);
+      setLayerMode(saved.layerMode);
+      setZLayers(saved.zLayers);
+      setZSpacing(saved.zSpacing);
+      if (typeof saved.attractorGap === "number") setAttractorGap(saved.attractorGap);
+      setLetterThickness(saved.letterThickness);
+      setYRotationEnabled(saved.yRotationEnabled);
+      setYRotationRange(saved.yRotationRange);
+      if (Array.isArray(saved.permutations)) setPermutations(saved.permutations);
+      if (typeof saved.showGuides === "boolean") setShowGuides(saved.showGuides);
+      if (saved.cropCriteria) setCropCriteria(saved.cropCriteria);
+      if (typeof saved.showFailedCrops === "boolean") setShowFailedCrops(saved.showFailedCrops);
+      if (typeof saved.useAssets === "boolean") setUseAssets(saved.useAssets);
+      setAppliedComposition(saved.appliedComposition ?? null);
     }
+    setSlideReady(true);
   }, []);
-
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(SAVED_FILES_STORAGE_KEY);
-      const parsed = raw ? JSON.parse(raw) : [];
-      if (Array.isArray(parsed)) setSavedFiles(parsed.filter((file): file is SavedGridFile => (
-        file && typeof file.id === "string" && typeof file.name === "string" && file.snapshot && Array.isArray(file.snapshot.cells)
-      )));
-    } catch {
-      // A malformed saved-files library should not affect the active grid.
-    } finally {
-      setSavedFilesReady(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (savedFilesReady) window.localStorage.setItem(SAVED_FILES_STORAGE_KEY, JSON.stringify(savedFiles));
-  }, [savedFiles, savedFilesReady]);
+    if (!slideReady) return;
+    const snapshot: SlideSession = {
+      cols, rows, spacing, fontSize, gradientDirection, gradientMode, lessDegrees, moreDegrees,
+      cells, layerCells, layerMode, zLayers, zSpacing, attractorGap, letterThickness, yRotationEnabled, yRotationRange,
+      permutations, showGuides, cropCriteria, showFailedCrops, useAssets, appliedComposition,
+    };
+    const timer = window.setTimeout(() => writeJson(SLIDE_SESSION_KEY, snapshot), 300);
+    return () => {
+      window.clearTimeout(timer);
+      writeJson(SLIDE_SESSION_KEY, snapshot);
+    };
+  }, [slideReady, cols, rows, spacing, fontSize, gradientDirection, gradientMode, lessDegrees, moreDegrees, cells, layerCells, layerMode, zLayers, zSpacing, attractorGap, letterThickness, yRotationEnabled, yRotationRange, permutations, showGuides, cropCriteria, showFailedCrops, useAssets, appliedComposition]);
 
   useEffect(() => {
     return () => {
@@ -444,15 +457,6 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
     );
   }, [cols, rows, rotationOptions]);
 
-  // Rotation controls are live: any adjustment updates every visible grid at once.
-  useEffect(() => {
-    if (skipRotationSync.current) {
-      skipRotationSync.current = false;
-      return;
-    }
-    applyRotationGradient();
-  }, [applyRotationGradient]);
-
   const resizeGrid = useCallback(
     (nextCols: number, nextRows: number) => {
       setCols(nextCols);
@@ -463,55 +467,6 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
     },
     [rotationOptions],
   );
-
-  const saveSliderValues = useCallback(() => {
-    const values: SavedSliderValues = {
-      cols,
-      rows,
-      spacing,
-      fontSize,
-      lessDegrees,
-      moreDegrees,
-      zLayers,
-      zSpacing,
-      letterThickness,
-      yRotationRange,
-      gradientDirection,
-      gradientMode,
-    };
-    window.localStorage.setItem(SLIDER_VALUES_STORAGE_KEY, JSON.stringify(values));
-  }, [cols, rows, spacing, fontSize, lessDegrees, moreDegrees, zLayers, zSpacing, letterThickness, yRotationRange, gradientDirection, gradientMode]);
-
-  const saveFile = useCallback((name: string) => {
-    const trimmedName = name.trim() || `Untitled grid ${savedFiles.length + 1}`;
-    const snapshot: SavedFileSnapshot = {
-      cols, rows, spacing, fontSize, lessDegrees, moreDegrees, zLayers, zSpacing, letterThickness, yRotationRange,
-      gradientDirection, gradientMode, cells, layerCells, permutations, layerMode, yRotationEnabled, showGuides,
-    };
-    setSavedFiles((current) => [{
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      name: trimmedName,
-      savedAt: new Date().toISOString(),
-      snapshot,
-    }, ...current]);
-  }, [cols, rows, spacing, fontSize, lessDegrees, moreDegrees, zLayers, zSpacing, letterThickness, yRotationRange, gradientDirection, gradientMode, cells, layerCells, permutations, layerMode, yRotationEnabled, showGuides, savedFiles.length]);
-
-  const loadFile = useCallback((id: string) => {
-    const file = savedFiles.find((candidate) => candidate.id === id);
-    if (!file) return;
-    const saved = file.snapshot;
-    skipRotationSync.current = true;
-    setCols(saved.cols); setRows(saved.rows); setSpacing(saved.spacing); setFontSize(saved.fontSize);
-    setLessDegrees(saved.lessDegrees); setMoreDegrees(saved.moreDegrees);
-    setZLayers(saved.zLayers); setZSpacing(saved.zSpacing); setLetterThickness(saved.letterThickness);
-    setYRotationRange(saved.yRotationRange); setGradientDirection(saved.gradientDirection); setGradientMode(saved.gradientMode);
-    setCells(saved.cells); setLayerCells(saved.layerCells); setPermutations(saved.permutations);
-    setLayerMode(saved.layerMode); setYRotationEnabled(saved.yRotationEnabled); setShowGuides(saved.showGuides);
-  }, [savedFiles]);
-
-  const deleteFile = useCallback((id: string) => {
-    setSavedFiles((current) => current.filter((file) => file.id !== id));
-  }, []);
 
   const gradientPreview = useMemo(() => {
     const stops =
@@ -578,6 +533,8 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
       setZLayers,
       zSpacing,
       setZSpacing,
+      attractorGap,
+      setAttractorGap,
       letterThickness,
       setLetterThickness,
       yRotationEnabled,
@@ -607,11 +564,9 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
       randomizeLetters,
       applyRotationGradient,
       resizeGrid,
-      saveSliderValues,
-      savedFiles,
-      saveFile,
-      loadFile,
-      deleteFile,
+      appliedComposition,
+      setAppliedComposition,
+      slideReady,
     }),
     [
       cols,
@@ -627,6 +582,7 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
       layerMode,
       zLayers,
       zSpacing,
+      attractorGap,
       letterThickness,
       yRotationEnabled,
       yRotationRange,
@@ -648,11 +604,8 @@ export function GridStoreProvider({ children }: { children: ReactNode }) {
       randomizeLetters,
       applyRotationGradient,
       resizeGrid,
-      saveSliderValues,
-      savedFiles,
-      saveFile,
-      loadFile,
-      deleteFile,
+      appliedComposition,
+      slideReady,
     ],
   );
 

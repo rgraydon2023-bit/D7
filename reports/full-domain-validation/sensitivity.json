@@ -1,0 +1,164 @@
+[
+  {
+    "typology": "contained-room-within-volume",
+    "descriptors": [
+      {
+        "descriptor": "openVolume",
+        "changed": true
+      },
+      {
+        "descriptor": "convergent",
+        "changed": true
+      },
+      {
+        "descriptor": "sculptural",
+        "changed": true
+      },
+      {
+        "descriptor": "visuallyConnected",
+        "changed": true
+      },
+      {
+        "descriptor": "surreal",
+        "changed": true
+      },
+      {
+        "descriptor": "monumental",
+        "changed": true
+      },
+      {
+        "descriptor": "hierarchical",
+        "changed": true
+      },
+      {
+        "descriptor": "sequential",
+        "changed": true
+      },
+      {
+        "descriptor": "circulationActivated",
+        "changed": true
+      },
+      {
+        "descriptor": "centralized",
+        "changed": true
+      },
+      {
+        "descriptor": "verticallyIntegrated",
+        "changed": true
+      },
+      {
+        "descriptor": "luminous",
+        "changed": true
+      }
+    ],
+    "interiorSourceChanged": true
+  },
+  {
+    "typology": "flat-deep-plan-plate",
+    "descriptors": [
+      {
+        "descriptor": "openVolume",
+        "changed": true
+      },
+      {
+        "descriptor": "convergent",
+        "changed": true
+      },
+      {
+        "descriptor": "sculptural",
+        "changed": true
+      },
+      {
+        "descriptor": "visuallyConnected",
+        "changed": true
+      },
+      {
+        "descriptor": "surreal",
+        "changed": true
+      },
+      {
+        "descriptor": "monumental",
+        "changed": true
+      },
+      {
+        "descriptor": "hierarchical",
+        "changed": true
+      },
+      {
+        "descriptor": "sequential",
+        "changed": true
+      },
+      {
+        "descriptor": "circulationActivated",
+        "changed": true
+      },
+      {
+        "descriptor": "centralized",
+        "changed": true
+      },
+      {
+        "descriptor": "verticallyIntegrated",
+        "changed": true
+      },
+      {
+        "descriptor": "luminous",
+        "changed": true
+      }
+    ],
+    "interiorSourceChanged": true
+  },
+  {
+    "typology": "vertical-void-lobby",
+    "descriptors": [
+      {
+        "descriptor": "openVolume",
+        "changed": true
+      },
+      {
+        "descriptor": "convergent",
+        "changed": true
+      },
+      {
+        "descriptor": "sculptural",
+        "changed": true
+      },
+      {
+        "descriptor": "visuallyConnected",
+        "changed": true
+      },
+      {
+        "descriptor": "surreal",
+        "changed": true
+      },
+      {
+        "descriptor": "monumental",
+        "changed": true
+      },
+      {
+        "descriptor": "hierarchical",
+        "changed": true
+      },
+      {
+        "descriptor": "sequential",
+        "changed": true
+      },
+      {
+        "descriptor": "circulationActivated",
+        "changed": true
+      },
+      {
+        "descriptor": "centralized",
+        "changed": true
+      },
+      {
+        "descriptor": "verticallyIntegrated",
+        "changed": true
+      },
+      {
+        "descriptor": "luminous",
+        "changed": true
+      }
+    ],
+    "interiorSourceChanged": true
+  }
+]

@@ -1,0 +1,79 @@
+{
+  "setup": {
+    "mode": "combined",
+    "seed": 2041,
+    "sourceObjects": 12,
+    "scale": 0.72,
+    "descriptorProfile": "shared matrix profile"
+  },
+  "passed": 1,
+  "failed": [],
+  "rows": [
+    {
+      "category": "office",
+      "typology": "flat-deep-plan-plate",
+      "name": "Flat Deep-Plan Plate",
+      "primary": [
+        "PLATE",
+        "DEPTH"
+      ],
+      "secondary": [
+        "CONTINUITY"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 9,
+      "plates": 13,
+      "continuousSurfaces": 0,
+      "circulationPaths": 6,
+      "criterion": "Deep horizontal plate",
+      "criterionValue": 148.51,
+      "criterionUnit": "ft²",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 878,
+        "triangles": 1752,
+        "components": 1,
+        "horizontalArea": 148.51,
+        "verticalExtent": 1.92,
+        "componentBounds": [
+          {
+            "triangles": 2300,
+            "horizontalArea": 146.01258030318468,
+            "min": [
+              -4.354048922657967,
+              6.634841265885772,
+              -4.792299769818783
+            ],
+            "max": [
+              9.750000163912773,
+              8.557083839830968,
+              9.750000163912773
+            ]
+          }
+        ]
+      },
+      "interlocking": [
+        {
+          "count": 2,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 4,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 8,
+          "valid": true,
+          "failures": []
+        }
+      ]
+    }
+  ]
+}

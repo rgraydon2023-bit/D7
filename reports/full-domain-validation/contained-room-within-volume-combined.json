@@ -1,0 +1,76 @@
+{
+  "typology": "contained-room-within-volume",
+  "mode": "combined",
+  "ms": 5800,
+  "diagnostic": {
+    "componentsAvailable": 224,
+    "componentsUsed": 224,
+    "relationshipsAvailable": 254,
+    "relationshipsUsed": 254,
+    "detailSamples": 0,
+    "source": [
+      16.718569928649977,
+      12.275016274622523,
+      7.724310297156299
+    ],
+    "organization": "Full-domain enclosure / nested room / interstitial floor",
+    "raw": [
+      16.731609926176247,
+      12.121813523669264,
+      12.8
+    ],
+    "final": [
+      16.530770272016525,
+      11.996568098664284,
+      12.74894434319301
+    ]
+  },
+  "raw": {
+    "occupiedRegions": 2,
+    "discretePlates": 2,
+    "continuousSurfaces": 0,
+    "principalVoids": 1,
+    "typologySpecificElements": [
+      "contained-enclosure-#",
+      "contained-room",
+      "contained-room-roof",
+      "outer-containing-canopy",
+      "outer-containing-shell-#",
+      "primary-space-interstitial"
+    ],
+    "terraceActive": false
+  },
+  "components": 1,
+  "presentationComponents": 1,
+  "validation": {
+    "gatheringSpace": {
+      "passed": true,
+      "area": 217.8554521671317
+    },
+    "steppedPlatforms": {
+      "passed": true,
+      "levels": 1
+    },
+    "circulation": {
+      "passed": true,
+      "coverage": 100
+    },
+    "usableHorizontalSurfaces": {
+      "passed": true,
+      "area": 629.6352732476415
+    },
+    "preservedOpenSpaces": {
+      "passed": true,
+      "area": 105.50944040240523
+    },
+    "typologyCriterion": {
+      "label": "Contained room + surrounding volume",
+      "passed": true,
+      "value": 21.015685118773586,
+      "unit": "ft² room"
+    },
+    "score": 100,
+    "valid": true,
+    "failures": []
+  }
+}

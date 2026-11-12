@@ -1,0 +1,629 @@
+"use client";
+
+import { OrbitControls, OrthographicCamera } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
+import * as THREE from "three";
+import type { CompositionPlacement, DescriptorSettings } from "./compositionEngine";
+import { getLetterVolumeGeometry } from "./letterGeometry3d";
+import {
+  DEFAULT_CONTINUITY_CONTROLS,
+  TILE_SIZE_FEET,
+  VERTICAL_INCREMENT_FEET,
+  architecturalObj,
+  architecturalElementGeometry,
+  architecturalSurfaceClass,
+  analyzeSourceGeometry,
+  buildAggregation,
+  extractInterLetterVoids,
+  generateSteppedAmphitheater,
+  type AggregationResult,
+  type AmphitheaterVariation,
+  type ArchitecturalElement,
+  type ArchitecturalSurfaceClass,
+  type ContinuityControls,
+  type ContinuousMeshData,
+  type PrototypeGeometryMode,
+  type PrototypeView,
+} from "./amphitheaterPrototype";
+
+type Props = {
+  sourcePlacements: CompositionPlacement[];
+  completeSourcePlacements: CompositionPlacement[];
+  sourceLabel: string;
+  sourceBounds: { width: number; height: number; depth: number };
+  sourceThickness: number;
+  sourceOptions: Array<{ index: number; label: string }>;
+  selectedSourceIndex: number;
+  onSourceIndexChange: (index: number) => void;
+  descriptors: DescriptorSettings;
+  selectedMode: PrototypeGeometryMode;
+  onSelectedModeChange: (mode: PrototypeGeometryMode) => void;
+};
+
+type Criterion = { id: string; name: string; value: number; notes: string };
+type VariationMap = Record<PrototypeGeometryMode, AmphitheaterVariation>;
+type SurfaceFilter = ArchitecturalSurfaceClass | "combined";
+
+const modes: PrototypeGeometryMode[] = ["letters", "voids", "combined"];
+const modeLabels: Record<PrototypeGeometryMode, string> = { letters: "Letters", voids: "Voids", combined: "Letters + Voids" };
+const stages = [
+  "Original source",
+  "Extracted geometry",
+  "Boundaries + relationships",
+  "Initial architectural surfaces",
+  "Final stepped amphitheater",
+  "Interlocking tile",
+  "Aggregations",
+  "Surface classification diagnostic",
+  "Connection graph diagnostic",
+  "Elevation response comparison",
+  "Three-mode comparison",
+  "Evaluation + selection",
+];
+
+const panelStyle = { borderColor: "var(--line)", background: "var(--panel)" } as const;
+const inputStyle = { borderColor: "var(--line)", background: "var(--panel-soft)" } as const;
+
+function createVariations(source: CompositionPlacement[], descriptors: DescriptorSettings, seed: number, continuityControls: ContinuityControls): VariationMap {
+  const sourceAnalysis = analyzeSourceGeometry(source);
+  return {
+    letters: generateSteppedAmphitheater({ source, descriptors, mode: "letters", seed, continuityControls, sourceAnalysis }),
+    voids: generateSteppedAmphitheater({ source, descriptors, mode: "voids", seed, continuityControls, sourceAnalysis }),
+    combined: generateSteppedAmphitheater({ source, descriptors, mode: "combined", seed, continuityControls, sourceAnalysis }),
+  };
+}
+
+function transformedFootprint(element: ArchitecturalElement) {
+  const footprint = element.footprint ?? [[-element.width / 2, -element.depth / 2], [element.width / 2, -element.depth / 2], [element.width / 2, element.depth / 2], [-element.width / 2, element.depth / 2]];
+  const angle = THREE.MathUtils.degToRad(element.rotation), cosine = Math.cos(angle), sine = Math.sin(angle);
+  return footprint.map(([x, y]) => [element.x + x * cosine + y * sine, element.y - x * sine + y * cosine] as [number, number]);
+}
+
+function pointInPolygon(point: [number, number], polygon: Array<[number, number]>) {
+  let inside = false;
+  for (let current = 0, previous = polygon.length - 1; current < polygon.length; previous = current++) {
+    const [xi, yi] = polygon[current], [xj, yj] = polygon[previous];
+    if ((yi > point[1]) !== (yj > point[1]) && point[0] < (xj - xi) * (point[1] - yi) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
+function surfaceOverlap(first: AmphitheaterVariation, second: AmphitheaterVariation) {
+  const eligible = (variation: AmphitheaterVariation) => variation.elements
+    .filter((element) => element.kind !== "void" && element.kind !== "connector")
+    .map(transformedFootprint);
+  const firstPolygons = eligible(first), secondPolygons = eligible(second);
+  let intersection = 0, union = 0;
+  const divisions = 56;
+  for (let yIndex = 0; yIndex < divisions; yIndex++) for (let xIndex = 0; xIndex < divisions; xIndex++) {
+    const point: [number, number] = [-10 + (xIndex + .5) * 20 / divisions, -10 + (yIndex + .5) * 20 / divisions];
+    const inFirst = firstPolygons.some((polygon) => pointInPolygon(point, polygon));
+    const inSecond = secondPolygons.some((polygon) => pointInPolygon(point, polygon));
+    if (inFirst || inSecond) union++;
+    if (inFirst && inSecond) intersection++;
+  }
+  return union ? intersection / union * 100 : 0;
+}
+
+function download(name: string, content: BlobPart, type: string) {
+  const url = URL.createObjectURL(new Blob([content], { type }));
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = name;
+  anchor.click();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function sourceForDisplay(source: CompositionPlacement[]) {
+  if (!source.length) return [];
+  const minX = Math.min(...source.map((item) => item.x));
+  const maxX = Math.max(...source.map((item) => item.x));
+  const minY = Math.min(...source.map((item) => item.y));
+  const maxY = Math.max(...source.map((item) => item.y));
+  const minZ = Math.min(...source.map((item) => item.z));
+  const uniformScale = 16 / Math.max(maxX - minX, maxY - minY, 1);
+  return source.map((item) => ({
+    ...item,
+    x: (item.x - (minX + maxX) / 2) * uniformScale,
+    y: (item.y - (minY + maxY) / 2) * uniformScale,
+    z: (item.z - minZ) * uniformScale,
+    scale: Math.max(0.35, item.scale * uniformScale * 0.55),
+  }));
+}
+
+function elementColor(kind: ArchitecturalElement["kind"]) {
+  if (kind === "stage") return "#ffbd4a";
+  if (kind === "circulation") return "#58dbe0";
+  if (kind === "enclosure") return "#73838b";
+  if (kind === "connector") return "#b38cff";
+  if (kind === "void") return "#267d86";
+  return "#d9e5e8";
+}
+
+function ElementMesh({ element, section, analytical, offsetX = 0 }: { element: ArchitecturalElement; section: boolean; analytical: boolean; offsetX?: number }) {
+  if (section && Math.abs(element.y) > element.depth / 2 + 0.8) return null;
+  const isVoid = element.kind === "void";
+  const geometry = architecturalElementGeometry(element);
+  return <mesh
+    geometry={geometry}
+    position={[element.x + offsetX, element.z, element.y]}
+    rotation={[0, THREE.MathUtils.degToRad(element.rotation), 0]}
+  >
+    <meshStandardMaterial
+      color={analytical ? elementColor(element.kind) : "#eef2f1"}
+      transparent={isVoid || element.transparent}
+      opacity={isVoid ? 0.22 : element.transparent ? 0.4 : 1}
+      wireframe={isVoid}
+      roughness={0.68}
+      side={THREE.DoubleSide}
+    />
+  </mesh>;
+}
+
+function FinishedMesh({ data, analytical, offset = [0, 0] }: { data: ContinuousMeshData; analytical: boolean; offset?: [number, number] }) {
+  const geometry = useMemo(() => {
+    const result = new THREE.BufferGeometry();
+    result.setAttribute("position", new THREE.Float32BufferAttribute(data.positions, 3));
+    result.setIndex(data.indices); result.computeVertexNormals(); result.computeBoundingSphere();
+    return result;
+  }, [data]);
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  return <mesh geometry={geometry} position={[offset[0], 0, offset[1]]}>
+    <meshStandardMaterial color={analytical ? "#d9f3f4" : "#ffffff"} roughness={0.62} metalness={0.02} side={THREE.DoubleSide} />
+  </mesh>;
+}
+
+function boundaryPositions(points: Array<[number, number]>, elevation = .12) {
+  const values: number[] = [];
+  points.forEach((point, index) => {
+    const next = points[(index + 1) % points.length];
+    values.push(point[0], elevation, point[1], next[0], elevation, next[1]);
+  });
+  return new Float32Array(values);
+}
+
+function relationshipPositions(from: [number, number], to: [number, number], fromZ: number, toZ: number) {
+  return new Float32Array([from[0], fromZ + .22, from[1], to[0], toZ + .22, to[1]]);
+}
+
+function PrototypeViewport({
+  variation,
+  source,
+  stage,
+  view,
+  aggregation,
+  captureRef,
+  showAnalysis = true,
+  showGrid = true,
+  sourceBounds,
+  sourceThickness = 12,
+  finishedOnly = false,
+  surfaceFilter = "combined",
+  connectionDiagnostic,
+}: {
+  variation: AmphitheaterVariation;
+  source: CompositionPlacement[];
+  stage: number;
+  view: PrototypeView;
+  aggregation?: AggregationResult;
+  captureRef?: MutableRefObject<(() => string) | null>;
+  showAnalysis?: boolean;
+  showGrid?: boolean;
+  sourceBounds?: { width: number; height: number; depth: number };
+  sourceThickness?: number;
+  finishedOnly?: boolean;
+  surfaceFilter?: SurfaceFilter;
+  connectionDiagnostic?: "components" | "graph" | "connectors" | "final";
+}) {
+  const sourceDisplay = useMemo(() => sourceForDisplay(source), [source]);
+  const voidSeeds = useMemo(() => extractInterLetterVoids(source), [source]);
+  const transformation = stage === 4;
+  const diagnostic = stage === 2;
+  const finishedStage = stage >= 4 && finishedOnly;
+  const showSourceLetters = !connectionDiagnostic && !finishedStage && (stage === 1 || diagnostic || transformation) && variation.mode !== "voids";
+  const showSourceVoids = !connectionDiagnostic && !finishedStage && (stage === 1 || diagnostic || transformation) && variation.mode !== "letters";
+  const showArchitecture = stage >= 3;
+  const elements: ArchitecturalElement[] = connectionDiagnostic === "components" || connectionDiagnostic === "graph"
+    ? variation.disconnectedElements
+    : connectionDiagnostic === "connectors"
+      ? [...variation.disconnectedElements, ...variation.connectorElements]
+      : stage === 3 ? variation.initialElements : aggregation?.elements ?? variation.elements;
+  const visibleElements = surfaceFilter === "combined" ? elements : elements.filter((element) => architecturalSurfaceClass(element) === surfaceFilter);
+  const verticalExtent = Math.max(variation.verticalExtents.source.extent, variation.verticalExtents.final.extent, 8);
+  const verticalCenter = (Math.min(variation.verticalExtents.source.minZ, variation.verticalExtents.final.minZ) + Math.max(variation.verticalExtents.source.maxZ, variation.verticalExtents.final.maxZ)) / 2;
+  const span = aggregation ? (aggregation.count === 2 ? 42 : aggregation.count === 4 ? 44 : 84) : Math.max(24, verticalExtent * 1.35);
+  const zoom = Math.max(9, 500 / span);
+  const cameraPosition: [number, number, number] = view === "plan" ? [0, verticalCenter + span, 0.01] : view === "section" ? [0, verticalCenter, span * 1.55] : [span * .9, verticalCenter + span * .7, span * .9];
+  if (stage === 0) {
+    const bounds = sourceBounds ?? {
+      width: Math.max(1, Math.max(...source.map((item) => item.x)) - Math.min(...source.map((item) => item.x))),
+      height: Math.max(1, Math.max(...source.map((item) => item.y)) - Math.min(...source.map((item) => item.y))),
+      depth: Math.max(1, Math.max(...source.map((item) => item.z)) - Math.min(...source.map((item) => item.z))),
+    };
+    const maximumDimension = Math.max(bounds.width, bounds.height, bounds.depth, 1);
+    const sourceCamera: [number, number, number] = view === "plan"
+      ? [0, 0, maximumDimension * 2.5]
+      : view === "section"
+        ? [0, maximumDimension * 2.5, 0.01]
+        : [maximumDimension, maximumDimension * 0.8, maximumDimension * 1.2];
+    return <Canvas
+      dpr={[1, 1.5]}
+      gl={{ antialias: true, preserveDrawingBuffer: true }}
+      onCreated={({ gl }) => { if (captureRef) captureRef.current = () => gl.domElement.toDataURL("image/png"); }}
+    >
+      <color attach="background" args={["#030607"]} />
+      <ambientLight intensity={0.72} />
+      <directionalLight position={[8, 10, 12]} intensity={1.15} />
+      <OrthographicCamera makeDefault position={sourceCamera} zoom={Math.min(150, 380 / maximumDimension)} near={0.01} far={300} />
+      {showGrid && <lineSegments>
+        <edgesGeometry args={[new THREE.BoxGeometry(bounds.width, bounds.height, bounds.depth)]} />
+        <lineBasicMaterial color="#ffbd4a" />
+      </lineSegments>}
+      {source.map((placement, index) => <mesh
+        key={`exact-source-${index}-${placement.cell.id}`}
+        geometry={getLetterVolumeGeometry(placement.cell.letter, sourceThickness)}
+        position={[placement.x, placement.y, placement.z]}
+        rotation={[THREE.MathUtils.degToRad(placement.rx), THREE.MathUtils.degToRad(placement.ry), THREE.MathUtils.degToRad(placement.rz)]}
+        scale={[
+          placement.scale * (placement.scaleX ?? 1),
+          placement.scale * (placement.scaleY ?? 1),
+          placement.scale * (placement.scaleZ ?? 1),
+        ]}
+      >
+        <meshStandardMaterial color="#c7dbe0" roughness={0.7} side={THREE.DoubleSide} />
+      </mesh>)}
+      {showAnalysis && <axesHelper args={[Math.max(0.3, maximumDimension * 0.16)]} />}
+      <OrbitControls enablePan enableZoom enableRotate target={[0, 0, 0]} />
+    </Canvas>;
+  }
+  return <Canvas
+    dpr={[1, 1.5]}
+    gl={{ antialias: true, preserveDrawingBuffer: true }}
+    onCreated={({ gl }) => { if (captureRef) captureRef.current = () => gl.domElement.toDataURL("image/png"); }}
+  >
+    <color attach="background" args={["#030607"]} />
+    <ambientLight intensity={0.72} />
+    <directionalLight position={[16, 24, 12]} intensity={1.25} />
+    <OrthographicCamera makeDefault position={cameraPosition} zoom={zoom} near={0.01} far={500} />
+    {showGrid && <gridHelper args={[aggregation ? span : TILE_SIZE_FEET, aggregation ? Math.max(4, span / 2) : 10, "#266b70", "#173337"]} />}
+    {showGrid && !aggregation && Array.from({ length: Math.max(0, Math.ceil(variation.verticalExtents.final.maxZ / VERTICAL_INCREMENT_FEET)) }, (_, index) => (index + 1) * VERTICAL_INCREMENT_FEET).map((level) => <gridHelper key={`vertical-grid-${level}`} position={[0, level, 0]} args={[TILE_SIZE_FEET, 10, "#6d5b2d", "#302a1b"]} />)}
+    {showGrid && !aggregation && <lineSegments position={[0, 0.04, 0]}>
+      <edgesGeometry args={[new THREE.BoxGeometry(TILE_SIZE_FEET, 0.05, TILE_SIZE_FEET)]} />
+      <lineBasicMaterial color="#3dd6db" />
+    </lineSegments>}
+    {showGrid && aggregation?.tileCenters.map((center, index) => <lineSegments key={`tile-boundary-${index}`} position={[center.x, 0.04, center.y]}>
+      <edgesGeometry args={[new THREE.BoxGeometry(TILE_SIZE_FEET, 0.05, TILE_SIZE_FEET)]} />
+      <lineBasicMaterial color="#3dd6db" transparent opacity={0.72} />
+    </lineSegments>)}
+    {showSourceLetters && sourceDisplay.map((placement, index) => <mesh
+      key={`source-${index}-${placement.cell.id}`}
+      geometry={getLetterVolumeGeometry(placement.cell.letter, 14)}
+      position={[placement.x, placement.z + 0.4, placement.y]}
+      rotation={[THREE.MathUtils.degToRad(placement.rx), THREE.MathUtils.degToRad(placement.rz), THREE.MathUtils.degToRad(placement.ry)]}
+      scale={[placement.scale, placement.scale, placement.scale]}
+    >
+      <meshStandardMaterial color="#c7dbe0" roughness={0.7} transparent={transformation} opacity={transformation ? .78 : 1} />
+    </mesh>)}
+    {showSourceVoids && voidSeeds.map((voidSeed, index) => <mesh key={`source-void-${index}`} position={[voidSeed.x, voidSeed.z * 0.22 + (2 + voidSeed.size) / 2, voidSeed.y]}>
+      <sphereGeometry args={[voidSeed.size / 2, 12, 8]} />
+      <meshStandardMaterial color="#46c8d1" wireframe transparent opacity={0.5} />
+    </mesh>)}
+    {!connectionDiagnostic && !finishedStage && (diagnostic || stage === 3 || transformation) && variation.sourceBoundaries.map((boundary) => <lineSegments key={`boundary-${boundary.id}`}>
+      <bufferGeometry><bufferAttribute attach="attributes-position" args={[boundaryPositions(boundary.points, boundary.z + (diagnostic ? .08 : .04)), 3]} /></bufferGeometry>
+      <lineBasicMaterial color={boundary.kind === "letter" ? "#ffbd4a" : "#46c8d1"} transparent opacity={diagnostic ? 1 : .55} />
+    </lineSegments>)}
+    {(diagnostic || stage === 3) && variation.sourceRelationships.map((relationship, index) => <lineSegments key={`relationship-${index}`}>
+      <bufferGeometry><bufferAttribute attach="attributes-position" args={[relationshipPositions(relationship.from, relationship.to, relationship.fromZ, relationship.toZ), 3]} /></bufferGeometry>
+      <lineBasicMaterial color={relationship.kind === "solid-void" ? "#b38cff" : "#8ff2f4"} />
+    </lineSegments>)}
+    {connectionDiagnostic === "graph" && variation.proposedConnections.map((relationship, index) => <lineSegments key={`connection-graph-${index}`}>
+      <bufferGeometry><bufferAttribute attach="attributes-position" args={[relationshipPositions(relationship.from, relationship.to, relationship.fromZ + .35, relationship.toZ + .35), 3]} /></bufferGeometry>
+      <lineBasicMaterial color={relationship.connectorKind === "ramp" ? "#ffbd4a" : relationship.connectorKind === "bridge" ? "#b38cff" : "#8ff2f4"} />
+    </lineSegments>)}
+    {showArchitecture && stage >= 4 && finishedOnly && surfaceFilter === "combined"
+      ? aggregation
+        ? aggregation.tileCenters.map((center, index) => <FinishedMesh key={`finished-tile-${index}`} data={variation.continuousMesh} analytical={showAnalysis} offset={[center.x, center.y]} />)
+        : <FinishedMesh data={variation.continuousMesh} analytical={showAnalysis} />
+      : visibleElements.map((element) => <ElementMesh key={element.id} element={element} section={view === "section"} analytical={showAnalysis} />)}
+    {showAnalysis && <axesHelper args={[2]} />}
+    <OrbitControls enablePan enableZoom enableRotate target={[0, verticalCenter, 0]} />
+  </Canvas>;
+}
+
+function Status({ valid, children }: { valid: boolean; children: React.ReactNode }) {
+  return <span className="rounded border px-1.5 py-0.5 text-[9px]" style={{ borderColor: valid ? "#397a63" : "#955142", color: valid ? "#83e4bd" : "#ff9d87", background: valid ? "#10251e" : "#291612" }}>{children}</span>;
+}
+
+function exportBoard(variations: VariationMap, descriptors: DescriptorSettings) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 2200;
+  canvas.height = 1100;
+  const context = canvas.getContext("2d");
+  if (!context) return;
+  context.fillStyle = "#030607";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "#e8f2f4";
+  context.font = "bold 44px Arial";
+  context.fillText("STEPPED AMPHITHEATER — THREE GEOMETRY MODES", 70, 70);
+  context.font = "22px Arial";
+  context.fillStyle = "#75dce1";
+  context.fillText("20′ × 20′ registration tile · dimensions in feet · black presentation background", 70, 108);
+  modes.forEach((mode, modeIndex) => {
+    const variation = variations[mode];
+    const left = 55 + modeIndex * 715;
+    context.strokeStyle = mode === "letters" ? "#d9e5e8" : mode === "voids" ? "#46c8d1" : "#b38cff";
+    context.lineWidth = 3;
+    context.strokeRect(left, 150, 660, 760);
+    context.fillStyle = "#eef7f8";
+    context.font = "bold 30px Arial";
+    context.fillText(variation.name.toUpperCase(), left + 24, 198);
+    context.save();
+    context.translate(left + 330, 485);
+    context.strokeStyle = "#c8dde0";
+    context.lineWidth = 22;
+    const platforms = variation.elements.filter((element) => element.kind === "platform");
+    for (const element of platforms) {
+      context.save();
+      context.translate(element.x * 20, element.y * 20);
+      context.rotate(-element.rotation * Math.PI / 180);
+      context.strokeRect(-element.width * 10, -element.depth * 10, element.width * 20, element.depth * 20);
+      context.restore();
+    }
+    context.restore();
+    context.fillStyle = "#b9c9cc";
+    context.font = "22px Arial";
+    const metrics = variation.measurements;
+    context.fillText(`Horizontal area: ${metrics.occupiedHorizontalArea.toFixed(1)} ft²`, left + 24, 820);
+    context.fillText(`Interconnected void: ${metrics.interconnectedVoidVolume.toFixed(0)} ft³`, left + 24, 850);
+    context.fillText(`Circulation: ${metrics.circulationConnectivity.toFixed(0)}%`, left + 350, 820);
+    context.fillText(`Visibility: ${metrics.platformVisibility.toFixed(0)}%`, left + 350, 850);
+    context.fillStyle = variation.validation.valid ? "#7fe2b9" : "#ff947e";
+    context.fillText(variation.validation.valid ? "TILE VALID" : "REVIEW REQUIRED", left + 24, 890);
+  });
+  context.fillStyle = "#8ba2a6";
+  context.font = "18px Arial";
+  const priority = ["convergent", "sequential", "visuallyConnected", "circulationActivated", "verticallyIntegrated", "openVolume", "sculptural"] as const;
+  context.fillText(`Descriptor targets: ${priority.map((key) => `${key} ${descriptors[key].intensity}`).join(" · ")}`, 70, 1025);
+  canvas.toBlob((blob) => { if (blob) download("stepped-amphitheater-11x22-comparison.png", blob, "image/png"); }, "image/png");
+}
+
+export default function PrototypeDemonstration({ sourcePlacements, completeSourcePlacements, sourceLabel, sourceBounds, sourceThickness, sourceOptions, selectedSourceIndex, onSourceIndexChange, descriptors, selectedMode, onSelectedModeChange }: Props) {
+  const [stage, setStage] = useState(0);
+  const [view, setView] = useState<PrototypeView>("isometric");
+  const [seed, setSeed] = useState(2041);
+  const [continuityControls, setContinuityControls] = useState<ContinuityControls>({ ...DEFAULT_CONTINUITY_CONTROLS });
+  const [variations, setVariations] = useState<VariationMap>(() => createVariations(sourcePlacements, descriptors, 2041, DEFAULT_CONTINUITY_CONTROLS));
+  const [aggregationCount, setAggregationCount] = useState<2 | 4 | 8>(2);
+  const [criteria, setCriteria] = useState<Criterion[]>([]);
+  const [preferred, setPreferred] = useState<PrototypeGeometryMode>(selectedMode);
+  const [rationale, setRationale] = useState("");
+  const [generationKey, setGenerationKey] = useState("");
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [showGrid, setShowGrid] = useState(false);
+  const [finishedOnly, setFinishedOnly] = useState(true);
+  const [surfaceFilter, setSurfaceFilter] = useState<SurfaceFilter>("combined");
+  const [sourceScope, setSourceScope] = useState<"selection" | "complete">("selection");
+  const [elevationComparison, setElevationComparison] = useState<AmphitheaterVariation | null>(null);
+  const activeSource = sourceScope === "complete" ? completeSourcePlacements : sourcePlacements;
+  const activeSourceLabel = sourceScope === "complete" ? `Complete source arrangement · ${completeSourcePlacements.length} objects` : sourceLabel;
+  const captureRef = useRef<(() => string) | null>(null);
+  const initialGeneration = useRef(true);
+  const currentKey = `${activeSourceLabel}:${activeSource.length}:${activeSource.map((item) => `${item.cell.letter}:${item.x.toFixed(2)}:${item.y.toFixed(2)}:${item.z.toFixed(2)}:${item.rx.toFixed(1)}:${item.ry.toFixed(1)}:${item.rz.toFixed(1)}:${item.scale.toFixed(2)}`).join("|")}:${Object.values(descriptors).map((item) => `${item.intensity}:${item.importance}`).join("|")}:${Object.values(continuityControls).join(":")}`;
+  const selected = variations[selectedMode];
+  const aggregation = useMemo(() => buildAggregation(selected, aggregationCount), [selected, aggregationCount]);
+  const aggregateResults = useMemo(() => ([2, 4, 8] as const).map((count) => buildAggregation(selected, count)), [selected]);
+  const overlaps = useMemo(() => Object.fromEntries(modes.map((mode) => [mode, surfaceOverlap(variations.letters, variations[mode])])) as Record<PrototypeGeometryMode, number>, [variations]);
+  const stale = generationKey !== "" && generationKey !== currentKey;
+  const rawMinZ = activeSource.length ? Math.min(...activeSource.map((item) => item.z)) : 0;
+  const rawMaxZ = activeSource.length ? Math.max(...activeSource.map((item) => item.z)) : 0;
+  const elevationAdjustedSource = useMemo(() => {
+    const shift = Math.max(1, (rawMaxZ - rawMinZ) * .3);
+    return activeSource.map((placement, index) => index % 3 === 0 ? { ...placement, z: placement.z + shift } : placement);
+  }, [activeSource, rawMinZ, rawMaxZ]);
+
+  useEffect(() => {
+    if (initialGeneration.current) { initialGeneration.current = false; setGenerationKey(currentKey); return; }
+    const timer = window.setTimeout(() => {
+      setVariations(createVariations(activeSource, descriptors, seed, continuityControls));
+      setGenerationKey(currentKey);
+    }, 250);
+    return () => window.clearTimeout(timer);
+  }, [activeSource, descriptors, seed, continuityControls, currentKey]);
+
+  useEffect(() => {
+    if (stage !== 9) return;
+    setElevationComparison(null);
+    const timer = window.setTimeout(() => setElevationComparison(generateSteppedAmphitheater({ source: elevationAdjustedSource, descriptors, mode: selectedMode, seed, continuityControls })), 30);
+    return () => window.clearTimeout(timer);
+  }, [stage, elevationAdjustedSource, descriptors, selectedMode, seed, continuityControls]);
+
+  const generateAll = useCallback(() => {
+    setVariations(createVariations(activeSource, descriptors, seed, continuityControls));
+    setGenerationKey(currentKey);
+    setStage(4);
+  }, [activeSource, descriptors, seed, continuityControls, currentKey]);
+
+  const regenerateMode = (mode: PrototypeGeometryMode) => {
+    const nextSeed = seed + modes.indexOf(mode) + 1;
+    setVariations((current) => ({ ...current, [mode]: generateSteppedAmphitheater({ source: activeSource, descriptors, mode, seed: nextSeed, continuityControls }) }));
+    setGenerationKey(currentKey);
+  };
+
+  const exportCurrentPng = () => {
+    const dataUrl = captureRef.current?.();
+    if (!dataUrl) return;
+    const anchor = document.createElement("a");
+    anchor.href = dataUrl;
+    anchor.download = `stepped-amphitheater-${selectedMode}-${view}.png`;
+    anchor.click();
+  };
+
+  const evaluationRecord = {
+    typology: "Stepped Amphitheater",
+    units: "feet",
+    lattice: { horizontal: [20, 20], verticalIncrement: VERTICAL_INCREMENT_FEET },
+    seed,
+    selectedMode,
+    preferred,
+    rationale,
+    descriptors,
+    criteria,
+    variations,
+    aggregations: Object.fromEntries(aggregateResults.map((result) => [result.count, result.validation])),
+  };
+
+  const addCriterion = () => setCriteria((current) => [...current, { id: `${Date.now()}`, name: "", value: 50, notes: "" }]);
+  const updateCriterion = (id: string, update: Partial<Criterion>) => setCriteria((current) => current.map((criterion) => criterion.id === id ? { ...criterion, ...update } : criterion));
+  const setContinuityValue = (key: keyof ContinuityControls, value: number) => setContinuityControls((current) => ({ ...current, [key]: value }));
+
+  return <section id="prototype-demonstration" className="scroll-mt-4 rounded-xl border p-4" style={panelStyle}>
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h2 className="text-lg font-semibold">Prototype Demonstration</h2>
+        <p className="text-[10px] uppercase tracking-[0.13em]" style={{ color: "var(--muted)" }}>Stepped Amphitheater · reusable 20′ × 20′ spatial tile · vertical registration every 20′</p>
+        <p className="mt-1 text-[10px]" style={{ color: "#8ff2f4" }}><strong>Current prototype source:</strong> {activeSourceLabel}</p>
+      </div>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <label className="flex items-center gap-1 text-[10px]" style={{ color: "var(--muted)" }}>Extent
+          <select aria-label="Prototype source extent" value={sourceScope} onChange={(event) => setSourceScope(event.target.value as "selection" | "complete")} className="rounded border px-2 py-1" style={inputStyle}><option value="selection">Selected 3D region</option><option value="complete">Complete source arrangement</option></select>
+        </label>
+        {sourceScope === "selection" && sourceOptions.length > 0 && <label className="flex items-center gap-1 text-[10px]" style={{ color: "var(--muted)" }}>Source
+          <select aria-label="Prototype source alternative" value={selectedSourceIndex} onChange={(event) => onSourceIndexChange(Number(event.target.value))} className="max-w-[280px] rounded border px-2 py-1" style={inputStyle}>
+            {sourceOptions.map((option) => <option key={option.index} value={option.index}>{option.label}</option>)}
+          </select>
+        </label>}
+        <button type="button" onClick={() => setShowAnalysis((value) => !value)} className="rounded border px-2 py-1 text-[10px]" style={{ borderColor: showAnalysis ? "var(--accent)" : "var(--line)" }}>{showAnalysis ? "Analysis colors on" : "White model"}</button>
+        <button type="button" onClick={() => setShowGrid((value) => !value)} className="rounded border px-2 py-1 text-[10px]" style={{ borderColor: showGrid ? "var(--accent)" : "var(--line)" }}>{showGrid ? "Grid on" : "Grid hidden"}</button>
+        <button type="button" onClick={() => setFinishedOnly((value) => !value)} className="rounded border px-2 py-1 text-[10px]" style={{ borderColor: finishedOnly ? "var(--accent)" : "var(--line)" }}>{finishedOnly ? "Finished Geometry" : "Construction Geometry"}</button>
+        <label className="flex items-center gap-1 text-[10px]" style={{ color: "var(--muted)" }}>Seed <input type="number" value={seed} onChange={(event) => setSeed(Number(event.target.value))} className="w-20 rounded border px-2 py-1 text-right" style={inputStyle} /></label>
+        <button type="button" onClick={generateAll} className="rounded px-3 py-1.5 text-[11px] font-semibold text-black" style={{ background: "var(--accent)" }}>Generate Architectural Space</button>
+      </div>
+    </div>
+    {stale && <p className="mt-2 rounded border px-3 py-2 text-[10px]" style={{ borderColor: "#9b7634", color: "#ffd38a", background: "#2b2415" }}>The selected alternative, source arrangement, or descriptor targets changed. Click Generate Architectural Space to rebuild the prototype from <strong>{activeSourceLabel}</strong>.</p>}
+
+    <div className="mt-3 grid grid-cols-2 gap-1 md:grid-cols-5 xl:grid-cols-10">
+      {stages.map((label, index) => <button key={label} type="button" onClick={() => setStage(index)} className="rounded border px-2 py-2 text-left text-[9px]" style={{ borderColor: stage === index ? "var(--accent)" : "var(--line)", background: stage === index ? "#123235" : "#0b0d0e", color: stage === index ? "#9af4f6" : "var(--muted)" }}><span className="mr-1 tabular-nums">{index + 1}.</span>{label}</button>)}
+    </div>
+
+    <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+      <div className="flex flex-wrap gap-1">
+        {modes.map((mode) => <button key={mode} type="button" onClick={() => onSelectedModeChange(mode)} className="rounded border px-2 py-1 text-[10px]" style={{ borderColor: selectedMode === mode ? "var(--accent)" : "var(--line)", color: selectedMode === mode ? "#8ff2f4" : "var(--muted)", background: selectedMode === mode ? "#123235" : "transparent" }}>{modeLabels[mode]}</button>)}
+      </div>
+      <div className="flex gap-1">{(["isometric", "plan", "section"] as PrototypeView[]).map((item) => <button key={item} type="button" onClick={() => setView(item)} className="rounded border px-2 py-1 text-[10px] capitalize" style={{ borderColor: view === item ? "#ffbd4a" : "var(--line)", color: view === item ? "#ffd58b" : "var(--muted)" }}>{item}</button>)}</div>
+    </div>
+    <div className="mt-2 flex flex-wrap items-center gap-1 rounded-lg border p-2" style={{ borderColor: "var(--line)", background: "#0b0d0e" }}>
+      <strong className="mr-1 text-[9px] uppercase tracking-wide" style={{ color: "var(--muted)" }}>Surface display</strong>
+      {(["horizontal", "circulation", "vertical", "void", "combined"] as SurfaceFilter[]).map((item) => <button key={item} type="button" onClick={() => setSurfaceFilter(item)} className="rounded border px-2 py-1 text-[9px] capitalize" style={{ borderColor: surfaceFilter === item ? "var(--accent)" : "var(--line)", color: surfaceFilter === item ? "#8ff2f4" : "var(--muted)" }}>{item === "horizontal" ? "Horizontal surfaces" : item === "circulation" ? "Circulation connections" : item === "vertical" ? "Vertical surfaces" : item === "void" ? "Preserved voids" : "Combined finished geometry"}</button>)}
+    </div>
+
+    <div className="mt-2 grid gap-2 rounded-lg border p-2 sm:grid-cols-2 lg:grid-cols-3" style={{ borderColor: "var(--line)", background: "#0b0d0e" }}>
+      {([
+        ["smoothness", "Surface smoothness", 0, 100, 1, "%"],
+        ["blendingStrength", "Blending strength", 0, 100, 1, "%"],
+        ["connectionDistance", "Connection distance", .5, 8, .1, " ft"],
+        ["curvatureIntensity", "Curvature intensity", 0, 100, 1, "%"],
+        ["preservation", "Original geometry preservation", 0, 100, 1, "%"],
+        ["minimumOpening", "Minimum opening", .5, 8, .1, " ft"],
+        ["verticalIntegration", "Vertical Integration", 0, 100, 1, "%"],
+        ["interlevelContinuity", "Interlevel Surface Continuity", 0, 100, 1, "%"],
+        ["elevationPreservation", "Original Elevation Preservation", 0, 100, 1, "%"],
+      ] as const).map(([key, label, minimum, maximum, stepValue, suffix]) => <label key={key} className="grid grid-cols-[1fr_80px] items-center gap-2 text-[9px]" style={{ color: "var(--muted)" }}>
+        <span>{label}<input aria-label={label} type="range" min={minimum} max={maximum} step={stepValue} value={continuityControls[key]} onChange={(event) => setContinuityValue(key, Number(event.target.value))} className="mt-1 block w-full" /></span>
+        <span className="text-right tabular-nums" style={{ color: "#dcebed" }}>{continuityControls[key].toFixed(stepValue < 1 ? 1 : 0)}{suffix}</span>
+      </label>)}
+    </div>
+
+    <div className="mt-2 overflow-auto rounded-lg border p-2" style={{ borderColor: "var(--line)", background: "#0b0d0e" }}>
+      <div className="mb-1 flex flex-wrap items-center justify-between gap-2"><strong className="text-[10px]">Vertical extent diagnostic</strong><span className="text-[9px]" style={{ color: "var(--muted)" }}>Selected input bbox Z {rawMinZ.toFixed(2)}–{rawMaxZ.toFixed(2)} · extent {(rawMaxZ - rawMinZ).toFixed(2)} source units</span></div>
+      <table className="w-full min-w-[520px] text-[9px]"><thead><tr className="text-left" style={{ color: "var(--muted)" }}><th>Stage</th><th>Minimum Z</th><th>Maximum Z</th><th>Vertical extent</th></tr></thead><tbody>{(["source", "extracted", "initial", "final"] as const).map((key) => <tr key={key} className="border-t" style={{ borderColor: "#222" }}><td className="py-1 capitalize">{key === "source" ? "Normalized 3D source" : key === "extracted" ? "Elevation-sliced boundaries" : key === "initial" ? "Initial surfaces" : "Final architectural mesh"}</td><td>{selected.verticalExtents[key].minZ.toFixed(2)} ft</td><td>{selected.verticalExtents[key].maxZ.toFixed(2)} ft</td><td>{selected.verticalExtents[key].extent.toFixed(2)} ft</td></tr>)}</tbody></table>
+    </div>
+
+    <div className="mt-2 overflow-auto rounded-lg border p-2" style={{ borderColor: "var(--line)", background: "#0b0d0e" }}>
+      <div className="mb-1"><strong className="text-[10px]">Architectural surface diagnostic</strong><p className="text-[9px]" style={{ color: "var(--muted)" }}>Horizontal floors, circulation, enclosure surfaces and preserved voids are classified before reconstruction.</p></div>
+      <table className="w-full min-w-[680px] text-[9px]"><thead><tr className="text-left" style={{ color: "var(--muted)" }}><th>Stage</th><th>Horizontal floor</th><th>Circulation</th><th>Vertical surface</th><th>Void volume</th><th>Vertical / horizontal</th><th>Status</th></tr></thead><tbody>{(["initial", "classified", "final"] as const).map((key) => { const diagnostic = selected.surfaceDiagnostics[key]; return <tr key={key} className="border-t" style={{ borderColor: "#222" }}><td className="py-1 capitalize">{key === "classified" ? "Classified architectural elements" : key === "final" ? "Final reconstructed mesh" : "Initial surfaces"}</td><td>{diagnostic.horizontalArea.toFixed(1)} ft²</td><td>{diagnostic.circulationArea.toFixed(1)} ft²</td><td>{diagnostic.verticalArea.toFixed(1)} ft²</td><td>{diagnostic.voidVolume.toFixed(1)} ft³</td><td>{diagnostic.verticalToHorizontalRatio.toFixed(2)}</td><td style={{ color: diagnostic.warning ? "#ff9d87" : "#83e4bd" }}>{diagnostic.warning ?? "Balanced"}</td></tr>; })}</tbody></table>
+    </div>
+
+    <div className="mt-2 overflow-auto rounded-lg border p-2" style={{ borderColor: selected.connectivity.componentsAfter === 1 ? "#397a63" : "#955142", background: "#0b0d0e" }}>
+      <div className="mb-1"><strong className="text-[10px]">Connection-generation diagnostic</strong><p className="text-[9px]" style={{ color: "var(--muted)" }}>A scored adjacency graph is converted to required ramps, bridges, landings and circulation bands before the final SDF reconstruction.</p></div>
+      <div className="grid min-w-[560px] grid-cols-4 gap-2 text-[9px]">
+        <span>Components before<br /><strong className="text-sm">{selected.connectivity.componentsBefore}</strong></span>
+        <span>Proposed graph edges<br /><strong className="text-sm">{selected.connectivity.proposedConnections}</strong></span>
+        <span>Connector elements<br /><strong className="text-sm">{selected.connectivity.generatedConnectors}</strong></span>
+        <span>Components after<br /><strong className="text-sm" style={{ color: selected.connectivity.componentsAfter === 1 ? "#83e4bd" : "#ff9d87" }}>{selected.connectivity.componentsAfter}</strong></span>
+      </div>
+    </div>
+
+    {stage === 7 ? <div className="mt-3 grid gap-3 lg:grid-cols-3">{[
+      { label: "1. Horizontal occupied surfaces", filter: "horizontal" as SurfaceFilter, note: "Usable floor plates and stepped terrace bands at source-derived elevations." },
+      { label: "2. Interlevel circulation", filter: "circulation" as SurfaceFilter, note: "Localized ramps, bridges and landings connect compatible levels." },
+      { label: "3. Necessary vertical surfaces", filter: "vertical" as SurfaceFilter, note: "Short enclosure segments are retained only where they serve a clear edge or structural role." },
+      { label: "4. Preserved architectural voids", filter: "void" as SurfaceFilter, note: "Subtractive volumes remain open through the occupied platform system." },
+      { label: "5. Combined architectural configuration", filter: "combined" as SurfaceFilter, note: "Finished reconstruction preserves multilevel floors, circulation and open gathering space." },
+    ].map((item) => <article key={item.label} className="overflow-hidden rounded-xl border" style={{ borderColor: "var(--line)", background: "#080b0d" }}>
+      <div className="px-3 py-2"><strong className="text-xs">{item.label}</strong></div>
+      <div className="h-64"><PrototypeViewport variation={selected} source={activeSource} stage={4} view={view} showAnalysis showGrid finishedOnly surfaceFilter={item.filter} /></div>
+      <p className="border-t px-3 py-2 text-[9px]" style={{ borderColor: "var(--line)", color: "var(--muted)" }}>{item.note}</p>
+    </article>)}</div> : stage === 8 ? <div className="mt-3 grid gap-3 lg:grid-cols-2">{[
+      { label: "1. Disconnected source-derived components", diagnostic: "components" as const, finished: false, note: `${selected.connectivity.componentsBefore} source-derived components before global circulation is generated.` },
+      { label: "2. Proposed connection graph", diagnostic: "graph" as const, finished: false, note: `${selected.connectivity.proposedConnections} scored edges selected from plan proximity, elevation difference, visibility and source circulation relationships.` },
+      { label: "3. Generated architectural connectors", diagnostic: "connectors" as const, finished: false, note: `${selected.connectivity.generatedConnectors} ramps, bridges, landings and circulation bands generated before reconstruction.` },
+      { label: "4. Final connected architectural mesh", diagnostic: "final" as const, finished: true, note: `${selected.connectivity.componentsBefore} components before connection generation; ${selected.connectivity.componentsAfter} after final reconstruction.` },
+    ].map((item) => <article key={item.label} className="overflow-hidden rounded-xl border" style={{ borderColor: "var(--line)", background: "#080b0d" }}>
+      <div className="px-3 py-2"><strong className="text-xs">{item.label}</strong></div>
+      <div className="h-72"><PrototypeViewport variation={selected} source={activeSource} stage={4} view={view} showAnalysis={item.finished ? false : showAnalysis} showGrid={showGrid} finishedOnly={item.finished} connectionDiagnostic={item.diagnostic} /></div>
+      <p className="border-t px-3 py-2 text-[9px]" style={{ borderColor: "var(--line)", color: "var(--muted)" }}>{item.note}</p>
+    </article>)}</div> : stage === 9 ? <div className="mt-3 grid gap-3 lg:grid-cols-2">
+      {[{ label: "Original source elevations", variation: selected, source: activeSource }, { label: "Modified source elevations", variation: elevationComparison, source: elevationAdjustedSource }].map((item) => <article key={item.label} className="overflow-hidden rounded-xl border" style={{ borderColor: "var(--line)", background: "#080b0d" }}><div className="px-3 py-2"><strong className="text-xs">{item.label}</strong></div><div className="h-80">{item.variation ? <PrototypeViewport variation={item.variation} source={item.source} stage={4} view={view} showAnalysis showGrid finishedOnly /> : <div className="flex h-full items-center justify-center text-xs" style={{ color: "var(--muted)" }}>Computing elevation response…</div>}</div>{item.variation && <p className="border-t px-3 py-2 text-[9px]" style={{ borderColor: "var(--line)", color: "var(--muted)" }}>Source {item.variation.verticalExtents.source.minZ.toFixed(2)}–{item.variation.verticalExtents.source.maxZ.toFixed(2)} ft · final {item.variation.verticalExtents.final.minZ.toFixed(2)}–{item.variation.verticalExtents.final.maxZ.toFixed(2)} ft · seed {seed}</p>}</article>)}
+      <p className="rounded border px-3 py-2 text-[10px] lg:col-span-2" style={{ borderColor: "#2c777a", color: "#9af4f6", background: "#0d2527" }}>The comparison changes only every third source object’s Z position. Geometry mode, descriptors, controls, and random seed remain identical.</p>
+    </div> : stage === 10 ? <div className="mt-3 grid gap-3 lg:grid-cols-3">{modes.map((mode) => {
+      const variation = variations[mode];
+      return <article key={mode} className="overflow-hidden rounded-xl border" style={{ borderColor: preferred === mode ? "#ffbd4a" : "var(--line)", background: "#080b0d" }}>
+        <div className="flex items-center justify-between px-3 py-2"><strong className="text-xs">{variation.name}</strong><Status valid={variation.validation.valid}>{variation.validation.valid ? "Valid" : "Review"}</Status></div>
+        <div className="h-64"><PrototypeViewport variation={variation} source={activeSource} stage={4} view={view} showAnalysis={showAnalysis} showGrid={showGrid} finishedOnly /></div>
+        <p className="border-t px-3 py-2 text-[9px]" style={{ borderColor: "var(--line)", color: "var(--muted)" }}>{variation.method}</p>
+        <div className="grid grid-cols-2 gap-1 border-t p-2 text-[9px]" style={{ borderColor: "var(--line)", color: "var(--muted)" }}>
+          <span>Area {variation.measurements.occupiedHorizontalArea.toFixed(1)} ft²</span><span>Void {variation.measurements.interconnectedVoidVolume.toFixed(0)} ft³</span>
+          <span>Circulation {variation.measurements.circulationConnectivity.toFixed(0)}%</span><span>Visibility {variation.measurements.platformVisibility.toFixed(0)}%</span><span>Finished components {variation.measurements.connectedComponents}</span>
+        </div>
+        <div className="flex gap-1 p-2 pt-0"><button type="button" onClick={() => regenerateMode(mode)} className="rounded border px-2 py-1 text-[9px]" style={{ borderColor: "var(--line)" }}>Regenerate</button><button type="button" onClick={() => { setPreferred(mode); onSelectedModeChange(mode); }} className="rounded border px-2 py-1 text-[9px]" style={{ borderColor: preferred === mode ? "#ffbd4a" : "var(--line)" }}>Select</button></div>
+      </article>;
+    })}</div> : stage <= 6 ? <div className="mt-3 h-[520px] overflow-hidden rounded-xl border" style={{ borderColor: "var(--line)", background: "#030607" }}>
+      <PrototypeViewport variation={selected} source={activeSource} sourceBounds={sourceScope === "selection" ? sourceBounds : undefined} sourceThickness={sourceThickness} stage={stage} view={view} aggregation={stage === 6 ? aggregation : undefined} captureRef={captureRef} showAnalysis={showAnalysis} showGrid={showGrid} finishedOnly={finishedOnly} surfaceFilter={surfaceFilter} />
+    </div> : null}
+
+    {stage === 0 && <p className="mt-2 rounded border px-3 py-2 text-[10px]" style={{ borderColor: "var(--line)", color: "var(--muted)", background: "#0b0d0e" }}><strong style={{ color: "#e8f2f4" }}>Exact source view:</strong> This stage preserves the selected alternative’s XYZ positions, rotations, scale, thickness, and selection-box proportions. Only the camera framing changes to center the result.</p>}
+    {stage === 4 && <p className="mt-2 rounded border px-3 py-2 text-[10px]" style={{ borderColor: "var(--line)", color: "var(--muted)", background: "#0b0d0e" }}><strong style={{ color: "#e8f2f4" }}>Transformation method:</strong> {selected.method} Offset contour terraces and curved circulation bands are evaluated as continuous signed-distance fields and extracted with interpolated marching cubes. Flat platform elevations are retained before export.</p>}
+
+    {stage === 6 && <div className="mt-3">
+      <div className="flex flex-wrap gap-1">{([2, 4, 8] as const).map((count) => <button key={count} type="button" onClick={() => setAggregationCount(count)} className="rounded border px-2 py-1 text-[10px]" style={{ borderColor: aggregationCount === count ? "var(--accent)" : "var(--line)" }}>{count} tiles</button>)}</div>
+      <div className="mt-2 grid gap-2 md:grid-cols-3">{aggregateResults.map((result) => <div key={result.count} className="rounded border p-2 text-[10px]" style={{ borderColor: "var(--line)", background: "#0b0d0e" }}><div className="flex justify-between"><strong>{result.count}-tile assembly</strong><Status valid={result.validation.valid}>{result.validation.valid ? "Passed" : "Failed"}</Status></div><p className="mt-1" style={{ color: "var(--muted)" }}>Floor continuity: {result.validation.floorContinuity ? "pass" : "fail"} · circulation: {result.validation.circulationContinuous ? "pass" : "fail"} · void alignment: {result.validation.voidsAligned ? "pass" : "fail"} · unintended intersections: {result.validation.unintendedIntersections}</p>{result.validation.failures.map((failure) => <p key={failure} className="mt-1 text-[#ff9d87]">{failure}</p>)}</div>)}</div>
+    </div>}
+
+    {stage === 11 && <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_1fr]">
+      <section className="rounded-xl border p-3" style={{ borderColor: "var(--line)", background: "#0b0d0e" }}>
+        <div className="flex items-center justify-between"><div><h3 className="text-sm font-semibold">Computed measurements</h3><p className="text-[9px]" style={{ color: "var(--muted)" }}>Geometric proxies calculated by the prototype.</p></div></div>
+        <div className="mt-2 overflow-auto"><table className="w-full text-[9px]"><thead><tr className="text-left" style={{ color: "var(--muted)" }}><th className="p-1">Mode</th><th className="p-1">Components</th><th className="p-1">Area ft²</th><th className="p-1">Void ft³</th><th className="p-1">Orientation</th><th className="p-1">Boundary vertices</th><th className="p-1">Paths ft</th><th className="p-1">Overlap vs Letters</th><th className="p-1">Circulation</th><th className="p-1">Visibility</th></tr></thead><tbody>{modes.map((mode) => { const item = variations[mode]; return <tr key={mode} className="border-t" style={{ borderColor: "#222" }}><td className="p-1 font-medium">{modeLabels[mode]}</td><td className="p-1">{item.measurements.connectedComponents}</td><td className="p-1">{item.measurements.occupiedHorizontalArea.toFixed(1)}</td><td className="p-1">{item.measurements.interconnectedVoidVolume.toFixed(0)}</td><td className="p-1">{item.measurements.principalOrientation.toFixed(1)}°</td><td className="p-1">{item.measurements.boundaryComplexity}</td><td className="p-1">{item.measurements.circulationPathLength.toFixed(1)}</td><td className="p-1">{overlaps[mode].toFixed(1)}%</td><td className="p-1">{item.measurements.circulationConnectivity.toFixed(1)}%</td><td className="p-1">{item.measurements.platformVisibility.toFixed(1)}%</td></tr>; })}</tbody></table></div>
+      </section>
+      <section className="rounded-xl border p-3" style={{ borderColor: "var(--line)", background: "#0b0d0e" }}>
+        <div className="flex items-center justify-between"><div><h3 className="text-sm font-semibold">Assignment evaluation criteria</h3><p className="text-[9px]" style={{ color: "var(--muted)" }}>Enter criteria from your existing Assignment 1 Part 3 matrix.</p></div><button type="button" onClick={addCriterion} className="rounded border px-2 py-1 text-[9px]" style={{ borderColor: "var(--line)" }}>Add criterion</button></div>
+        {criteria.length === 0 ? <p className="mt-3 text-[10px]" style={{ color: "var(--muted)" }}>No qualitative criteria have been entered.</p> : <div className="mt-2 space-y-2">{criteria.map((criterion) => <div key={criterion.id} className="grid grid-cols-[1fr_70px_auto] gap-1"><input aria-label="Criterion name" value={criterion.name} onChange={(event) => updateCriterion(criterion.id, { name: event.target.value })} placeholder="Criterion name" className="rounded border px-2 py-1 text-[10px]" style={inputStyle} /><input aria-label="Criterion score" type="number" min={0} max={100} value={criterion.value} onChange={(event) => updateCriterion(criterion.id, { value: Number(event.target.value) })} className="rounded border px-2 py-1 text-right text-[10px]" style={inputStyle} /><button type="button" onClick={() => setCriteria((current) => current.filter((item) => item.id !== criterion.id))} className="rounded border px-2 text-[9px]" style={{ borderColor: "var(--line)" }}>×</button><textarea aria-label="Criterion notes" value={criterion.notes} onChange={(event) => updateCriterion(criterion.id, { notes: event.target.value })} placeholder="Qualitative notes" className="col-span-3 min-h-12 rounded border px-2 py-1 text-[10px]" style={inputStyle} /></div>)}</div>}
+      </section>
+      <section className="rounded-xl border p-3 lg:col-span-2" style={{ borderColor: "var(--line)", background: "#0b0d0e" }}>
+        <div className="grid gap-2 md:grid-cols-[220px_1fr]"><label className="text-[10px]" style={{ color: "var(--muted)" }}>Preferred variation<select value={preferred} onChange={(event) => setPreferred(event.target.value as PrototypeGeometryMode)} className="mt-1 w-full rounded border px-2 py-1 text-[10px]" style={inputStyle}>{modes.map((mode) => <option key={mode} value={mode}>{modeLabels[mode]}</option>)}</select></label><label className="text-[10px]" style={{ color: "var(--muted)" }}>Selection rationale<textarea value={rationale} onChange={(event) => setRationale(event.target.value)} className="mt-1 min-h-16 w-full rounded border px-2 py-1 text-[10px]" style={inputStyle} placeholder="Record why this variation is preferred." /></label></div>
+      </section>
+    </div>}
+
+    <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t pt-3" style={{ borderColor: "var(--line)" }}>
+      <strong className="mr-1 text-[10px] uppercase tracking-wide" style={{ color: "var(--muted)" }}>Export</strong>
+      <Link href="/" className="rounded border px-2 py-1 text-[9px]" style={{ borderColor: "var(--line)" }}>Original letter/void geometry</Link>
+      <button type="button" onClick={() => download(`stepped-amphitheater-${selectedMode}.obj`, architecturalObj(selected), "text/plain")} className="rounded border px-2 py-1 text-[9px]" style={{ borderColor: "var(--line)" }}>Selected OBJ (feet)</button>
+      <button type="button" onClick={() => download(`stepped-amphitheater-${selectedMode}-${aggregationCount}-tiles.obj`, architecturalObj(selected, aggregationCount), "text/plain")} className="rounded border px-2 py-1 text-[9px]" style={{ borderColor: "var(--line)" }}>Aggregation OBJ</button>
+      <button type="button" onClick={exportCurrentPng} className="rounded border px-2 py-1 text-[9px]" style={{ borderColor: "var(--line)" }}>Current {view} PNG</button>
+      <button type="button" onClick={() => exportBoard(variations, descriptors)} className="rounded border px-2 py-1 text-[9px]" style={{ borderColor: "var(--line)" }}>11×22 comparison PNG</button>
+      <button type="button" onClick={() => download("stepped-amphitheater-record.json", JSON.stringify(evaluationRecord, null, 2), "application/json")} className="rounded border px-2 py-1 text-[9px]" style={{ borderColor: "var(--line)" }}>Parameters + evaluation JSON</button>
+    </div>
+    <p className="mt-2 text-[9px]" style={{ color: "var(--muted)" }}>OBJ coordinates are written in feet. Import into a Rhino 8 document whose model units are Feet. The existing Slide page retains the adjustable cut plane and separate section result view.</p>
+  </section>;
+}

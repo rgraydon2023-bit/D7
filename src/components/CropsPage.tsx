@@ -1,4 +1,5 @@
 "use client";
+import { FeetScaleNote } from "./FeetScaleNote";
 
 import AppNav from "./AppNav";
 import CropEvalGrid from "./CropEvalGrid";
@@ -9,7 +10,7 @@ const selectStyle = {
   background: "var(--panel-soft)",
 } as const;
 
-export default function CropsPage() {
+export default function CropsPage({ evaluationsOnly = false }: { evaluationsOnly?: boolean }) {
   const {
     spacing,
     fontSize,
@@ -25,18 +26,18 @@ export default function CropsPage() {
   } = useGridStore();
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col gap-3 px-4 py-4 md:px-5">
-      <header className="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-2 py-1" style={{ background: "var(--page-bg, #0b0f14)" }}>
+    <div data-board-page="crops" className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col gap-3 px-4 py-4 md:px-5">
+      <header className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-baseline gap-2.5">
             <h1 className="text-lg font-semibold tracking-tight" style={{ fontFamily: "var(--font-sans)" }}>
-              2×2 Crops
+              {evaluationsOnly ? "Crop Evaluations" : "2×2 Crops"}
             </h1>
             <span
               className="text-[11px] tracking-[0.14em] uppercase"
               style={{ color: "var(--muted)", fontFamily: "var(--font-mono)" }}
             >
-              Evaluate
+              {evaluationsOnly ? "Permutation PASS" : "Evaluate"}
             </span>
           </div>
           <AppNav />
@@ -45,11 +46,11 @@ export default function CropsPage() {
           type="button"
           onClick={regenerate}
           className="rounded px-2.5 py-1 text-[11px] font-medium text-black hover:opacity-90"
-          style={{ background: "var(--accent)" }}
+          style={{ background: "var(--accent-primary)" }}
         >
           Regenerate source
         </button>
-      </header>
+      </header><FeetScaleNote/>
 
       <section
         className="flex flex-wrap items-center gap-1.5 rounded-lg border px-2.5 py-2"

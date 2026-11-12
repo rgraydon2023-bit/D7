@@ -1,7 +1,7 @@
 "use client";
 
 import { OrbitControls } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
+import { BoardCanvas as Canvas } from "@/components/BoardCanvas";
 import { useMemo } from "react";
 import * as THREE from "three";
 import type { CropEvaluation } from "./cropEvaluation";

@@ -1,0 +1,591 @@
+{
+  "setup": {
+    "mode": "combined",
+    "seed": 2041,
+    "sourceObjects": 12,
+    "scale": 0.72,
+    "descriptorProfile": "shared matrix profile"
+  },
+  "voidModeComparison": {
+    "rawPlanOverlapPercent": 53,
+    "afterConnectorPlanOverlapPercent": 81.4
+  },
+  "passed": 7,
+  "failed": [],
+  "rows": [
+    {
+      "category": "gathering",
+      "typology": "stepped-amphitheater",
+      "name": "Stepped Amphitheater",
+      "primary": [
+        "TERRACE",
+        "CONVERGE"
+      ],
+      "secondary": [
+        "SEQUENCE",
+        "OVERLOOK",
+        "BRIDGE"
+      ],
+      "terrace": true,
+      "components": 1,
+      "occupiedRegions": 8,
+      "principalVoids": 0,
+      "plates": 6,
+      "continuousSurfaces": 0,
+      "circulationPaths": 9,
+      "rawTopology": {
+        "occupiedRegions": 8,
+        "discretePlates": 6,
+        "continuousSurfaces": 0,
+        "principalVoids": 0,
+        "typologySpecificElements": [
+          "primary-space",
+          "terrace-aisle-left",
+          "terrace-aisle-right",
+          "terraced-armature-#"
+        ],
+        "terraceActive": true
+      },
+      "criterion": "Terraced focus + connected levels",
+      "criterionValue": 5,
+      "criterionUnit": "levels",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 3593,
+        "triangles": 7239,
+        "components": 1,
+        "horizontalArea": 270.35,
+        "verticalExtent": 3.48,
+        "componentBounds": [
+          {
+            "triangles": 7815,
+            "horizontalArea": 260.8381528747651,
+            "min": [
+              -5.807412013411522,
+              1.9452709014058358,
+              -6.836199462413788
+            ],
+            "max": [
+              9.750000163912773,
+              5.426862806654278,
+              9.750000163912773
+            ]
+          }
+        ]
+      },
+      "interlocking": [
+        {
+          "count": 2,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 4,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 8,
+          "valid": true,
+          "failures": []
+        }
+      ]
+    },
+    {
+      "category": "gathering",
+      "typology": "void-field-gathering",
+      "name": "Void-Field Gathering",
+      "primary": [
+        "VOID",
+        "FIELD"
+      ],
+      "secondary": [
+        "BRIDGE",
+        "EDGE",
+        "OVERLOOK"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 5,
+      "principalVoids": 5,
+      "plates": 5,
+      "continuousSurfaces": 0,
+      "circulationPaths": 5,
+      "rawTopology": {
+        "occupiedRegions": 5,
+        "discretePlates": 5,
+        "continuousSurfaces": 0,
+        "principalVoids": 5,
+        "typologySpecificElements": [
+          "preserved-field-void-#",
+          "void-organized-edge-#"
+        ],
+        "terraceActive": false
+      },
+      "criterion": "Distributed meaningful voids",
+      "criterionValue": 11,
+      "criterionUnit": "voids",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 1392,
+        "triangles": 2791,
+        "components": 1,
+        "horizontalArea": 174.06,
+        "verticalExtent": 9.15,
+        "componentBounds": [
+          {
+            "triangles": 3415,
+            "horizontalArea": 167.9068135540622,
+            "min": [
+              -2.637561872601509,
+              3.7481080680981576,
+              -4.288624830543995
+            ],
+            "max": [
+              9.750000163912773,
+              12.9003,
+              9.750000163912773
+            ]
+          }
+        ]
+      },
+      "interlocking": [
+        {
+          "count": 2,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 4,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 8,
+          "valid": true,
+          "failures": []
+        }
+      ]
+    },
+    {
+      "category": "gathering",
+      "typology": "contained-room-within-volume",
+      "name": "Contained Room-Within-Volume",
+      "primary": [
+        "CONTAIN",
+        "ENCLOSE"
+      ],
+      "secondary": [
+        "VOID",
+        "OVERLOOK",
+        "BRIDGE"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 1,
+      "principalVoids": 1,
+      "plates": 2,
+      "continuousSurfaces": 0,
+      "circulationPaths": 1,
+      "rawTopology": {
+        "occupiedRegions": 1,
+        "discretePlates": 2,
+        "continuousSurfaces": 0,
+        "principalVoids": 1,
+        "typologySpecificElements": [
+          "contained-enclosure",
+          "contained-room",
+          "primary-space"
+        ],
+        "terraceActive": false
+      },
+      "criterion": "Contained room + surrounding volume",
+      "criterionValue": 12.39,
+      "criterionUnit": "ft² room",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 1166,
+        "triangles": 2325,
+        "components": 1,
+        "horizontalArea": 136.34,
+        "verticalExtent": 2.8,
+        "componentBounds": [
+          {
+            "triangles": 3015,
+            "horizontalArea": 132.01236202080474,
+            "min": [
+              -7.04481802880764,
+              3.6062196047066966,
+              -2.9445124864578247
+            ],
+            "max": [
+              9.750000163912773,
+              6.404854479774564,
+              9.750000163912773
+            ]
+          }
+        ]
+      },
+      "interlocking": [
+        {
+          "count": 2,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 4,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 8,
+          "valid": true,
+          "failures": []
+        }
+      ]
+    },
+    {
+      "category": "gathering",
+      "typology": "linear-edge-gallery",
+      "name": "Linear Edge Gallery",
+      "primary": [
+        "LINEARIZE",
+        "EDGE"
+      ],
+      "secondary": [
+        "SEQUENCE",
+        "OVERLOOK",
+        "BRIDGE"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 3,
+      "principalVoids": 0,
+      "plates": 3,
+      "continuousSurfaces": 0,
+      "circulationPaths": 3,
+      "rawTopology": {
+        "occupiedRegions": 3,
+        "discretePlates": 3,
+        "continuousSurfaces": 0,
+        "principalVoids": 0,
+        "typologySpecificElements": [
+          "linear-band-#",
+          "primary-space"
+        ],
+        "terraceActive": false
+      },
+      "criterion": "Linear edge occupation",
+      "criterionValue": 2.62,
+      "criterionUnit": "ratio",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 960,
+        "triangles": 1914,
+        "components": 1,
+        "horizontalArea": 158.8,
+        "verticalExtent": 1.98,
+        "componentBounds": [
+          {
+            "triangles": 2542,
+            "horizontalArea": 155.50433271482726,
+            "min": [
+              -3.3739962726831436,
+              3.654005334709775,
+              -6.758926302194595
+            ],
+            "max": [
+              9.750000163912773,
+              5.633349026647448,
+              9.750000163912773
+            ]
+          }
+        ]
+      },
+      "interlocking": [
+        {
+          "count": 2,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 4,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 8,
+          "valid": true,
+          "failures": []
+        }
+      ]
+    },
+    {
+      "category": "office",
+      "typology": "open-hall-workspace",
+      "name": "Open Hall Workspace",
+      "primary": [
+        "PLATE"
+      ],
+      "secondary": [
+        "OPENNESS",
+        "CONTINUITY"
+      ],
+      "terrace": false,
+      "components": 2,
+      "occupiedRegions": 1,
+      "principalVoids": 0,
+      "plates": 1,
+      "continuousSurfaces": 0,
+      "circulationPaths": 0,
+      "rawTopology": {
+        "occupiedRegions": 1,
+        "discretePlates": 1,
+        "continuousSurfaces": 0,
+        "principalVoids": 0,
+        "typologySpecificElements": [
+          "primary-space"
+        ],
+        "terraceActive": false
+      },
+      "criterion": "Continuous low-fragmentation hall",
+      "criterionValue": 102.4,
+      "criterionUnit": "ft²",
+      "criterionPassed": true,
+      "validationScore": 80,
+      "valid": false,
+      "failures": [
+        "The occupied levels do not form one continuous circulation system."
+      ],
+      "geometry": {
+        "vertices": 520,
+        "triangles": 1032,
+        "components": 2,
+        "horizontalArea": 102.4,
+        "verticalExtent": 1.78,
+        "componentBounds": [
+          {
+            "triangles": 1512,
+            "horizontalArea": 94.42792384770141,
+            "min": [
+              -4.273428164422512,
+              6.857625998900033,
+              -4.026237092912197
+            ],
+            "max": [
+              9.750000163912773,
+              8.635362810997572,
+              9.750000163912773
+            ]
+          },
+          {
+            "triangles": 128,
+            "horizontalArea": 4.214158692782967,
+            "min": [
+              -2.767725095152855,
+              6.984256227816144,
+              -4.774850867688656
+            ],
+            "max": [
+              0.5089153926819563,
+              7.539671961890298,
+              -3.0664801970124245
+            ]
+          }
+        ]
+      },
+      "interlocking": [
+        {
+          "count": 2,
+          "valid": false,
+          "failures": [
+            "The source tile circulation is discontinuous."
+          ]
+        },
+        {
+          "count": 4,
+          "valid": false,
+          "failures": [
+            "The source tile circulation is discontinuous."
+          ]
+        },
+        {
+          "count": 8,
+          "valid": false,
+          "failures": [
+            "The source tile circulation is discontinuous."
+          ]
+        }
+      ]
+    },
+    {
+      "category": "office",
+      "typology": "void-edge-workspace",
+      "name": "Void-Edge Workspace",
+      "primary": [
+        "VOID",
+        "EDGE"
+      ],
+      "secondary": [
+        "PLATE",
+        "BRIDGE",
+        "OVERLOOK"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 3,
+      "principalVoids": 3,
+      "plates": 3,
+      "continuousSurfaces": 0,
+      "circulationPaths": 3,
+      "rawTopology": {
+        "occupiedRegions": 3,
+        "discretePlates": 3,
+        "continuousSurfaces": 0,
+        "principalVoids": 3,
+        "typologySpecificElements": [
+          "preserved-field-void-#",
+          "void-organized-edge-#"
+        ],
+        "terraceActive": false
+      },
+      "criterion": "Occupied void edges",
+      "criterionValue": 3,
+      "criterionUnit": "edges",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 1537,
+        "triangles": 3073,
+        "components": 1,
+        "horizontalArea": 215.97,
+        "verticalExtent": 9.18,
+        "componentBounds": [
+          {
+            "triangles": 3677,
+            "horizontalArea": 202.56815303099734,
+            "min": [
+              -2.7673448100686073,
+              3.7249302259045907,
+              -2.969453677535057
+            ],
+            "max": [
+              9.750000163912773,
+              12.9003,
+              9.750000163912773
+            ]
+          }
+        ]
+      },
+      "interlocking": [
+        {
+          "count": 2,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 4,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 8,
+          "valid": true,
+          "failures": []
+        }
+      ]
+    },
+    {
+      "category": "office",
+      "typology": "folded-undulating-work-surface",
+      "name": "Folded / Undulating Work Surface",
+      "primary": [
+        "FOLD",
+        "TOPOGRAPH",
+        "PLATE"
+      ],
+      "secondary": [
+        "CONTINUITY"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 4,
+      "principalVoids": 0,
+      "plates": 1,
+      "continuousSurfaces": 3,
+      "circulationPaths": 4,
+      "rawTopology": {
+        "occupiedRegions": 4,
+        "discretePlates": 1,
+        "continuousSurfaces": 3,
+        "principalVoids": 0,
+        "typologySpecificElements": [
+          "primary-space",
+          "topographic-band-#"
+        ],
+        "terraceActive": false
+      },
+      "criterion": "Continuous folded surface",
+      "criterionValue": 2.31,
+      "criterionUnit": "ft rise",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 2054,
+        "triangles": 4109,
+        "components": 1,
+        "horizontalArea": 286,
+        "verticalExtent": 2.31,
+        "componentBounds": [
+          {
+            "triangles": 4725,
+            "horizontalArea": 274.6765529336349,
+            "min": [
+              -7.717677220702171,
+              2.798056058521026,
+              -4.828782148659229
+            ],
+            "max": [
+              9.750000163912773,
+              5.1125437480492275,
+              9.750000163912773
+            ]
+          }
+        ]
+      },
+      "interlocking": [
+        {
+          "count": 2,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 4,
+          "valid": true,
+          "failures": []
+        },
+        {
+          "count": 8,
+          "valid": true,
+          "failures": []
+        }
+      ]
+    }
+  ]
+}

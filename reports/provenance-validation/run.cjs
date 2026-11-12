@@ -1,0 +1,42 @@
+const fs=require('fs'),path=require('path'),crypto=require('crypto');
+const root=path.resolve(__dirname,'../..'),engine=require(path.join(root,'.typology-matrix-build/src/components/amphitheaterPrototype.js')),fixture=require('../full-domain-validation/fixture.json');
+const g4Letters=process.argv.includes('--g4-letters');
+const types=(g4Letters?['contained-room-within-volume']:process.argv.includes('--l1')?['vertical-void-lobby']:['contained-room-within-volume','flat-deep-plan-plate','vertical-void-lobby']),modes=g4Letters?['letters']:['letters','voids','combined'],source=fixture.source,analysis=engine.analyzeSourceGeometry(source,true);
+const oldChosen=require('../source-influence-validation/inputs.json').chosen;
+const identity=p=>`${p.cell.id}@${p.sourceIndex??'member'}:${p.layerIndex??0}`;
+const geometric=e=>{const {provenance,id,...geometry}=e;return geometry;};
+const hash=x=>crypto.createHash('sha256').update(JSON.stringify(x)).digest('hex');
+const center=e=>{const p=e?.footprint||[];return p.length?[p.reduce((s,p)=>s+p[0],0)/p.length,p.reduce((s,p)=>s+p[1],0)/p.length,e.z]:[];};
+function changedAnalysis(ids,remove){const a=structuredClone(analysis);a.voids=a.voids.filter(v=>!remove||!ids.includes(v.id)).map(v=>ids.includes(v.id)?{...v,center:[v.center[0]+.65,v.center[1]+.2],points:v.points.map(p=>[p[0]+.65,p[1]+.2]),z:v.z+.2,zMin:v.zMin+.2,zMax:v.zMax+.2}:v);const map=new Map([...a.letters,...a.voids].map(v=>[v.id,v]));a.relationships=a.relationships.filter(e=>map.has(e.fromId)&&map.has(e.toId)).map(e=>({...e,from:map.get(e.fromId).center,to:map.get(e.toId).center,fromZ:map.get(e.fromId).z,toZ:map.get(e.toId).z}));return a;}
+function svg(mesh,title){const p=mesh.positions,faces=[],project=i=>[250+(p[i*3]-p[i*3+2])*.707*13,260+((p[i*3]+p[i*3+2])*.37-p[i*3+1]*.86)*13];for(let i=0;i<mesh.indices.length;i+=3){const ids=mesh.indices.slice(i,i+3);faces.push({z:ids.reduce((s,j)=>s+p[j*3]+p[j*3+2]+p[j*3+1]*.4,0),s:`<polygon points="${ids.map(j=>project(j).join(',')).join(' ')}" fill="#b9cace" stroke="#84999d" stroke-width=".07"/>`});}faces.sort((a,b)=>a.z-b.z);return wrap(title,faces.map(f=>f.s).join(''));}
+const wrap=(title,body)=>`<svg xmlns="http://www.w3.org/2000/svg" width="500" height="440"><rect width="500" height="440" fill="#0b161b"/><text x="12" y="24" fill="white" font-size="13">${title}</text>${body}</svg>`;
+const project=(p,z)=>[250+(p[0]-p[1])*.707*13,260+((p[0]+p[1])*.37-z*.86)*13];
+function mapSvg(base,target,title){const ids=new Set(target?.provenance?.sourceRegionIds||[]),color='#ffc76a';let body=[...analysis.letters,...analysis.voids].map(r=>`<polygon points="${r.points.map(p=>project(p,r.z).join(',')).join(' ')}" fill="none" stroke="${ids.has(r.id)?color:'#395459'}" stroke-width="${ids.has(r.id)?2:.4}"/>`).join('');body+=(target?.footprint?[`<polygon points="${target.footprint.map(p=>project(p,target.z).join(',')).join(' ')}" fill="${color}" fill-opacity=".25" stroke="${color}" stroke-width="2"/>`]:[]).join('');return wrap(title,body);}
+const partial=process.argv.includes('--l1')||g4Letters;
+const rows=partial?JSON.parse(fs.readFileSync(path.join(__dirname,'results.json'))).filter(r=>g4Letters?!(r.typology==='contained-room-within-volume'&&r.mode==='letters'):r.typology!=='vertical-void-lobby'):[];
+const cards=partial?(fs.readFileSync(path.join(__dirname,'SOURCE_INFLUENCE_MAP.html'),'utf8').match(/<section>[\s\S]*?<\/section>/g)||[]).filter(s=>!s.includes(g4Letters?'<h2>contained-room-within-volume / letters':'<h2>vertical-void-lobby')):[];
+for(const typology of types)for(const mode of modes){
+ const generate=(src,a)=>engine.generateProtoArchitecture({...fixture,source:src,sourceAnalysis:a,typology,mode,quality:'final'});
+ const base=generate(source,analysis),target=base.disconnectedElements.find(e=>typology==='contained-room-within-volume'?e.id.endsWith('-contained-room'):typology==='flat-deep-plan-plate'?e.id.includes('-courtyard-'):e.id.includes('primary-space-arrival'));
+ if(!target)throw Error('Missing baseline target '+typology+' '+mode);
+ let targetIds=target.provenance.sourceVoidIds,memberIds=target.provenance.sourceLetterIds;
+ if(typology==='vertical-void-lobby'){const ids=[...new Set(base.connectorElements.flatMap(e=>e.provenance?.sourceVoidIds||[]))];const chain=analysis.voids.filter(v=>ids.includes(v.id)).sort((a,b)=>a.z-b.z);targetIds=[chain[Math.floor(chain.length/2)].id];}
+ const rawLetterTarget=typology==='contained-room-within-volume'&&mode!=='voids';
+ const cases={base};
+ for(const test of ['perturbation','removal','assignedMove','assignedRemoval']){
+   const t=Date.now();let src=source,a=analysis;
+   if(test==='perturbation'){src=source.map(p=>oldChosen.includes(p.sourceIndex)?{...p,x:p.x+.35,y:p.y+.15,z:p.z+.2,rz:p.rz+30}:p);a=engine.analyzeSourceGeometry(src,true);}
+   if(test==='removal'){src=source.filter(p=>!oldChosen.includes(p.sourceIndex));a=engine.analyzeSourceGeometry(src,true);}
+   if(test.startsWith('assigned')){if(rawLetterTarget){src=test==='assignedRemoval'?source.filter(p=>!memberIds.includes(identity(p))):source.map(p=>memberIds.includes(identity(p))?{...p,x:p.x+.45,y:p.y+.2,z:p.z+.15,rz:p.rz+20}:p);a=engine.analyzeSourceGeometry(src,true);}else a=changedAnalysis(targetIds,test==='assignedRemoval');}
+   cases[test]=generate(src,a);console.log(typology,mode,test,Date.now()-t,cases[test].presentationMesh.componentCount);
+ }
+ const identify=r=>r.disconnectedElements.filter(e=>typology==='contained-room-within-volume'?e.id.endsWith('-contained-room'):typology==='flat-deep-plan-plate'?e.id.includes('-courtyard-'):e.id.includes('primary-space-arrival')||e.id.includes('void-overlook'));
+ const result={typology,mode,diagnostic:base.domainDiagnostic,target:target.provenance,targetCenter:center(target),targetIds:rawLetterTarget?memberIds:targetIds,rawTopology:base.typologyDebug.rawTopology,tests:Object.fromEntries(Object.entries(cases).map(([test,r])=>[test,{components:r.presentationMesh.componentCount,extent:r.domainDiagnostic?.final,unsupported:r.elements.length===0,failures:r.validation.failures,targetGeometryChanged:hash(identify(r).map(geometric))!==hash(identify(base).map(geometric)),targets:identify(r).map(e=>({id:e.id,center:center(e),provenance:e.provenance})),allElementsAssigned:r.elements.every(e=>!!e.provenance)}]))};rows.push(result);
+ const name=typology+'-'+mode;
+ fs.writeFileSync(path.join(__dirname,name+'-assignments.json'),JSON.stringify({source:fixture.source,regions:[...analysis.letters,...analysis.voids],relationships:analysis.relationships,elements:base.elements,raw:base.disconnectedElements,tests:result.tests},null,2));
+ for(const [test,r] of Object.entries(cases))fs.writeFileSync(path.join(__dirname,name+'-'+test+'.svg'),svg(r.presentationMesh,`${mode} / ${test}`));
+ fs.writeFileSync(path.join(__dirname,name+'-map.svg'),mapSvg(base,target,'Gold: assigned source → target geometry'));
+ cards.push(`<section><h2>${typology} / ${mode}</h2><p>Gold source regions → <strong>${target.id}</strong></p><p>Source regions: ${target.provenance.sourceRegionIds.join(', ')}<br>Source voids: ${target.provenance.sourceVoidIds.join(', ')||'none'}<br>Source edges: ${target.provenance.sourceRelationshipIds.join(', ')||'none within this selected feature'}</p><main>${['map','base','assignedMove','assignedRemoval','perturbation','removal'].map(test=>`<figure><img src="${name}-${test}.svg"><figcaption>${test}</figcaption></figure>`).join('')}</main><a href="${name}-assignments.json">All element assignments and test records</a></section>`);
+ fs.writeFileSync(path.join(__dirname,'results.json'),JSON.stringify(rows,null,2));
+ fs.writeFileSync(path.join(__dirname,'SOURCE_INFLUENCE_MAP.html'),`<!doctype html><meta charset="utf-8"><title>SOURCE INFLUENCE MAP — provenance correction</title><style>body{background:#0b161b;color:#ddd;font:16px sans-serif;padding:24px}main{display:grid;grid-template-columns:repeat(3,1fr)}img{width:100%}figure{margin:5px}section{margin-bottom:50px}a{color:#7ee4dd}p{overflow-wrap:anywhere;line-height:1.5}</style><h1>SOURCE INFLUENCE MAP — explicit assignments</h1><p>Same complete 192-letter fixture, seed, descriptors, organic controls, camera and scale. Gold links named source regions to the highlighted target. AssignedMove/Removal act on that target's source features; perturbation/removal repeat the previous twelve-letter test. Void-target tests edit extracted proxies and incident edges, not the original letter scene. Original source and full lineage are included in each JSON record.</p>${cards.join('')}`);
+}

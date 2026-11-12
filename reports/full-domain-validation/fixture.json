@@ -1,0 +1,3145 @@
+{
+  "source": [
+    {
+      "cell": {
+        "id": "domain-0",
+        "letter": "V",
+        "rotation": 0
+      },
+      "sourceIndex": 0,
+      "layerIndex": 0,
+      "x": -3.9200000000000004,
+      "y": 2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 0,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-1",
+        "letter": "U",
+        "rotation": 23
+      },
+      "sourceIndex": 1,
+      "layerIndex": 0,
+      "x": -2.8000000000000003,
+      "y": 2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 23,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-2",
+        "letter": "L",
+        "rotation": 46
+      },
+      "sourceIndex": 2,
+      "layerIndex": 0,
+      "x": -1.6800000000000002,
+      "y": 2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 46,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-3",
+        "letter": "V",
+        "rotation": 69
+      },
+      "sourceIndex": 3,
+      "layerIndex": 0,
+      "x": -0.56,
+      "y": 2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 69,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-4",
+        "letter": "U",
+        "rotation": 2
+      },
+      "sourceIndex": 4,
+      "layerIndex": 0,
+      "x": 0.56,
+      "y": 2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 2,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-5",
+        "letter": "L",
+        "rotation": 25
+      },
+      "sourceIndex": 5,
+      "layerIndex": 0,
+      "x": 1.6800000000000002,
+      "y": 2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 25,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-6",
+        "letter": "V",
+        "rotation": 48
+      },
+      "sourceIndex": 6,
+      "layerIndex": 0,
+      "x": 2.8000000000000003,
+      "y": 2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 48,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-7",
+        "letter": "U",
+        "rotation": 71
+      },
+      "sourceIndex": 7,
+      "layerIndex": 0,
+      "x": 3.9200000000000004,
+      "y": 2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 71,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-8",
+        "letter": "L",
+        "rotation": 4
+      },
+      "sourceIndex": 8,
+      "layerIndex": 0,
+      "x": -3.9200000000000004,
+      "y": 1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 4,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-9",
+        "letter": "V",
+        "rotation": 27
+      },
+      "sourceIndex": 9,
+      "layerIndex": 0,
+      "x": -2.8000000000000003,
+      "y": 1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 27,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-10",
+        "letter": "U",
+        "rotation": 50
+      },
+      "sourceIndex": 10,
+      "layerIndex": 0,
+      "x": -1.6800000000000002,
+      "y": 1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 50,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-11",
+        "letter": "L",
+        "rotation": 73
+      },
+      "sourceIndex": 11,
+      "layerIndex": 0,
+      "x": -0.56,
+      "y": 1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 73,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-12",
+        "letter": "V",
+        "rotation": 6
+      },
+      "sourceIndex": 12,
+      "layerIndex": 0,
+      "x": 0.56,
+      "y": 1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 6,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-13",
+        "letter": "U",
+        "rotation": 29
+      },
+      "sourceIndex": 13,
+      "layerIndex": 0,
+      "x": 1.6800000000000002,
+      "y": 1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 29,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-14",
+        "letter": "L",
+        "rotation": 52
+      },
+      "sourceIndex": 14,
+      "layerIndex": 0,
+      "x": 2.8000000000000003,
+      "y": 1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 52,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-15",
+        "letter": "V",
+        "rotation": 75
+      },
+      "sourceIndex": 15,
+      "layerIndex": 0,
+      "x": 3.9200000000000004,
+      "y": 1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 75,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-16",
+        "letter": "U",
+        "rotation": 8
+      },
+      "sourceIndex": 16,
+      "layerIndex": 0,
+      "x": -3.9200000000000004,
+      "y": 0.56,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 8,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-17",
+        "letter": "L",
+        "rotation": 31
+      },
+      "sourceIndex": 17,
+      "layerIndex": 0,
+      "x": -2.8000000000000003,
+      "y": 0.56,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 31,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-18",
+        "letter": "V",
+        "rotation": 54
+      },
+      "sourceIndex": 18,
+      "layerIndex": 0,
+      "x": -1.6800000000000002,
+      "y": 0.56,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 54,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-19",
+        "letter": "U",
+        "rotation": 77
+      },
+      "sourceIndex": 19,
+      "layerIndex": 0,
+      "x": -0.56,
+      "y": 0.56,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 77,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-20",
+        "letter": "L",
+        "rotation": 10
+      },
+      "sourceIndex": 20,
+      "layerIndex": 0,
+      "x": 0.56,
+      "y": 0.56,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 10,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-21",
+        "letter": "V",
+        "rotation": 33
+      },
+      "sourceIndex": 21,
+      "layerIndex": 0,
+      "x": 1.6800000000000002,
+      "y": 0.56,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 33,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-22",
+        "letter": "U",
+        "rotation": 56
+      },
+      "sourceIndex": 22,
+      "layerIndex": 0,
+      "x": 2.8000000000000003,
+      "y": 0.56,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 56,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-23",
+        "letter": "L",
+        "rotation": 79
+      },
+      "sourceIndex": 23,
+      "layerIndex": 0,
+      "x": 3.9200000000000004,
+      "y": 0.56,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 79,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-24",
+        "letter": "V",
+        "rotation": 12
+      },
+      "sourceIndex": 24,
+      "layerIndex": 0,
+      "x": -3.9200000000000004,
+      "y": -0.56,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 12,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-25",
+        "letter": "U",
+        "rotation": 35
+      },
+      "sourceIndex": 25,
+      "layerIndex": 0,
+      "x": -2.8000000000000003,
+      "y": -0.56,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 35,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-26",
+        "letter": "L",
+        "rotation": 58
+      },
+      "sourceIndex": 26,
+      "layerIndex": 0,
+      "x": -1.6800000000000002,
+      "y": -0.56,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 58,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-27",
+        "letter": "V",
+        "rotation": 81
+      },
+      "sourceIndex": 27,
+      "layerIndex": 0,
+      "x": -0.56,
+      "y": -0.56,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 81,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-28",
+        "letter": "U",
+        "rotation": 14
+      },
+      "sourceIndex": 28,
+      "layerIndex": 0,
+      "x": 0.56,
+      "y": -0.56,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 14,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-29",
+        "letter": "L",
+        "rotation": 37
+      },
+      "sourceIndex": 29,
+      "layerIndex": 0,
+      "x": 1.6800000000000002,
+      "y": -0.56,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 37,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-30",
+        "letter": "V",
+        "rotation": 60
+      },
+      "sourceIndex": 30,
+      "layerIndex": 0,
+      "x": 2.8000000000000003,
+      "y": -0.56,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 60,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-31",
+        "letter": "U",
+        "rotation": 83
+      },
+      "sourceIndex": 31,
+      "layerIndex": 0,
+      "x": 3.9200000000000004,
+      "y": -0.56,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 83,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-32",
+        "letter": "L",
+        "rotation": 16
+      },
+      "sourceIndex": 32,
+      "layerIndex": 0,
+      "x": -3.9200000000000004,
+      "y": -1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 16,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-33",
+        "letter": "V",
+        "rotation": 39
+      },
+      "sourceIndex": 33,
+      "layerIndex": 0,
+      "x": -2.8000000000000003,
+      "y": -1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 39,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-34",
+        "letter": "U",
+        "rotation": 62
+      },
+      "sourceIndex": 34,
+      "layerIndex": 0,
+      "x": -1.6800000000000002,
+      "y": -1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 62,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-35",
+        "letter": "L",
+        "rotation": 85
+      },
+      "sourceIndex": 35,
+      "layerIndex": 0,
+      "x": -0.56,
+      "y": -1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 85,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-36",
+        "letter": "V",
+        "rotation": 18
+      },
+      "sourceIndex": 36,
+      "layerIndex": 0,
+      "x": 0.56,
+      "y": -1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 18,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-37",
+        "letter": "U",
+        "rotation": 41
+      },
+      "sourceIndex": 37,
+      "layerIndex": 0,
+      "x": 1.6800000000000002,
+      "y": -1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 41,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-38",
+        "letter": "L",
+        "rotation": 64
+      },
+      "sourceIndex": 38,
+      "layerIndex": 0,
+      "x": 2.8000000000000003,
+      "y": -1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 64,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-39",
+        "letter": "V",
+        "rotation": 87
+      },
+      "sourceIndex": 39,
+      "layerIndex": 0,
+      "x": 3.9200000000000004,
+      "y": -1.6800000000000002,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 87,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-40",
+        "letter": "U",
+        "rotation": 20
+      },
+      "sourceIndex": 40,
+      "layerIndex": 0,
+      "x": -3.9200000000000004,
+      "y": -2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 20,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-41",
+        "letter": "L",
+        "rotation": 43
+      },
+      "sourceIndex": 41,
+      "layerIndex": 0,
+      "x": -2.8000000000000003,
+      "y": -2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 43,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-42",
+        "letter": "V",
+        "rotation": 66
+      },
+      "sourceIndex": 42,
+      "layerIndex": 0,
+      "x": -1.6800000000000002,
+      "y": -2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 66,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-43",
+        "letter": "U",
+        "rotation": 89
+      },
+      "sourceIndex": 43,
+      "layerIndex": 0,
+      "x": -0.56,
+      "y": -2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 89,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-44",
+        "letter": "L",
+        "rotation": 22
+      },
+      "sourceIndex": 44,
+      "layerIndex": 0,
+      "x": 0.56,
+      "y": -2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 22,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-45",
+        "letter": "V",
+        "rotation": 45
+      },
+      "sourceIndex": 45,
+      "layerIndex": 0,
+      "x": 1.6800000000000002,
+      "y": -2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 45,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-46",
+        "letter": "U",
+        "rotation": 68
+      },
+      "sourceIndex": 46,
+      "layerIndex": 0,
+      "x": 2.8000000000000003,
+      "y": -2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 68,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-47",
+        "letter": "L",
+        "rotation": 1
+      },
+      "sourceIndex": 47,
+      "layerIndex": 0,
+      "x": 3.9200000000000004,
+      "y": -2.8000000000000003,
+      "z": -1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 1,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-48",
+        "letter": "V",
+        "rotation": 24
+      },
+      "sourceIndex": 48,
+      "layerIndex": 1,
+      "x": -3.9200000000000004,
+      "y": 2.8000000000000003,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 24,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-49",
+        "letter": "U",
+        "rotation": 47
+      },
+      "sourceIndex": 49,
+      "layerIndex": 1,
+      "x": -2.8000000000000003,
+      "y": 2.8000000000000003,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 47,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-50",
+        "letter": "L",
+        "rotation": 70
+      },
+      "sourceIndex": 50,
+      "layerIndex": 1,
+      "x": -1.6800000000000002,
+      "y": 2.8000000000000003,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 70,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-51",
+        "letter": "V",
+        "rotation": 3
+      },
+      "sourceIndex": 51,
+      "layerIndex": 1,
+      "x": -0.56,
+      "y": 2.8000000000000003,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 3,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-52",
+        "letter": "U",
+        "rotation": 26
+      },
+      "sourceIndex": 52,
+      "layerIndex": 1,
+      "x": 0.56,
+      "y": 2.8000000000000003,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 26,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-53",
+        "letter": "L",
+        "rotation": 49
+      },
+      "sourceIndex": 53,
+      "layerIndex": 1,
+      "x": 1.6800000000000002,
+      "y": 2.8000000000000003,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 49,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-54",
+        "letter": "V",
+        "rotation": 72
+      },
+      "sourceIndex": 54,
+      "layerIndex": 1,
+      "x": 2.8000000000000003,
+      "y": 2.8000000000000003,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 72,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-55",
+        "letter": "U",
+        "rotation": 5
+      },
+      "sourceIndex": 55,
+      "layerIndex": 1,
+      "x": 3.9200000000000004,
+      "y": 2.8000000000000003,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 5,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-56",
+        "letter": "L",
+        "rotation": 28
+      },
+      "sourceIndex": 56,
+      "layerIndex": 1,
+      "x": -3.9200000000000004,
+      "y": 1.6800000000000002,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 28,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-57",
+        "letter": "V",
+        "rotation": 51
+      },
+      "sourceIndex": 57,
+      "layerIndex": 1,
+      "x": -2.8000000000000003,
+      "y": 1.6800000000000002,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 51,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-58",
+        "letter": "U",
+        "rotation": 74
+      },
+      "sourceIndex": 58,
+      "layerIndex": 1,
+      "x": -1.6800000000000002,
+      "y": 1.6800000000000002,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 74,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-59",
+        "letter": "L",
+        "rotation": 7
+      },
+      "sourceIndex": 59,
+      "layerIndex": 1,
+      "x": -0.56,
+      "y": 1.6800000000000002,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 7,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-60",
+        "letter": "V",
+        "rotation": 30
+      },
+      "sourceIndex": 60,
+      "layerIndex": 1,
+      "x": 0.56,
+      "y": 1.6800000000000002,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 30,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-61",
+        "letter": "U",
+        "rotation": 53
+      },
+      "sourceIndex": 61,
+      "layerIndex": 1,
+      "x": 1.6800000000000002,
+      "y": 1.6800000000000002,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 53,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-62",
+        "letter": "L",
+        "rotation": 76
+      },
+      "sourceIndex": 62,
+      "layerIndex": 1,
+      "x": 2.8000000000000003,
+      "y": 1.6800000000000002,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 76,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-63",
+        "letter": "V",
+        "rotation": 9
+      },
+      "sourceIndex": 63,
+      "layerIndex": 1,
+      "x": 3.9200000000000004,
+      "y": 1.6800000000000002,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 9,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-64",
+        "letter": "U",
+        "rotation": 32
+      },
+      "sourceIndex": 64,
+      "layerIndex": 1,
+      "x": -3.9200000000000004,
+      "y": 0.56,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 32,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-65",
+        "letter": "L",
+        "rotation": 55
+      },
+      "sourceIndex": 65,
+      "layerIndex": 1,
+      "x": -2.8000000000000003,
+      "y": 0.56,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 55,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-66",
+        "letter": "V",
+        "rotation": 78
+      },
+      "sourceIndex": 66,
+      "layerIndex": 1,
+      "x": -1.6800000000000002,
+      "y": 0.56,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 78,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-67",
+        "letter": "U",
+        "rotation": 11
+      },
+      "sourceIndex": 67,
+      "layerIndex": 1,
+      "x": -0.56,
+      "y": 0.56,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 11,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-68",
+        "letter": "L",
+        "rotation": 34
+      },
+      "sourceIndex": 68,
+      "layerIndex": 1,
+      "x": 0.56,
+      "y": 0.56,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 34,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-69",
+        "letter": "V",
+        "rotation": 57
+      },
+      "sourceIndex": 69,
+      "layerIndex": 1,
+      "x": 1.6800000000000002,
+      "y": 0.56,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 57,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-70",
+        "letter": "U",
+        "rotation": 80
+      },
+      "sourceIndex": 70,
+      "layerIndex": 1,
+      "x": 2.8000000000000003,
+      "y": 0.56,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 80,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-71",
+        "letter": "L",
+        "rotation": 13
+      },
+      "sourceIndex": 71,
+      "layerIndex": 1,
+      "x": 3.9200000000000004,
+      "y": 0.56,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 13,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-72",
+        "letter": "V",
+        "rotation": 36
+      },
+      "sourceIndex": 72,
+      "layerIndex": 1,
+      "x": -3.9200000000000004,
+      "y": -0.56,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 36,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-73",
+        "letter": "U",
+        "rotation": 59
+      },
+      "sourceIndex": 73,
+      "layerIndex": 1,
+      "x": -2.8000000000000003,
+      "y": -0.56,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 59,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-74",
+        "letter": "L",
+        "rotation": 82
+      },
+      "sourceIndex": 74,
+      "layerIndex": 1,
+      "x": -1.6800000000000002,
+      "y": -0.56,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 82,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-75",
+        "letter": "V",
+        "rotation": 15
+      },
+      "sourceIndex": 75,
+      "layerIndex": 1,
+      "x": -0.56,
+      "y": -0.56,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 15,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-76",
+        "letter": "U",
+        "rotation": 38
+      },
+      "sourceIndex": 76,
+      "layerIndex": 1,
+      "x": 0.56,
+      "y": -0.56,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 38,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-77",
+        "letter": "L",
+        "rotation": 61
+      },
+      "sourceIndex": 77,
+      "layerIndex": 1,
+      "x": 1.6800000000000002,
+      "y": -0.56,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 61,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-78",
+        "letter": "V",
+        "rotation": 84
+      },
+      "sourceIndex": 78,
+      "layerIndex": 1,
+      "x": 2.8000000000000003,
+      "y": -0.56,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 84,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-79",
+        "letter": "U",
+        "rotation": 17
+      },
+      "sourceIndex": 79,
+      "layerIndex": 1,
+      "x": 3.9200000000000004,
+      "y": -0.56,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 17,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-80",
+        "letter": "L",
+        "rotation": 40
+      },
+      "sourceIndex": 80,
+      "layerIndex": 1,
+      "x": -3.9200000000000004,
+      "y": -1.6800000000000002,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 40,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-81",
+        "letter": "V",
+        "rotation": 63
+      },
+      "sourceIndex": 81,
+      "layerIndex": 1,
+      "x": -2.8000000000000003,
+      "y": -1.6800000000000002,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 63,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-82",
+        "letter": "U",
+        "rotation": 86
+      },
+      "sourceIndex": 82,
+      "layerIndex": 1,
+      "x": -1.6800000000000002,
+      "y": -1.6800000000000002,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 86,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-83",
+        "letter": "L",
+        "rotation": 19
+      },
+      "sourceIndex": 83,
+      "layerIndex": 1,
+      "x": -0.56,
+      "y": -1.6800000000000002,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 19,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-84",
+        "letter": "V",
+        "rotation": 42
+      },
+      "sourceIndex": 84,
+      "layerIndex": 1,
+      "x": 0.56,
+      "y": -1.6800000000000002,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 42,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-85",
+        "letter": "U",
+        "rotation": 65
+      },
+      "sourceIndex": 85,
+      "layerIndex": 1,
+      "x": 1.6800000000000002,
+      "y": -1.6800000000000002,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 65,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-86",
+        "letter": "L",
+        "rotation": 88
+      },
+      "sourceIndex": 86,
+      "layerIndex": 1,
+      "x": 2.8000000000000003,
+      "y": -1.6800000000000002,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 88,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-87",
+        "letter": "V",
+        "rotation": 21
+      },
+      "sourceIndex": 87,
+      "layerIndex": 1,
+      "x": 3.9200000000000004,
+      "y": -1.6800000000000002,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 21,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-88",
+        "letter": "U",
+        "rotation": 44
+      },
+      "sourceIndex": 88,
+      "layerIndex": 1,
+      "x": -3.9200000000000004,
+      "y": -2.8000000000000003,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 44,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-89",
+        "letter": "L",
+        "rotation": 67
+      },
+      "sourceIndex": 89,
+      "layerIndex": 1,
+      "x": -2.8000000000000003,
+      "y": -2.8000000000000003,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 67,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-90",
+        "letter": "V",
+        "rotation": 0
+      },
+      "sourceIndex": 90,
+      "layerIndex": 1,
+      "x": -1.6800000000000002,
+      "y": -2.8000000000000003,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 0,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-91",
+        "letter": "U",
+        "rotation": 23
+      },
+      "sourceIndex": 91,
+      "layerIndex": 1,
+      "x": -0.56,
+      "y": -2.8000000000000003,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 23,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-92",
+        "letter": "L",
+        "rotation": 46
+      },
+      "sourceIndex": 92,
+      "layerIndex": 1,
+      "x": 0.56,
+      "y": -2.8000000000000003,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 46,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-93",
+        "letter": "V",
+        "rotation": 69
+      },
+      "sourceIndex": 93,
+      "layerIndex": 1,
+      "x": 1.6800000000000002,
+      "y": -2.8000000000000003,
+      "z": -0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 69,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-94",
+        "letter": "U",
+        "rotation": 2
+      },
+      "sourceIndex": 94,
+      "layerIndex": 1,
+      "x": 2.8000000000000003,
+      "y": -2.8000000000000003,
+      "z": -0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 2,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-95",
+        "letter": "L",
+        "rotation": 25
+      },
+      "sourceIndex": 95,
+      "layerIndex": 1,
+      "x": 3.9200000000000004,
+      "y": -2.8000000000000003,
+      "z": -0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 25,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-96",
+        "letter": "V",
+        "rotation": 48
+      },
+      "sourceIndex": 96,
+      "layerIndex": 2,
+      "x": -3.9200000000000004,
+      "y": 2.8000000000000003,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 48,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-97",
+        "letter": "U",
+        "rotation": 71
+      },
+      "sourceIndex": 97,
+      "layerIndex": 2,
+      "x": -2.8000000000000003,
+      "y": 2.8000000000000003,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 71,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-98",
+        "letter": "L",
+        "rotation": 4
+      },
+      "sourceIndex": 98,
+      "layerIndex": 2,
+      "x": -1.6800000000000002,
+      "y": 2.8000000000000003,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 4,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-99",
+        "letter": "V",
+        "rotation": 27
+      },
+      "sourceIndex": 99,
+      "layerIndex": 2,
+      "x": -0.56,
+      "y": 2.8000000000000003,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 27,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-100",
+        "letter": "U",
+        "rotation": 50
+      },
+      "sourceIndex": 100,
+      "layerIndex": 2,
+      "x": 0.56,
+      "y": 2.8000000000000003,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 50,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-101",
+        "letter": "L",
+        "rotation": 73
+      },
+      "sourceIndex": 101,
+      "layerIndex": 2,
+      "x": 1.6800000000000002,
+      "y": 2.8000000000000003,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 73,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-102",
+        "letter": "V",
+        "rotation": 6
+      },
+      "sourceIndex": 102,
+      "layerIndex": 2,
+      "x": 2.8000000000000003,
+      "y": 2.8000000000000003,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 6,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-103",
+        "letter": "U",
+        "rotation": 29
+      },
+      "sourceIndex": 103,
+      "layerIndex": 2,
+      "x": 3.9200000000000004,
+      "y": 2.8000000000000003,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 29,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-104",
+        "letter": "L",
+        "rotation": 52
+      },
+      "sourceIndex": 104,
+      "layerIndex": 2,
+      "x": -3.9200000000000004,
+      "y": 1.6800000000000002,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 52,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-105",
+        "letter": "V",
+        "rotation": 75
+      },
+      "sourceIndex": 105,
+      "layerIndex": 2,
+      "x": -2.8000000000000003,
+      "y": 1.6800000000000002,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 75,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-106",
+        "letter": "U",
+        "rotation": 8
+      },
+      "sourceIndex": 106,
+      "layerIndex": 2,
+      "x": -1.6800000000000002,
+      "y": 1.6800000000000002,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 8,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-107",
+        "letter": "L",
+        "rotation": 31
+      },
+      "sourceIndex": 107,
+      "layerIndex": 2,
+      "x": -0.56,
+      "y": 1.6800000000000002,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 31,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-108",
+        "letter": "V",
+        "rotation": 54
+      },
+      "sourceIndex": 108,
+      "layerIndex": 2,
+      "x": 0.56,
+      "y": 1.6800000000000002,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 54,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-109",
+        "letter": "U",
+        "rotation": 77
+      },
+      "sourceIndex": 109,
+      "layerIndex": 2,
+      "x": 1.6800000000000002,
+      "y": 1.6800000000000002,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 77,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-110",
+        "letter": "L",
+        "rotation": 10
+      },
+      "sourceIndex": 110,
+      "layerIndex": 2,
+      "x": 2.8000000000000003,
+      "y": 1.6800000000000002,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 10,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-111",
+        "letter": "V",
+        "rotation": 33
+      },
+      "sourceIndex": 111,
+      "layerIndex": 2,
+      "x": 3.9200000000000004,
+      "y": 1.6800000000000002,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 33,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-112",
+        "letter": "U",
+        "rotation": 56
+      },
+      "sourceIndex": 112,
+      "layerIndex": 2,
+      "x": -3.9200000000000004,
+      "y": 0.56,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 56,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-113",
+        "letter": "L",
+        "rotation": 79
+      },
+      "sourceIndex": 113,
+      "layerIndex": 2,
+      "x": -2.8000000000000003,
+      "y": 0.56,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 79,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-114",
+        "letter": "V",
+        "rotation": 12
+      },
+      "sourceIndex": 114,
+      "layerIndex": 2,
+      "x": -1.6800000000000002,
+      "y": 0.56,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 12,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-115",
+        "letter": "U",
+        "rotation": 35
+      },
+      "sourceIndex": 115,
+      "layerIndex": 2,
+      "x": -0.56,
+      "y": 0.56,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 35,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-116",
+        "letter": "L",
+        "rotation": 58
+      },
+      "sourceIndex": 116,
+      "layerIndex": 2,
+      "x": 0.56,
+      "y": 0.56,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 58,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-117",
+        "letter": "V",
+        "rotation": 81
+      },
+      "sourceIndex": 117,
+      "layerIndex": 2,
+      "x": 1.6800000000000002,
+      "y": 0.56,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 81,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-118",
+        "letter": "U",
+        "rotation": 14
+      },
+      "sourceIndex": 118,
+      "layerIndex": 2,
+      "x": 2.8000000000000003,
+      "y": 0.56,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 14,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-119",
+        "letter": "L",
+        "rotation": 37
+      },
+      "sourceIndex": 119,
+      "layerIndex": 2,
+      "x": 3.9200000000000004,
+      "y": 0.56,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 37,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-120",
+        "letter": "V",
+        "rotation": 60
+      },
+      "sourceIndex": 120,
+      "layerIndex": 2,
+      "x": -3.9200000000000004,
+      "y": -0.56,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 60,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-121",
+        "letter": "U",
+        "rotation": 83
+      },
+      "sourceIndex": 121,
+      "layerIndex": 2,
+      "x": -2.8000000000000003,
+      "y": -0.56,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 83,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-122",
+        "letter": "L",
+        "rotation": 16
+      },
+      "sourceIndex": 122,
+      "layerIndex": 2,
+      "x": -1.6800000000000002,
+      "y": -0.56,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 16,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-123",
+        "letter": "V",
+        "rotation": 39
+      },
+      "sourceIndex": 123,
+      "layerIndex": 2,
+      "x": -0.56,
+      "y": -0.56,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 39,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-124",
+        "letter": "U",
+        "rotation": 62
+      },
+      "sourceIndex": 124,
+      "layerIndex": 2,
+      "x": 0.56,
+      "y": -0.56,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 62,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-125",
+        "letter": "L",
+        "rotation": 85
+      },
+      "sourceIndex": 125,
+      "layerIndex": 2,
+      "x": 1.6800000000000002,
+      "y": -0.56,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 85,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-126",
+        "letter": "V",
+        "rotation": 18
+      },
+      "sourceIndex": 126,
+      "layerIndex": 2,
+      "x": 2.8000000000000003,
+      "y": -0.56,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 18,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-127",
+        "letter": "U",
+        "rotation": 41
+      },
+      "sourceIndex": 127,
+      "layerIndex": 2,
+      "x": 3.9200000000000004,
+      "y": -0.56,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 41,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-128",
+        "letter": "L",
+        "rotation": 64
+      },
+      "sourceIndex": 128,
+      "layerIndex": 2,
+      "x": -3.9200000000000004,
+      "y": -1.6800000000000002,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 64,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-129",
+        "letter": "V",
+        "rotation": 87
+      },
+      "sourceIndex": 129,
+      "layerIndex": 2,
+      "x": -2.8000000000000003,
+      "y": -1.6800000000000002,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 87,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-130",
+        "letter": "U",
+        "rotation": 20
+      },
+      "sourceIndex": 130,
+      "layerIndex": 2,
+      "x": -1.6800000000000002,
+      "y": -1.6800000000000002,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 20,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-131",
+        "letter": "L",
+        "rotation": 43
+      },
+      "sourceIndex": 131,
+      "layerIndex": 2,
+      "x": -0.56,
+      "y": -1.6800000000000002,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 43,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-132",
+        "letter": "V",
+        "rotation": 66
+      },
+      "sourceIndex": 132,
+      "layerIndex": 2,
+      "x": 0.56,
+      "y": -1.6800000000000002,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 66,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-133",
+        "letter": "U",
+        "rotation": 89
+      },
+      "sourceIndex": 133,
+      "layerIndex": 2,
+      "x": 1.6800000000000002,
+      "y": -1.6800000000000002,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 89,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-134",
+        "letter": "L",
+        "rotation": 22
+      },
+      "sourceIndex": 134,
+      "layerIndex": 2,
+      "x": 2.8000000000000003,
+      "y": -1.6800000000000002,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 22,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-135",
+        "letter": "V",
+        "rotation": 45
+      },
+      "sourceIndex": 135,
+      "layerIndex": 2,
+      "x": 3.9200000000000004,
+      "y": -1.6800000000000002,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 45,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-136",
+        "letter": "U",
+        "rotation": 68
+      },
+      "sourceIndex": 136,
+      "layerIndex": 2,
+      "x": -3.9200000000000004,
+      "y": -2.8000000000000003,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 68,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-137",
+        "letter": "L",
+        "rotation": 1
+      },
+      "sourceIndex": 137,
+      "layerIndex": 2,
+      "x": -2.8000000000000003,
+      "y": -2.8000000000000003,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 1,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-138",
+        "letter": "V",
+        "rotation": 24
+      },
+      "sourceIndex": 138,
+      "layerIndex": 2,
+      "x": -1.6800000000000002,
+      "y": -2.8000000000000003,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 0,
+      "rz": 24,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-139",
+        "letter": "U",
+        "rotation": 47
+      },
+      "sourceIndex": 139,
+      "layerIndex": 2,
+      "x": -0.56,
+      "y": -2.8000000000000003,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 11,
+      "rz": 47,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-140",
+        "letter": "L",
+        "rotation": 70
+      },
+      "sourceIndex": 140,
+      "layerIndex": 2,
+      "x": 0.56,
+      "y": -2.8000000000000003,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 0,
+      "rz": 70,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-141",
+        "letter": "V",
+        "rotation": 3
+      },
+      "sourceIndex": 141,
+      "layerIndex": 2,
+      "x": 1.6800000000000002,
+      "y": -2.8000000000000003,
+      "z": 0.56,
+      "rx": 0,
+      "ry": 11,
+      "rz": 3,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-142",
+        "letter": "U",
+        "rotation": 26
+      },
+      "sourceIndex": 142,
+      "layerIndex": 2,
+      "x": 2.8000000000000003,
+      "y": -2.8000000000000003,
+      "z": 0.56,
+      "rx": 7,
+      "ry": 0,
+      "rz": 26,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-143",
+        "letter": "L",
+        "rotation": 49
+      },
+      "sourceIndex": 143,
+      "layerIndex": 2,
+      "x": 3.9200000000000004,
+      "y": -2.8000000000000003,
+      "z": 0.56,
+      "rx": 14,
+      "ry": 11,
+      "rz": 49,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-144",
+        "letter": "V",
+        "rotation": 72
+      },
+      "sourceIndex": 144,
+      "layerIndex": 3,
+      "x": -3.9200000000000004,
+      "y": 2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 72,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-145",
+        "letter": "U",
+        "rotation": 5
+      },
+      "sourceIndex": 145,
+      "layerIndex": 3,
+      "x": -2.8000000000000003,
+      "y": 2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 5,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-146",
+        "letter": "L",
+        "rotation": 28
+      },
+      "sourceIndex": 146,
+      "layerIndex": 3,
+      "x": -1.6800000000000002,
+      "y": 2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 28,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-147",
+        "letter": "V",
+        "rotation": 51
+      },
+      "sourceIndex": 147,
+      "layerIndex": 3,
+      "x": -0.56,
+      "y": 2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 51,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-148",
+        "letter": "U",
+        "rotation": 74
+      },
+      "sourceIndex": 148,
+      "layerIndex": 3,
+      "x": 0.56,
+      "y": 2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 74,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-149",
+        "letter": "L",
+        "rotation": 7
+      },
+      "sourceIndex": 149,
+      "layerIndex": 3,
+      "x": 1.6800000000000002,
+      "y": 2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 7,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-150",
+        "letter": "V",
+        "rotation": 30
+      },
+      "sourceIndex": 150,
+      "layerIndex": 3,
+      "x": 2.8000000000000003,
+      "y": 2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 30,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-151",
+        "letter": "U",
+        "rotation": 53
+      },
+      "sourceIndex": 151,
+      "layerIndex": 3,
+      "x": 3.9200000000000004,
+      "y": 2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 53,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-152",
+        "letter": "L",
+        "rotation": 76
+      },
+      "sourceIndex": 152,
+      "layerIndex": 3,
+      "x": -3.9200000000000004,
+      "y": 1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 76,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-153",
+        "letter": "V",
+        "rotation": 9
+      },
+      "sourceIndex": 153,
+      "layerIndex": 3,
+      "x": -2.8000000000000003,
+      "y": 1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 9,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-154",
+        "letter": "U",
+        "rotation": 32
+      },
+      "sourceIndex": 154,
+      "layerIndex": 3,
+      "x": -1.6800000000000002,
+      "y": 1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 32,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-155",
+        "letter": "L",
+        "rotation": 55
+      },
+      "sourceIndex": 155,
+      "layerIndex": 3,
+      "x": -0.56,
+      "y": 1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 55,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-156",
+        "letter": "V",
+        "rotation": 78
+      },
+      "sourceIndex": 156,
+      "layerIndex": 3,
+      "x": 0.56,
+      "y": 1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 78,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-157",
+        "letter": "U",
+        "rotation": 11
+      },
+      "sourceIndex": 157,
+      "layerIndex": 3,
+      "x": 1.6800000000000002,
+      "y": 1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 11,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-158",
+        "letter": "L",
+        "rotation": 34
+      },
+      "sourceIndex": 158,
+      "layerIndex": 3,
+      "x": 2.8000000000000003,
+      "y": 1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 34,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-159",
+        "letter": "V",
+        "rotation": 57
+      },
+      "sourceIndex": 159,
+      "layerIndex": 3,
+      "x": 3.9200000000000004,
+      "y": 1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 57,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-160",
+        "letter": "U",
+        "rotation": 80
+      },
+      "sourceIndex": 160,
+      "layerIndex": 3,
+      "x": -3.9200000000000004,
+      "y": 0.56,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 80,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-161",
+        "letter": "L",
+        "rotation": 13
+      },
+      "sourceIndex": 161,
+      "layerIndex": 3,
+      "x": -2.8000000000000003,
+      "y": 0.56,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 13,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-162",
+        "letter": "V",
+        "rotation": 36
+      },
+      "sourceIndex": 162,
+      "layerIndex": 3,
+      "x": -1.6800000000000002,
+      "y": 0.56,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 36,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-163",
+        "letter": "U",
+        "rotation": 59
+      },
+      "sourceIndex": 163,
+      "layerIndex": 3,
+      "x": -0.56,
+      "y": 0.56,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 59,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-164",
+        "letter": "L",
+        "rotation": 82
+      },
+      "sourceIndex": 164,
+      "layerIndex": 3,
+      "x": 0.56,
+      "y": 0.56,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 82,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-165",
+        "letter": "V",
+        "rotation": 15
+      },
+      "sourceIndex": 165,
+      "layerIndex": 3,
+      "x": 1.6800000000000002,
+      "y": 0.56,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 15,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-166",
+        "letter": "U",
+        "rotation": 38
+      },
+      "sourceIndex": 166,
+      "layerIndex": 3,
+      "x": 2.8000000000000003,
+      "y": 0.56,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 38,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-167",
+        "letter": "L",
+        "rotation": 61
+      },
+      "sourceIndex": 167,
+      "layerIndex": 3,
+      "x": 3.9200000000000004,
+      "y": 0.56,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 61,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-168",
+        "letter": "V",
+        "rotation": 84
+      },
+      "sourceIndex": 168,
+      "layerIndex": 3,
+      "x": -3.9200000000000004,
+      "y": -0.56,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 84,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-169",
+        "letter": "U",
+        "rotation": 17
+      },
+      "sourceIndex": 169,
+      "layerIndex": 3,
+      "x": -2.8000000000000003,
+      "y": -0.56,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 17,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-170",
+        "letter": "L",
+        "rotation": 40
+      },
+      "sourceIndex": 170,
+      "layerIndex": 3,
+      "x": -1.6800000000000002,
+      "y": -0.56,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 40,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-171",
+        "letter": "V",
+        "rotation": 63
+      },
+      "sourceIndex": 171,
+      "layerIndex": 3,
+      "x": -0.56,
+      "y": -0.56,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 63,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-172",
+        "letter": "U",
+        "rotation": 86
+      },
+      "sourceIndex": 172,
+      "layerIndex": 3,
+      "x": 0.56,
+      "y": -0.56,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 86,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-173",
+        "letter": "L",
+        "rotation": 19
+      },
+      "sourceIndex": 173,
+      "layerIndex": 3,
+      "x": 1.6800000000000002,
+      "y": -0.56,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 19,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-174",
+        "letter": "V",
+        "rotation": 42
+      },
+      "sourceIndex": 174,
+      "layerIndex": 3,
+      "x": 2.8000000000000003,
+      "y": -0.56,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 42,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-175",
+        "letter": "U",
+        "rotation": 65
+      },
+      "sourceIndex": 175,
+      "layerIndex": 3,
+      "x": 3.9200000000000004,
+      "y": -0.56,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 65,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-176",
+        "letter": "L",
+        "rotation": 88
+      },
+      "sourceIndex": 176,
+      "layerIndex": 3,
+      "x": -3.9200000000000004,
+      "y": -1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 88,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-177",
+        "letter": "V",
+        "rotation": 21
+      },
+      "sourceIndex": 177,
+      "layerIndex": 3,
+      "x": -2.8000000000000003,
+      "y": -1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 21,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-178",
+        "letter": "U",
+        "rotation": 44
+      },
+      "sourceIndex": 178,
+      "layerIndex": 3,
+      "x": -1.6800000000000002,
+      "y": -1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 44,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-179",
+        "letter": "L",
+        "rotation": 67
+      },
+      "sourceIndex": 179,
+      "layerIndex": 3,
+      "x": -0.56,
+      "y": -1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 67,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-180",
+        "letter": "V",
+        "rotation": 0
+      },
+      "sourceIndex": 180,
+      "layerIndex": 3,
+      "x": 0.56,
+      "y": -1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 0,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-181",
+        "letter": "U",
+        "rotation": 23
+      },
+      "sourceIndex": 181,
+      "layerIndex": 3,
+      "x": 1.6800000000000002,
+      "y": -1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 23,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-182",
+        "letter": "L",
+        "rotation": 46
+      },
+      "sourceIndex": 182,
+      "layerIndex": 3,
+      "x": 2.8000000000000003,
+      "y": -1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 46,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-183",
+        "letter": "V",
+        "rotation": 69
+      },
+      "sourceIndex": 183,
+      "layerIndex": 3,
+      "x": 3.9200000000000004,
+      "y": -1.6800000000000002,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 69,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-184",
+        "letter": "U",
+        "rotation": 2
+      },
+      "sourceIndex": 184,
+      "layerIndex": 3,
+      "x": -3.9200000000000004,
+      "y": -2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 2,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-185",
+        "letter": "L",
+        "rotation": 25
+      },
+      "sourceIndex": 185,
+      "layerIndex": 3,
+      "x": -2.8000000000000003,
+      "y": -2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 25,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-186",
+        "letter": "V",
+        "rotation": 48
+      },
+      "sourceIndex": 186,
+      "layerIndex": 3,
+      "x": -1.6800000000000002,
+      "y": -2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 0,
+      "rz": 48,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-187",
+        "letter": "U",
+        "rotation": 71
+      },
+      "sourceIndex": 187,
+      "layerIndex": 3,
+      "x": -0.56,
+      "y": -2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 11,
+      "rz": 71,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-188",
+        "letter": "L",
+        "rotation": 4
+      },
+      "sourceIndex": 188,
+      "layerIndex": 3,
+      "x": 0.56,
+      "y": -2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 0,
+      "rz": 4,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-189",
+        "letter": "V",
+        "rotation": 27
+      },
+      "sourceIndex": 189,
+      "layerIndex": 3,
+      "x": 1.6800000000000002,
+      "y": -2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 0,
+      "ry": 11,
+      "rz": 27,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-190",
+        "letter": "U",
+        "rotation": 50
+      },
+      "sourceIndex": 190,
+      "layerIndex": 3,
+      "x": 2.8000000000000003,
+      "y": -2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 7,
+      "ry": 0,
+      "rz": 50,
+      "scale": 0.7168
+    },
+    {
+      "cell": {
+        "id": "domain-191",
+        "letter": "L",
+        "rotation": 73
+      },
+      "sourceIndex": 191,
+      "layerIndex": 3,
+      "x": 3.9200000000000004,
+      "y": -2.8000000000000003,
+      "z": 1.6800000000000002,
+      "rx": 14,
+      "ry": 11,
+      "rz": 73,
+      "scale": 0.7168
+    }
+  ],
+  "descriptors": {
+    "openVolume": {
+      "intensity": 35,
+      "importance": 50
+    },
+    "convergent": {
+      "intensity": 35,
+      "importance": 50
+    },
+    "sculptural": {
+      "intensity": 35,
+      "importance": 50
+    },
+    "visuallyConnected": {
+      "intensity": 35,
+      "importance": 50
+    },
+    "surreal": {
+      "intensity": 35,
+      "importance": 50
+    },
+    "monumental": {
+      "intensity": 35,
+      "importance": 50
+    },
+    "hierarchical": {
+      "intensity": 35,
+      "importance": 50
+    },
+    "sequential": {
+      "intensity": 35,
+      "importance": 50
+    },
+    "circulationActivated": {
+      "intensity": 35,
+      "importance": 50
+    },
+    "centralized": {
+      "intensity": 35,
+      "importance": 50
+    },
+    "verticallyIntegrated": {
+      "intensity": 35,
+      "importance": 50
+    },
+    "luminous": {
+      "intensity": 35,
+      "importance": 50
+    }
+  },
+  "seed": 2041,
+  "continuityControls": {
+    "smoothness": 58,
+    "blendingStrength": 58,
+    "connectionDistance": 8,
+    "curvatureIntensity": 42,
+    "preservation": 62,
+    "minimumOpening": 2.2,
+    "verticalIntegration": 70,
+    "interlevelContinuity": 75,
+    "elevationPreservation": 85,
+    "organicInfluence": 45,
+    "boundaryCurvature": 55,
+    "blendRadius": 50,
+    "surfaceRelaxation": 45,
+    "branchingInfluence": 35,
+    "sourcePreservation": 62
+  },
+  "note": "Deterministic 192-letter fixture, not a recovered seven-letter screenshot arrangement."
+}

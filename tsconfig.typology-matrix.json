@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "outDir": ".typology-matrix-build"
+  },
+  "include": [
+    "scripts/typology-matrix.ts",
+    "src/components/amphitheaterPrototype.ts",
+    "src/components/compositionEngine.ts",
+    "src/components/letterGeometry3d.ts",
+    "src/components/letterTypes.ts",
+    "src/components/letterVolumeLayout.ts"
+  ]
+}

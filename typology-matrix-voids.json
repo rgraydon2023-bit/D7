@@ -1,0 +1,770 @@
+{
+  "setup": {
+    "mode": "voids",
+    "seed": 2041,
+    "sourceObjects": 12,
+    "scale": 0.72,
+    "descriptorProfile": "shared matrix profile"
+  },
+  "passed": 15,
+  "failed": [],
+  "rows": [
+    {
+      "category": "gathering",
+      "typology": "stepped-amphitheater",
+      "name": "Stepped Amphitheater",
+      "primary": [
+        "TERRACE",
+        "CONVERGE"
+      ],
+      "secondary": [
+        "SEQUENCE",
+        "OVERLOOK",
+        "BRIDGE"
+      ],
+      "terrace": true,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 18,
+      "plates": 24,
+      "continuousSurfaces": 0,
+      "circulationPaths": 7,
+      "criterion": "Terraced focus + connected levels",
+      "criterionValue": 14,
+      "criterionUnit": "levels",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 5015,
+        "triangles": 10260,
+        "components": 1,
+        "horizontalArea": 609.48,
+        "verticalExtent": 14.87,
+        "componentBounds": [
+          {
+            "triangles": 10736,
+            "horizontalArea": 597.2493442600327,
+            "min": [
+              -8.445249408483505,
+              1.9733951144564987,
+              -6.069680571556091
+            ],
+            "max": [
+              9.750000163912773,
+              16.841,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "category": "gathering",
+      "typology": "void-field-gathering",
+      "name": "Void-Field Gathering",
+      "primary": [
+        "VOID",
+        "FIELD"
+      ],
+      "secondary": [
+        "BRIDGE",
+        "EDGE",
+        "OVERLOOK"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 22,
+      "plates": 17,
+      "continuousSurfaces": 0,
+      "circulationPaths": 8,
+      "criterion": "Distributed meaningful voids",
+      "criterionValue": 22,
+      "criterionUnit": "voids",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 2782,
+        "triangles": 5592,
+        "components": 1,
+        "horizontalArea": 339.49,
+        "verticalExtent": 9.3,
+        "componentBounds": [
+          {
+            "triangles": 6071,
+            "horizontalArea": 319.4112216030027,
+            "min": [
+              -7.25130033493042,
+              3.698021204730126,
+              -4.20435980707407
+            ],
+            "max": [
+              9.750000163912773,
+              13.0003,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "category": "gathering",
+      "typology": "inserted-horizontal-plate",
+      "name": "Inserted Horizontal Plate",
+      "primary": [
+        "PLATE",
+        "PROJECT"
+      ],
+      "secondary": [
+        "VOID",
+        "BRIDGE",
+        "OVERLOOK"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 13,
+      "plates": 15,
+      "continuousSurfaces": 0,
+      "circulationPaths": 6,
+      "criterion": "Inserted plate projections",
+      "criterionValue": 2,
+      "criterionUnit": "plates",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 2160,
+        "triangles": 4352,
+        "components": 1,
+        "horizontalArea": 300.94,
+        "verticalExtent": 10.15,
+        "componentBounds": [
+          {
+            "triangles": 4841,
+            "horizontalArea": 289.47691529386765,
+            "min": [
+              -5.0029687359929085,
+              3.3899476336083376,
+              -5.078057259321213
+            ],
+            "max": [
+              9.750000163912773,
+              13.542,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "category": "gathering",
+      "typology": "contained-room-within-volume",
+      "name": "Contained Room-Within-Volume",
+      "primary": [
+        "CONTAIN",
+        "ENCLOSE"
+      ],
+      "secondary": [
+        "VOID",
+        "OVERLOOK",
+        "BRIDGE"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 14,
+      "plates": 14,
+      "continuousSurfaces": 0,
+      "circulationPaths": 8,
+      "criterion": "Contained room + surrounding volume",
+      "criterionValue": 12.39,
+      "criterionUnit": "ft² room",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 2688,
+        "triangles": 5400,
+        "components": 1,
+        "horizontalArea": 312.94,
+        "verticalExtent": 9.31,
+        "componentBounds": [
+          {
+            "triangles": 5886,
+            "horizontalArea": 295.3627966016085,
+            "min": [
+              -6.657706394791603,
+              3.6924984753764383,
+              -3.912712223827839
+            ],
+            "max": [
+              9.750000163912773,
+              13.0003,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "category": "gathering",
+      "typology": "linear-edge-gallery",
+      "name": "Linear Edge Gallery",
+      "primary": [
+        "LINEARIZE",
+        "EDGE"
+      ],
+      "secondary": [
+        "SEQUENCE",
+        "OVERLOOK",
+        "BRIDGE"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 12,
+      "plates": 15,
+      "continuousSurfaces": 0,
+      "circulationPaths": 6,
+      "criterion": "Linear edge occupation",
+      "criterionValue": 2.62,
+      "criterionUnit": "ratio",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 2569,
+        "triangles": 5156,
+        "components": 1,
+        "horizontalArea": 336.69,
+        "verticalExtent": 9.29,
+        "componentBounds": [
+          {
+            "triangles": 5703,
+            "horizontalArea": 324.0905401574116,
+            "min": [
+              -8.579233422875404,
+              3.713432463426897,
+              -4.422893658280373
+            ],
+            "max": [
+              9.750000163912773,
+              13.0003,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "category": "office",
+      "typology": "open-hall-workspace",
+      "name": "Open Hall Workspace",
+      "primary": [
+        "PLATE"
+      ],
+      "secondary": [
+        "OPENNESS",
+        "CONTINUITY"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 12,
+      "plates": 13,
+      "continuousSurfaces": 0,
+      "circulationPaths": 6,
+      "criterion": "Continuous low-fragmentation hall",
+      "criterionValue": 152.12,
+      "criterionUnit": "ft²",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 754,
+        "triangles": 1504,
+        "components": 1,
+        "horizontalArea": 152.12,
+        "verticalExtent": 2.01,
+        "componentBounds": [
+          {
+            "triangles": 2096,
+            "horizontalArea": 143.82444739092935,
+            "min": [
+              -5.018330715596676,
+              6.6231818484013605,
+              -5.12826706469059
+            ],
+            "max": [
+              9.750000163912773,
+              8.63251209625245,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "category": "office",
+      "typology": "cascaded-terraced-plates",
+      "name": "Cascaded / Terraced Plates",
+      "primary": [
+        "TERRACE",
+        "PLATE"
+      ],
+      "secondary": [
+        "OVERLOOK",
+        "BRIDGE",
+        "SEQUENCE"
+      ],
+      "terrace": true,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 18,
+      "plates": 24,
+      "continuousSurfaces": 0,
+      "circulationPaths": 8,
+      "criterion": "Cascaded connected work levels",
+      "criterionValue": 14,
+      "criterionUnit": "levels",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 4714,
+        "triangles": 9543,
+        "components": 1,
+        "horizontalArea": 614.5,
+        "verticalExtent": 14.26,
+        "componentBounds": [
+          {
+            "triangles": 9995,
+            "horizontalArea": 595.5667933320128,
+            "min": [
+              -9.088575795292854,
+              2.1658666078948023,
+              -5.306074850261211
+            ],
+            "max": [
+              9.750000163912773,
+              16.4249,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "category": "office",
+      "typology": "flat-deep-plan-plate",
+      "name": "Flat Deep-Plan Plate",
+      "primary": [
+        "PLATE",
+        "DEPTH"
+      ],
+      "secondary": [
+        "CONTINUITY"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 12,
+      "plates": 13,
+      "continuousSurfaces": 0,
+      "circulationPaths": 6,
+      "criterion": "Deep horizontal plate",
+      "criterionValue": 147.64,
+      "criterionUnit": "ft²",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 786,
+        "triangles": 1568,
+        "components": 1,
+        "horizontalArea": 147.64,
+        "verticalExtent": 1.93,
+        "componentBounds": [
+          {
+            "triangles": 2160,
+            "horizontalArea": 145.26899283681382,
+            "min": [
+              -5.038577452301979,
+              6.623181830532846,
+              -5.210748560726643
+            ],
+            "max": [
+              9.750000163912773,
+              8.549657552235825,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "category": "office",
+      "typology": "void-edge-workspace",
+      "name": "Void-Edge Workspace",
+      "primary": [
+        "VOID",
+        "EDGE"
+      ],
+      "secondary": [
+        "PLATE",
+        "BRIDGE",
+        "OVERLOOK"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 18,
+      "plates": 15,
+      "continuousSurfaces": 0,
+      "circulationPaths": 8,
+      "criterion": "Occupied void edges",
+      "criterionValue": 3,
+      "criterionUnit": "edges",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 2778,
+        "triangles": 5581,
+        "components": 1,
+        "horizontalArea": 344.65,
+        "verticalExtent": 9.3,
+        "componentBounds": [
+          {
+            "triangles": 6069,
+            "horizontalArea": 327.76723106803695,
+            "min": [
+              -7.009710058569908,
+              3.7000262581844696,
+              -4.077608577907085
+            ],
+            "max": [
+              9.750000163912773,
+              13.0003,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "category": "office",
+      "typology": "folded-undulating-work-surface",
+      "name": "Folded / Undulating Work Surface",
+      "primary": [
+        "FOLD",
+        "TOPOGRAPH",
+        "PLATE"
+      ],
+      "secondary": [
+        "CONTINUITY"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 13,
+      "plates": 14,
+      "continuousSurfaces": 3,
+      "circulationPaths": 8,
+      "criterion": "Continuous folded surface",
+      "criterionValue": 11.6,
+      "criterionUnit": "ft rise",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 3978,
+        "triangles": 7980,
+        "components": 1,
+        "horizontalArea": 543.35,
+        "verticalExtent": 11.6,
+        "componentBounds": [
+          {
+            "triangles": 8430,
+            "horizontalArea": 514.3307350692739,
+            "min": [
+              -7.713347032666206,
+              2.815107003410973,
+              -4.828782148659229
+            ],
+            "max": [
+              9.750000163912773,
+              14.4131,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "category": "lobby",
+      "typology": "vertical-void-lobby",
+      "name": "Vertical Void Lobby",
+      "primary": [
+        "VOID",
+        "VERTICALIZE"
+      ],
+      "secondary": [
+        "OVERLOOK",
+        "BRIDGE",
+        "SEQUENCE"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 16,
+      "plates": 16,
+      "continuousSurfaces": 0,
+      "circulationPaths": 8,
+      "criterion": "Vertically continuous void",
+      "criterionValue": 12.56,
+      "criterionUnit": "ft",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 3558,
+        "triangles": 7195,
+        "components": 1,
+        "horizontalArea": 436.99,
+        "verticalExtent": 12.56,
+        "componentBounds": [
+          {
+            "triangles": 7655,
+            "horizontalArea": 422.25801751722133,
+            "min": [
+              -6.87632130086422,
+              2.4711506125235942,
+              -3.9346486181020737
+            ],
+            "max": [
+              9.750000163912773,
+              15.0271,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "category": "lobby",
+      "typology": "compressed-sequential-lobby",
+      "name": "Compressed Sequential Lobby",
+      "primary": [
+        "SEQUENCE"
+      ],
+      "secondary": [
+        "LINEARIZE",
+        "ENCLOSE",
+        "OPENNESS"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 14,
+      "plates": 16,
+      "continuousSurfaces": 0,
+      "circulationPaths": 6,
+      "criterion": "Compression / expansion sequence",
+      "criterionValue": 9,
+      "criterionUnit": "transitions",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 2530,
+        "triangles": 5062,
+        "components": 1,
+        "horizontalArea": 321.81,
+        "verticalExtent": 9.29,
+        "componentBounds": [
+          {
+            "triangles": 5642,
+            "horizontalArea": 304.7936713196662,
+            "min": [
+              -8.32331469655037,
+              3.7120406588646144,
+              -4.349726103246212
+            ],
+            "max": [
+              9.750000163912773,
+              13.0003,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "category": "lobby",
+      "typology": "continuous-hall-lobby",
+      "name": "Continuous Hall Lobby",
+      "primary": [
+        "LINEARIZE",
+        "CONTINUITY"
+      ],
+      "secondary": [
+        "PLATE",
+        "SEQUENCE"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 12,
+      "plates": 14,
+      "continuousSurfaces": 1,
+      "circulationPaths": 6,
+      "criterion": "Continuous directional hall",
+      "criterionValue": 14.28,
+      "criterionUnit": "ft path",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 2556,
+        "triangles": 5117,
+        "components": 1,
+        "horizontalArea": 357.32,
+        "verticalExtent": 9.29,
+        "componentBounds": [
+          {
+            "triangles": 5673,
+            "horizontalArea": 341.83491777389577,
+            "min": [
+              -8.329312115907669,
+              3.713833081568688,
+              -4.940665416419506
+            ],
+            "max": [
+              9.750000163912773,
+              13.0003,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "category": "lobby",
+      "typology": "topographic-ground-field-lobby",
+      "name": "Topographic / Ground-Field Lobby",
+      "primary": [
+        "TOPOGRAPH",
+        "FIELD"
+      ],
+      "secondary": [
+        "SEQUENCE",
+        "BRIDGE",
+        "PLATE"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 13,
+      "plates": 14,
+      "continuousSurfaces": 3,
+      "circulationPaths": 8,
+      "criterion": "Integrated topographic movement",
+      "criterionValue": 13.02,
+      "criterionUnit": "ft rise",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 4046,
+        "triangles": 8133,
+        "components": 1,
+        "horizontalArea": 551.95,
+        "verticalExtent": 13.02,
+        "componentBounds": [
+          {
+            "triangles": 8573,
+            "horizontalArea": 525.8721291151268,
+            "min": [
+              -7.716304734349251,
+              2.299931613803265,
+              -4.828782148659229
+            ],
+            "max": [
+              9.750000163912773,
+              15.316,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "category": "lobby",
+      "typology": "linear-gallery-lobby",
+      "name": "Linear Gallery Lobby",
+      "primary": [
+        "LINEARIZE",
+        "SEQUENCE"
+      ],
+      "secondary": [
+        "EDGE",
+        "OVERLOOK"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 6,
+      "principalVoids": 12,
+      "plates": 15,
+      "continuousSurfaces": 0,
+      "circulationPaths": 6,
+      "criterion": "Longitudinal sequential continuity",
+      "criterionValue": 2.64,
+      "criterionUnit": "ratio",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 2508,
+        "triangles": 5023,
+        "components": 1,
+        "horizontalArea": 329.28,
+        "verticalExtent": 9.28,
+        "componentBounds": [
+          {
+            "triangles": 5602,
+            "horizontalArea": 315.04307648487827,
+            "min": [
+              -8.569134563207626,
+              3.715778816495777,
+              -4.38843797147274
+            ],
+            "max": [
+              9.750000163912773,
+              13.0003,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

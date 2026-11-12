@@ -1,0 +1,142 @@
+{
+  "setup": {
+    "mode": "combined",
+    "seed": 2041,
+    "sourceObjects": 12,
+    "scale": 0.72,
+    "descriptorProfile": "shared matrix profile"
+  },
+  "passed": 1,
+  "failed": [],
+  "rows": [
+    {
+      "category": "lobby",
+      "typology": "vertical-void-lobby",
+      "name": "Vertical Void Lobby",
+      "primary": [
+        "VOID",
+        "VERTICALIZE"
+      ],
+      "secondary": [
+        "OVERLOOK",
+        "BRIDGE",
+        "SEQUENCE"
+      ],
+      "terrace": false,
+      "components": 4,
+      "occupiedRegions": 4,
+      "principalVoids": 1,
+      "plates": 4,
+      "continuousSurfaces": 0,
+      "circulationPaths": 48,
+      "rawTopology": {
+        "occupiedRegions": 4,
+        "discretePlates": 4,
+        "continuousSurfaces": 0,
+        "principalVoids": 1,
+        "typologySpecificElements": [
+          "primary-space-arrival",
+          "void-overlook-#"
+        ],
+        "terraceActive": false
+      },
+      "criterion": "Vertically continuous void",
+      "criterionValue": 24.03,
+      "criterionUnit": "ft",
+      "criterionPassed": true,
+      "validationScore": 80,
+      "valid": false,
+      "failures": [
+        "The occupied levels do not form one continuous circulation system."
+      ],
+      "geometry": {
+        "vertices": 7898,
+        "triangles": 15401,
+        "components": 4,
+        "horizontalArea": 1362.85,
+        "verticalExtent": 24.03,
+        "componentBounds": [
+          {
+            "triangles": 5265,
+            "horizontalArea": 439.9122081839579,
+            "min": [
+              -7.501190885901451,
+              7.1250075880366275,
+              -8.039919972419739
+            ],
+            "max": [
+              7.655800640583038,
+              15.13305330747235,
+              8.257799297571182
+            ]
+          },
+          {
+            "triangles": 4864,
+            "horizontalArea": 430.1925288963525,
+            "min": [
+              -7.605611339211464,
+              -0.08364913383385497,
+              -8.10251995921135
+            ],
+            "max": [
+              7.649955719709396,
+              6.764934737030423,
+              8.257799297571182
+            ]
+          },
+          {
+            "triangles": 3717,
+            "horizontalArea": 287.61902049092225,
+            "min": [
+              -7.549908384680748,
+              15.412288489281933,
+              -8.057987838983536
+            ],
+            "max": [
+              7.6137533485889435,
+              22.30423916928605,
+              8.257799297571182
+            ]
+          },
+          {
+            "triangles": 2130,
+            "horizontalArea": 185.48693667932662,
+            "min": [
+              -7.549478441476822,
+              -1.7256314982978753,
+              -8.045416966080666
+            ],
+            "max": [
+              9.750000163912773,
+              -0.24616515596395772,
+              9.750000163912773
+            ]
+          }
+        ]
+      },
+      "interlocking": [
+        {
+          "count": 2,
+          "valid": false,
+          "failures": [
+            "The source tile circulation is discontinuous."
+          ]
+        },
+        {
+          "count": 4,
+          "valid": false,
+          "failures": [
+            "The source tile circulation is discontinuous."
+          ]
+        },
+        {
+          "count": 8,
+          "valid": false,
+          "failures": [
+            "The source tile circulation is discontinuous."
+          ]
+        }
+      ]
+    }
+  ]
+}

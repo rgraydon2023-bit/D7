@@ -1,0 +1,138 @@
+{
+  "fixture": "full-domain-validation/fixture.json",
+  "typology": "O3 — Flat Deep-Plan Plate",
+  "results": [
+    {
+      "mode": "letters",
+      "sourceComponentsBeforeUnion": 192,
+      "sourceComponentsAfterUnion": 192,
+      "disconnectedSourceGroups": 12,
+      "sourceExtent": [
+        16.718569928649977,
+        12.275016274622523,
+        7.724310297156299
+      ],
+      "architectureExtent": [
+        19.777420699596405,
+        17.345732420682907,
+        1.3541212409734724
+      ],
+      "volumetricRepresentation": "Transformed slice prisms + connected void-cell volumes + SDF union",
+      "relationshipGraphEdges": 191,
+      "architecturalConnectors": 41,
+      "finalMeshComponents": 1,
+      "componentBounds": [
+        {
+          "triangles": 18164,
+          "horizontalArea": 480.7433729216932,
+          "min": [
+            -9.699295699596405,
+            2.7201387017965315,
+            -7.267607420682907
+          ],
+          "max": [
+            10.078125,
+            4.074259942770004,
+            10.078125
+          ]
+        }
+      ],
+      "continuousCirculation": true,
+      "fullVolumetricSourceUsed": true,
+      "graphUsedAsSecondaryOrganizer": true,
+      "unifiedSourceElements": 192,
+      "primaryElementsBeforeConnections": 15,
+      "perturbationChangedPrimaryGeometry": true,
+      "failures": [],
+      "architecturalFailures": []
+    },
+    {
+      "mode": "voids",
+      "sourceComponentsBeforeUnion": 32,
+      "sourceComponentsAfterUnion": 2,
+      "disconnectedSourceGroups": 2,
+      "sourceExtent": [
+        12,
+        8.268556453872122,
+        7.086685062538778
+      ],
+      "architectureExtent": [
+        19.010219410061836,
+        17.50397266447544,
+        1.2610952317714688
+      ],
+      "volumetricRepresentation": "Transformed slice prisms + connected void-cell volumes + SDF union",
+      "relationshipGraphEdges": 110,
+      "architecturalConnectors": 11,
+      "finalMeshComponents": 1,
+      "componentBounds": [
+        {
+          "triangles": 11544,
+          "horizontalArea": 155.3993393654142,
+          "min": [
+            -8.932094410061836,
+            2.7638934433460234,
+            -7.425847664475441
+          ],
+          "max": [
+            10.078125,
+            4.024988675117492,
+            10.078125
+          ]
+        }
+      ],
+      "continuousCirculation": true,
+      "fullVolumetricSourceUsed": true,
+      "graphUsedAsSecondaryOrganizer": true,
+      "unifiedSourceElements": 2,
+      "primaryElementsBeforeConnections": 5,
+      "perturbationChangedPrimaryGeometry": true,
+      "failures": [],
+      "architecturalFailures": []
+    },
+    {
+      "mode": "combined",
+      "sourceComponentsBeforeUnion": 224,
+      "sourceComponentsAfterUnion": 194,
+      "disconnectedSourceGroups": 12,
+      "sourceExtent": [
+        16.718569928649977,
+        12.275016274622523,
+        7.724310297156299
+      ],
+      "architectureExtent": [
+        19.777414932847023,
+        17.345777913928032,
+        1.3242724388837814
+      ],
+      "volumetricRepresentation": "Transformed slice prisms + connected void-cell volumes + SDF union",
+      "relationshipGraphEdges": 333,
+      "architecturalConnectors": 41,
+      "finalMeshComponents": 1,
+      "componentBounds": [
+        {
+          "triangles": 18353,
+          "horizontalArea": 335.1216506217257,
+          "min": [
+            -9.699289932847023,
+            2.7348104387521737,
+            -7.267652913928032
+          ],
+          "max": [
+            10.078125,
+            4.059082877635955,
+            10.078125
+          ]
+        }
+      ],
+      "continuousCirculation": true,
+      "fullVolumetricSourceUsed": true,
+      "graphUsedAsSecondaryOrganizer": true,
+      "unifiedSourceElements": 194,
+      "primaryElementsBeforeConnections": 17,
+      "perturbationChangedPrimaryGeometry": true,
+      "failures": [],
+      "architecturalFailures": []
+    }
+  ]
+}

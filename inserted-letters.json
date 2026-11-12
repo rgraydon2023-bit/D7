@@ -1,0 +1,64 @@
+{
+  "setup": {
+    "mode": "letters",
+    "seed": 2041,
+    "sourceObjects": 12,
+    "scale": 0.72,
+    "descriptorProfile": "shared matrix profile"
+  },
+  "passed": 1,
+  "failed": [],
+  "rows": [
+    {
+      "category": "gathering",
+      "typology": "inserted-horizontal-plate",
+      "name": "Inserted Horizontal Plate",
+      "primary": [
+        "PLATE",
+        "PROJECT"
+      ],
+      "secondary": [
+        "VOID",
+        "BRIDGE",
+        "OVERLOOK"
+      ],
+      "terrace": false,
+      "components": 1,
+      "occupiedRegions": 8,
+      "principalVoids": 9,
+      "plates": 19,
+      "continuousSurfaces": 0,
+      "circulationPaths": 9,
+      "criterion": "Inserted plate projections",
+      "criterionValue": 2,
+      "criterionUnit": "plates",
+      "criterionPassed": true,
+      "validationScore": 100,
+      "valid": true,
+      "failures": [],
+      "geometry": {
+        "vertices": 2577,
+        "triangles": 5177,
+        "components": 1,
+        "horizontalArea": 343.94,
+        "verticalExtent": 10.4,
+        "componentBounds": [
+          {
+            "triangles": 5682,
+            "horizontalArea": 330.24955570436646,
+            "min": [
+              -4.359942220151424,
+              3.221852101174651,
+              -4.73411775380373
+            ],
+            "max": [
+              9.750000163912773,
+              13.6205,
+              9.750000163912773
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

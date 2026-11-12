@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import Providers from "@/components/Providers";
+import BoardMode from "@/components/BoardMode";
 import "./globals.css";
 
 const plexSans = localFont({
@@ -38,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${plexSans.variable} ${plexMono.variable} antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers><BoardMode>{children}</BoardMode></Providers>
       </body>
     </html>
   );

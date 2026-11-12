@@ -70,7 +70,7 @@ export default function CropEvalGrid({
               className="flex flex-col overflow-hidden rounded-lg border"
               style={{
                 borderColor: ev.passes ? "rgba(61, 214, 219, 0.35)" : "var(--line)",
-                background: "#050505",
+                background: "var(--input-background)",
               }}
               title={`${sourceLabel(ev)} · ${ev.reasons.join(" · ")}`}
             >

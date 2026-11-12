@@ -1,0 +1,182 @@
+[
+  {
+    "typology": "contained-room-within-volume",
+    "mode": "letters",
+    "tests": {
+      "assignedMove": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 1,
+        "afterElements": 1
+      },
+      "assignedRemoval": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 1,
+        "afterElements": 1
+      }
+    }
+  },
+  {
+    "typology": "contained-room-within-volume",
+    "mode": "voids",
+    "tests": {
+      "assignedMove": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 1,
+        "afterElements": 1
+      },
+      "assignedRemoval": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 1,
+        "afterElements": 1
+      }
+    }
+  },
+  {
+    "typology": "contained-room-within-volume",
+    "mode": "combined",
+    "tests": {
+      "assignedMove": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 1,
+        "afterElements": 1
+      },
+      "assignedRemoval": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 1,
+        "afterElements": 1
+      }
+    }
+  },
+  {
+    "typology": "flat-deep-plan-plate",
+    "mode": "letters",
+    "tests": {
+      "assignedMove": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 1,
+        "afterElements": 1
+      },
+      "assignedRemoval": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 1,
+        "afterElements": 1
+      }
+    }
+  },
+  {
+    "typology": "flat-deep-plan-plate",
+    "mode": "voids",
+    "tests": {
+      "assignedMove": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 3,
+        "afterElements": 3
+      },
+      "assignedRemoval": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 3,
+        "afterElements": 3
+      }
+    }
+  },
+  {
+    "typology": "flat-deep-plan-plate",
+    "mode": "combined",
+    "tests": {
+      "assignedMove": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 3,
+        "afterElements": 3
+      },
+      "assignedRemoval": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 3,
+        "afterElements": 3
+      }
+    }
+  },
+  {
+    "typology": "vertical-void-lobby",
+    "mode": "letters",
+    "tests": {
+      "assignedMove": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 3,
+        "afterElements": 3
+      },
+      "assignedRemoval": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 3,
+        "afterElements": 3
+      }
+    }
+  },
+  {
+    "typology": "vertical-void-lobby",
+    "mode": "voids",
+    "tests": {
+      "assignedMove": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 3,
+        "afterElements": 3
+      },
+      "assignedRemoval": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 3,
+        "afterElements": 4
+      }
+    }
+  },
+  {
+    "typology": "vertical-void-lobby",
+    "mode": "combined",
+    "tests": {
+      "assignedMove": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 3,
+        "afterElements": 3
+      },
+      "assignedRemoval": {
+        "actualTargetGeometryChanged": true,
+        "identityAndProvenanceExcluded": true,
+        "unsupported": false,
+        "baselineElements": 3,
+        "afterElements": 3
+      }
+    }
+  }
+]

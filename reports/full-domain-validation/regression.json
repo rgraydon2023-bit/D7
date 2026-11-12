@@ -1,0 +1,20 @@
+{
+  "rows": [
+    {
+      "typology": "stepped-amphitheater",
+      "identical": true,
+      "hash": "698cf84ca610371cfdc17ff63f0998bf5592438275747d7829858550c6433042"
+    },
+    {
+      "typology": "void-field-gathering",
+      "identical": true,
+      "hash": "a3965a9f6fbda32814767a9e271f6dd9154af05a00a243575343e0ebde175d18"
+    },
+    {
+      "typology": "open-hall-workspace",
+      "identical": true,
+      "hash": "bcec36fbb32cdc96a002106b88917c775604f7417b4e005f7109516e0e070900"
+    }
+  ],
+  "emptyVoidGuard": true
+}

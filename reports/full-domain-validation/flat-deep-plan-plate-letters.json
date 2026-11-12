@@ -1,0 +1,71 @@
+{
+  "typology": "flat-deep-plan-plate",
+  "mode": "letters",
+  "ms": 4266,
+  "diagnostic": {
+    "componentsAvailable": 192,
+    "componentsUsed": 192,
+    "relationshipsAvailable": 191,
+    "relationshipsUsed": 191,
+    "detailSamples": 0,
+    "source": [
+      16.718569928649977,
+      12.275016274622523,
+      7.724310297156299
+    ],
+    "organization": "Full-domain continuous workplace / one occupied datum",
+    "raw": [
+      16.723127971289895,
+      12.12191540994451,
+      0.7999999999999998
+    ],
+    "final": [
+      16.52138713002205,
+      12.404376596212387,
+      1.2016816962047887
+    ]
+  },
+  "raw": {
+    "occupiedRegions": 1,
+    "discretePlates": 1,
+    "continuousSurfaces": 0,
+    "principalVoids": 1,
+    "typologySpecificElements": [
+      "primary-space-deep-field"
+    ],
+    "terraceActive": false
+  },
+  "components": 1,
+  "presentationComponents": 1,
+  "validation": {
+    "gatheringSpace": {
+      "passed": true,
+      "area": 192.88939965686714
+    },
+    "steppedPlatforms": {
+      "passed": true,
+      "levels": 1
+    },
+    "circulation": {
+      "passed": true,
+      "coverage": 100
+    },
+    "usableHorizontalSurfaces": {
+      "passed": true,
+      "area": 394.66211875129585
+    },
+    "preservedOpenSpaces": {
+      "passed": true,
+      "area": 28.324817347597996
+    },
+    "typologyCriterion": {
+      "label": "Deep horizontal plate",
+      "passed": true,
+      "value": 394.66211875129585,
+      "unit": "ft²"
+    },
+    "score": 100,
+    "valid": true,
+    "failures": []
+  }
+}

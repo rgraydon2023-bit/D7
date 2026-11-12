@@ -1,0 +1,334 @@
+{
+  "rows": [
+    {
+      "typology": "contained-room-within-volume",
+      "mode": "letters",
+      "lineageValid": true,
+      "descriptorGeometryChanged": true,
+      "diagnostic": {
+        "componentsAvailable": 224,
+        "componentsUsed": 19,
+        "relationshipsAvailable": 333,
+        "relationshipsUsed": 17,
+        "detailSamples": 0,
+        "lettersAvailable": 192,
+        "lettersAssigned": 38,
+        "voidsAvailable": 32,
+        "voidsAssigned": 5,
+        "provenanceElements": 65,
+        "fallbackElements": 4,
+        "source": [
+          16.718569928649977,
+          12.275016274622523,
+          7.724310297156299
+        ],
+        "organization": "Source-cluster room / full-domain enclosure / assigned interstitial voids",
+        "raw": [
+          16.723127971289895,
+          12.12191540994451,
+          12.8
+        ],
+        "final": [
+          17.596440315246582,
+          12.933912754058838,
+          12.85000029206276
+        ]
+      }
+    },
+    {
+      "typology": "contained-room-within-volume",
+      "mode": "voids",
+      "lineageValid": true,
+      "descriptorGeometryChanged": true,
+      "diagnostic": {
+        "componentsAvailable": 224,
+        "componentsUsed": 6,
+        "relationshipsAvailable": 333,
+        "relationshipsUsed": 6,
+        "detailSamples": 0,
+        "lettersAvailable": 192,
+        "lettersAssigned": 30,
+        "voidsAvailable": 32,
+        "voidsAssigned": 6,
+        "provenanceElements": 46,
+        "fallbackElements": 4,
+        "source": [
+          12,
+          8.268556453872122,
+          7.086685062538778
+        ],
+        "organization": "Source-cluster room / full-domain enclosure / assigned interstitial voids",
+        "raw": [
+          11.847586433062528,
+          8.042089937972992,
+          12.8
+        ],
+        "final": [
+          12.598312854766846,
+          8.043341875076294,
+          12.850000008940697
+        ]
+      }
+    },
+    {
+      "typology": "contained-room-within-volume",
+      "mode": "combined",
+      "lineageValid": true,
+      "descriptorGeometryChanged": true,
+      "diagnostic": {
+        "componentsAvailable": 224,
+        "componentsUsed": 20,
+        "relationshipsAvailable": 333,
+        "relationshipsUsed": 17,
+        "detailSamples": 0,
+        "lettersAvailable": 192,
+        "lettersAssigned": 44,
+        "voidsAvailable": 32,
+        "voidsAssigned": 6,
+        "provenanceElements": 66,
+        "fallbackElements": 4,
+        "source": [
+          16.718569928649977,
+          12.275016274622523,
+          7.724310297156299
+        ],
+        "organization": "Source-cluster room / full-domain enclosure / assigned interstitial voids",
+        "raw": [
+          16.7309444383886,
+          12.120964412376477,
+          12.8
+        ],
+        "final": [
+          17.601840019226074,
+          12.942733764648438,
+          12.85000029206276
+        ]
+      }
+    },
+    {
+      "typology": "flat-deep-plan-plate",
+      "mode": "letters",
+      "lineageValid": true,
+      "descriptorGeometryChanged": true,
+      "diagnostic": {
+        "componentsAvailable": 224,
+        "componentsUsed": 12,
+        "relationshipsAvailable": 333,
+        "relationshipsUsed": 11,
+        "detailSamples": 0,
+        "lettersAvailable": 192,
+        "lettersAssigned": 27,
+        "voidsAvailable": 32,
+        "voidsAssigned": 4,
+        "provenanceElements": 29,
+        "fallbackElements": 4,
+        "source": [
+          16.718569928649977,
+          12.275016274622523,
+          7.724310297156299
+        ],
+        "organization": "Full-domain plate / assigned source courtyards / graph routes",
+        "raw": [
+          16.723127971289895,
+          12.12191540994451,
+          0.7999999999999998
+        ],
+        "final": [
+          17.596440315246582,
+          12.933912754058838,
+          0.8999998569488525
+        ]
+      }
+    },
+    {
+      "typology": "flat-deep-plan-plate",
+      "mode": "voids",
+      "lineageValid": true,
+      "descriptorGeometryChanged": true,
+      "diagnostic": {
+        "componentsAvailable": 224,
+        "componentsUsed": 11,
+        "relationshipsAvailable": 333,
+        "relationshipsUsed": 11,
+        "detailSamples": 0,
+        "lettersAvailable": 192,
+        "lettersAssigned": 48,
+        "voidsAvailable": 32,
+        "voidsAssigned": 11,
+        "provenanceElements": 34,
+        "fallbackElements": 4,
+        "source": [
+          12,
+          8.268556453872122,
+          7.086685062538778
+        ],
+        "organization": "Full-domain plate / assigned source courtyards / graph routes",
+        "raw": [
+          11.847586433062528,
+          8.042089937972992,
+          0.8000000000000003
+        ],
+        "final": [
+          12.598312854766846,
+          9.11779499053955,
+          0.8999998569488525
+        ]
+      }
+    },
+    {
+      "typology": "flat-deep-plan-plate",
+      "mode": "combined",
+      "lineageValid": true,
+      "descriptorGeometryChanged": true,
+      "diagnostic": {
+        "componentsAvailable": 224,
+        "componentsUsed": 20,
+        "relationshipsAvailable": 333,
+        "relationshipsUsed": 20,
+        "detailSamples": 0,
+        "lettersAvailable": 192,
+        "lettersAssigned": 59,
+        "voidsAvailable": 32,
+        "voidsAssigned": 12,
+        "provenanceElements": 91,
+        "fallbackElements": 4,
+        "source": [
+          16.718569928649977,
+          12.275016274622523,
+          7.724310297156299
+        ],
+        "organization": "Full-domain plate / assigned source courtyards / graph routes",
+        "raw": [
+          16.7309444383886,
+          12.120964412376477,
+          0.8000000000000003
+        ],
+        "final": [
+          17.601840019226074,
+          13.022576808929443,
+          0.8999998569488525
+        ]
+      }
+    },
+    {
+      "typology": "vertical-void-lobby",
+      "mode": "letters",
+      "lineageValid": true,
+      "descriptorGeometryChanged": true,
+      "diagnostic": {
+        "componentsAvailable": 224,
+        "componentsUsed": 87,
+        "relationshipsAvailable": 333,
+        "relationshipsUsed": 56,
+        "detailSamples": 0,
+        "lettersAvailable": 192,
+        "lettersAssigned": 75,
+        "voidsAvailable": 32,
+        "voidsAssigned": 12,
+        "provenanceElements": 15,
+        "fallbackElements": 4,
+        "source": [
+          16.718569928649977,
+          12.275016274622523,
+          7.724310297156299
+        ],
+        "organization": "Source-assigned atrium chain / sectional occupied levels / graph-based ascent",
+        "raw": [
+          13.671539496651167,
+          13.698170237939474,
+          9.35
+        ],
+        "final": [
+          13.74563980102539,
+          13.654539108276367,
+          9.400000482797623
+        ]
+      }
+    },
+    {
+      "typology": "vertical-void-lobby",
+      "mode": "voids",
+      "lineageValid": true,
+      "descriptorGeometryChanged": true,
+      "diagnostic": {
+        "componentsAvailable": 224,
+        "componentsUsed": 3,
+        "relationshipsAvailable": 333,
+        "relationshipsUsed": 2,
+        "detailSamples": 0,
+        "lettersAvailable": 192,
+        "lettersAssigned": 16,
+        "voidsAvailable": 32,
+        "voidsAssigned": 3,
+        "provenanceElements": 15,
+        "fallbackElements": 4,
+        "source": [
+          12,
+          8.268556453872122,
+          7.086685062538778
+        ],
+        "organization": "Source-assigned atrium chain / sectional occupied levels / graph-based ascent",
+        "raw": [
+          11.847586433062528,
+          8.042089937972992,
+          9.35
+        ],
+        "final": [
+          11.847604274749756,
+          8.043341875076294,
+          9.40000019967556
+        ]
+      }
+    },
+    {
+      "typology": "vertical-void-lobby",
+      "mode": "combined",
+      "lineageValid": true,
+      "descriptorGeometryChanged": true,
+      "diagnostic": {
+        "componentsAvailable": 224,
+        "componentsUsed": 12,
+        "relationshipsAvailable": 333,
+        "relationshipsUsed": 2,
+        "detailSamples": 0,
+        "lettersAvailable": 192,
+        "lettersAssigned": 55,
+        "voidsAvailable": 32,
+        "voidsAssigned": 12,
+        "provenanceElements": 15,
+        "fallbackElements": 4,
+        "source": [
+          16.718569928649977,
+          12.275016274622523,
+          7.724310297156299
+        ],
+        "organization": "Source-assigned atrium chain / sectional occupied levels / graph-based ascent",
+        "raw": [
+          16.7309444383886,
+          12.120964412376477,
+          9.35
+        ],
+        "final": [
+          16.793310165405273,
+          12.164373874664307,
+          9.400000482797623
+        ]
+      }
+    }
+  ],
+  "unsupportedChainAllModes": true,
+  "legacy": [
+    {
+      "typology": "stepped-amphitheater",
+      "previewMeshUnchanged": true
+    },
+    {
+      "typology": "void-field-gathering",
+      "previewMeshUnchanged": true
+    },
+    {
+      "typology": "open-hall-workspace",
+      "previewMeshUnchanged": true
+    }
+  ]
+}
